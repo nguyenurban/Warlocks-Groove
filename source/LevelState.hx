@@ -4,21 +4,17 @@ import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.FlxSubState;
 import flixel.addons.display.shapes.*;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
-import flixel.addons.editors.tiled.TiledMap;
-import flixel.addons.editors.tiled.TiledObjectLayer;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxPoint;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import flixel.util.FlxSignal.FlxTypedSignal;
-import flixel.util.FlxSpriteUtil.DrawStyle;
 import flixel.util.FlxTimer;
-import js.html.DOMRectReadOnly;
 
 using flixel.math.FlxPoint;
 using flixel.util.FlxSpriteUtil;
@@ -68,6 +64,7 @@ class LevelState extends FlxState
 
 	// NEXT LEVEL STATES
 	var nextLevel:Class<LevelState>;
+	var lvlPopup:Bool;
 
 	// where to put this?
 	private var _music:FlxSound;
@@ -196,6 +193,7 @@ class LevelState extends FlxState
 		judge_timer = 0;
 		beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		beat_sound.volume = 0.3;
+		lvlPopup = false;
 	}
 
 	override function update(elapsed:Float)
@@ -261,6 +259,12 @@ class LevelState extends FlxState
 			for (d in _doors)
 			{
 				d.unlock();
+			}
+			final lvlCompPop = new LvlCompletePopup();
+			if (!lvlPopup && nextLevel != RoomTwo)
+			{
+				openSubState(lvlCompPop);
+				lvlPopup = true;
 			}
 		}
 
@@ -725,5 +729,58 @@ class LevelState extends FlxState
 	public function playBeat()
 	{
 		beat_sound.play();
+	}
+}
+
+class LvlCompletePopup extends FlxSubState
+{
+	private var _timebar:FlxBar;
+	private var timer:FlxTimer;
+
+	public function new()
+	{
+		super(0x61000000);
+	}
+
+	override public function create()
+	{
+		super.create();
+		final boundingBox = new FlxSprite();
+		boundingBox.makeGraphic(460, 197, 0xff428bbf);
+		boundingBox.screenCenter(XY);
+		boundingBox.scrollFactor.set(0, 0);
+		add(boundingBox);
+
+		final text = new FlxText(0, (boundingBox.y + 45), 0, "Level Complete", 25);
+		text.screenCenter(X);
+		text.scrollFactor.set(0, 0);
+		add(text);
+
+		final endText = new FlxText(0, (boundingBox.y + 135), 0, "Go through the door to continue.", 15);
+		endText.screenCenter(X);
+		endText.scrollFactor.set(0, 0);
+		add(endText);
+
+		_timebar = new FlxBar(350, 430, HORIZONTAL_INSIDE_OUT, 400, 10, null, "time", 0, 300, true);
+		_timebar.screenCenter(X);
+		_timebar.createFilledBar(0xff428bbf, FlxColor.WHITE, true);
+		_timebar.scrollFactor.set(0, 0);
+		add(_timebar);
+
+		timer = new FlxTimer();
+		timer.start(3, function(Timer:FlxTimer)
+		{
+			close();
+		}, 1);
+	}
+
+	override function update(elapsed:Float)
+	{
+		super.update(elapsed);
+		if (FlxG.keys.justPressed.SPACE)
+		{
+			close();
+		}
+		_timebar.value = cast(timer.timeLeft * 100);
 	}
 }
