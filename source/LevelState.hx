@@ -154,6 +154,7 @@ class LevelState extends FlxState
 	override function create()
 	{
 		super.create();
+		FlxG.worldBounds.set(-65536, -65536, 65536 * 2, 65536 * 2);
 		_player = new Player(50, 50);
 		add(_player);
 		FlxG.camera.follow(_player, TOPDOWN, 1);
@@ -196,8 +197,8 @@ class LevelState extends FlxState
 			judge_sprite.visible = false;
 		}
 		judge_sprite.x = _player.x - 100;
-		judge_sprite.y = _player.y - 50;
-		judge_sprite.setGraphicSize(0, 15);
+		judge_sprite.y = _player.y + 50;
+		judge_sprite.setGraphicSize(0, 10);
 		_healthbar.value = _player.health;
 		_energybar.value = _player.getEnergy();
 		if (_healthbar.value == 100)
@@ -229,28 +230,11 @@ class LevelState extends FlxState
 
 		// updateDebugTexts();
 
-		LevelStats.update(elapsed);
-		// timer += elapsed;
-		// beat += elapsed / qtr_note;
-		// number of notes of smallest denomination that have elapsed so far
-		// shortest_notes_elpsd = Math.floor(timer / shortest_note_len);
-		if (LevelStats.shortest_notes_elpsd > LevelStats.prev_sne)
-		{
-			if (LevelStats.shortest_notes_elpsd % LevelStats.snpq == 0)
-			{
-				playBeat();
-			}
-			if (LevelStats.shortest_notes_elpsd % LevelStats.tick_format.length == 0)
-			{
-				_player.barRegen();
-			}
-		}
-
 		// updateTicks();
-		for (i in LevelStats._ticks)
-		{
-			i.x = (i.getTick() * LevelStats.shortest_note_len - LevelStats.timer) * LevelStats.scroll_mul + LevelStats.TICK_X_OFFSET;
-		}
+		// for (i in LevelStats._ticks)
+		// {
+		// 	i.x = (i.getTick() * LevelStats.shortest_note_len - LevelStats.timer) * LevelStats.scroll_mul + LevelStats.TICK_X_OFFSET;
+		// }
 		_monsters.forEach(handleMonsterFire);
 		// _projectiles.forEach(handleProjectileRaycasts);
 		if (_monsters.countLiving() <= 0)
@@ -286,6 +270,22 @@ class LevelState extends FlxState
 		FlxG.collide(_player, _doors, levelComplete);
 		super.update(elapsed);
 		FlxG.collide(_player, walls);
+		LevelStats.update(elapsed);
+		// timer += elapsed;
+		// beat += elapsed / qtr_note;
+		// number of notes of smallest denomination that have elapsed so far
+		// shortest_notes_elpsd = Math.floor(timer / shortest_note_len);
+		if (LevelStats.shortest_notes_elpsd > LevelStats.prev_sne)
+		{
+			if (LevelStats.shortest_notes_elpsd % LevelStats.snpq == 0)
+			{
+				playBeat();
+			}
+			if (LevelStats.shortest_notes_elpsd % LevelStats.tick_format.length == 0)
+			{
+				_player.barRegen();
+			}
+		}
 
 		LevelStats.prev_sne = LevelStats.shortest_notes_elpsd; // this must always be last thing in update()
 	}

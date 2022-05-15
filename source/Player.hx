@@ -31,7 +31,7 @@ class Player extends FlxSprite
 
 		// makeGraphic(20, 20, FlxColor.ORANGE);
 		loadGraphic("assets/images/Characters_Sprite_Sheet.png", true, 32, 32);
-		setSize(8, 8);
+		setSize(24, 24);
 		offset.set(4, 4);
 		drag.x = drag.y = 3000;
 		health = MAX_HEALTH;

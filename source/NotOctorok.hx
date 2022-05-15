@@ -17,10 +17,11 @@ class NotOctorok extends Enemy
 		_dps = 20;
 		_size = 32;
 		_tilemap = tilemap;
+		loadGraphic("assets/images/NotOctorok_Sprite_Sheet.png", true, 16, 16);
 		setSize(_size, _size);
 		scale.set(_size / 16, _size / 16);
+		updateHitbox();
 		chasing = false;
-		loadGraphic("assets/images/NotOctorok_Sprite_Sheet.png", true, 16, 16);
 		setFacingFlip(LEFT, false, false);
 		setFacingFlip(RIGHT, false, false);
 		setFacingFlip(UP, false, false);
