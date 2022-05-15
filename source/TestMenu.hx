@@ -32,6 +32,8 @@ class TestMenu extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
+				Logger.startLevel(1);
+				LevelStats.initialize(1);
 				FlxG.switchState(new RoomOne());
 			});
 		}, "Room 1", 100, 30);
@@ -43,6 +45,8 @@ class TestMenu extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
+				Logger.startLevel(1);
+				LevelStats.initialize(1);
 				FlxG.switchState(new RoomTwo());
 			});
 		}, "Room 2", 100, 30);
@@ -54,6 +58,8 @@ class TestMenu extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
+				Logger.startLevel(1);
+				LevelStats.initialize(1);
 				FlxG.switchState(new RoomThree());
 			});
 		}, "Room 3", 100, 30);
@@ -61,27 +67,67 @@ class TestMenu extends FlxState
 		room3.y = (FlxG.height / 2) - 10;
 		add(room3);
 
-		room4 = new FlxButtonPlus(0, 0, () -> {}, "Room 4", 100, 30);
+		room4 = new FlxButtonPlus(0, 0, () ->
+		{
+			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+			{
+				Logger.startLevel(1);
+				LevelStats.initialize(1);
+				FlxG.switchState(new RoomFour());
+			});
+		}, "Room 4", 100, 30);
 		room4.x = (FlxG.width / 2) - (room4.width / 2) - 150;
 		room4.y = (FlxG.height / 2) + 60;
 		add(room4);
 
-		room5 = new FlxButtonPlus(0, 0, () -> {}, "Room 5", 100, 30);
+		room5 = new FlxButtonPlus(0, 0, () ->
+		{
+			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+			{
+				Logger.startLevel(1);
+				LevelStats.initialize(1);
+				FlxG.switchState(new RoomFive());
+			});
+		}, "Room 5", 100, 30);
 		room5.x = (FlxG.width / 2) - (room5.width / 2) + 150;
 		room5.y = (FlxG.height / 2) - 150;
 		add(room5);
 
-		room6 = new FlxButtonPlus(0, 0, () -> {}, "Room 6", 100, 30);
+		room6 = new FlxButtonPlus(0, 0, () ->
+		{
+			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+			{
+				Logger.startLevel(1);
+				LevelStats.initialize(1);
+				FlxG.switchState(new RoomSix());
+			});
+		}, "Room 6", 100, 30);
 		room6.x = (FlxG.width / 2) - (room6.width / 2) + 150;
 		room6.y = (FlxG.height / 2) - 80;
 		add(room6);
 
-		room7 = new FlxButtonPlus(0, 0, () -> {}, "Room 7", 100, 30);
+		room7 = new FlxButtonPlus(0, 0, () ->
+		{
+			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+			{
+				Logger.startLevel(1);
+				LevelStats.initialize(1);
+				FlxG.switchState(new RoomSeven());
+			});
+		}, "Room 7", 100, 30);
 		room7.x = (FlxG.width / 2) - (room7.width / 2) + 150;
 		room7.y = (FlxG.height / 2) - 10;
 		add(room7);
 
-		room8 = new FlxButtonPlus(0, 0, () -> {}, "Room 8", 100, 30);
+		room8 = new FlxButtonPlus(0, 0, () ->
+		{
+			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+			{
+				Logger.startLevel(1);
+				LevelStats.initialize(1);
+				FlxG.switchState(new RoomEight());
+			});
+		}, "Room 8", 100, 30);
 		room8.x = (FlxG.width / 2) - (room8.width / 2) + 150;
 		room8.y = (FlxG.height / 2) + 60;
 		add(room8);

@@ -281,6 +281,7 @@ class LevelState extends FlxState
 		FlxG.collide(_player, _projectiles, handlePlayerProjectileCollisions);
 		FlxG.overlap(_monsters, _projectiles, handleMonsterProjectileCollisions);
 		FlxG.collide(_monsters, walls);
+		FlxG.collide(_monsters, interactables);
 		FlxG.collide(_projectiles, walls, handleProjectileWallsCollisions);
 		FlxG.collide(_player, _doors, levelComplete);
 		super.update(elapsed);
