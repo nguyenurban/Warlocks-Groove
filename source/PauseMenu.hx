@@ -26,6 +26,7 @@ class PauseMenu extends FlxSubState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
+				Logger.levelEnd("pause exit");
 				FlxG.switchState(new MenuState());
 			});
 		});

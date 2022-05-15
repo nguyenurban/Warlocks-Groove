@@ -1,6 +1,6 @@
 class Logger
 { // LOGGING
-	private static var GAME_KEY = "dbec9d91700db8b32c0b2a1028499a9";
+	private static var GAME_KEY = "8dbec9d91700db8b32c0b2a1028499a9";
 	private static var GAME_NAME = "warlock";
 	private static var GAME_ID = 202201;
 	// should use static functions instead of directly accessing logger's methods in case
@@ -34,6 +34,19 @@ class Logger
 		if (!res)
 		{
 			_logger = null;
+			trace("logger failed");
+		}
+		else
+		{
+			trace("logger started");
+		}
+	}
+
+	public static function startLevel(level:Int)
+	{
+		if (_logger != null)
+		{
+			Logger._logger.logLevelStart(level);
 		}
 	}
 
@@ -50,6 +63,22 @@ class Logger
 		if (_logger != null)
 		{
 			Logger._logger.logLevelAction(LoggingActions.PLAYER_DEATH, Std.string(curr_room) + ", " + Std.string(cause));
+		}
+	}
+
+	public static function levelEnd(cause:String)
+	{
+		if (_logger != null)
+		{
+			Logger._logger.logLevelEnd(cause);
+		}
+	}
+
+	public static function playerShot(type:String, timing:String)
+	{
+		if (_logger != null)
+		{
+			Logger._logger.logLevelAction(LoggingActions.PLAYER_SHOOT, type + ", " + timing);
 		}
 	}
 }

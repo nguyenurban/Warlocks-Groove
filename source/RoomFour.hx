@@ -39,10 +39,9 @@ class RoomFour extends LevelState
 		_projectiles = new FlxTypedGroup<Projectile>();
 		add(_projectiles);
 
-		beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
-		beat_sound.volume = 0.3;
-
-		setShortestNote();
+		// beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
+		// beat_sound.volume = 0.3;
+		// setShortestNote();
 
 		// var line_style_2 = {color: FlxColor.BLACK, thickness: 3.0};
 		// timeline_arw = new FlxShapeArrow(-5, -50, new FlxPoint(10, 50), new FlxPoint(10, 0), 15, line_style_2);
@@ -50,14 +49,14 @@ class RoomFour extends LevelState
 		// var draw_style = {smoothing: true};
 
 		// level_bounds = FlxCollision.createCameraWall(FlxG.camera, true, 1);
-		_hud = new HUD(_player, tick_format, shortest_note_len);
+		_hud = new HUD(_player, LevelStats.tick_format, LevelStats.shortest_note_len);
 		_hud.updateHUD(100, 100);
 		add(_hud);
 
-		timer = 0;
-		beat = 0;
-		shortest_notes_elpsd = 0;
-		prev_sne = 0;
+		// timer = 0;
+		// beat = 0;
+		// shortest_notes_elpsd = 0;
+		// prev_sne = 0;
 		// FlxG.sound.playMusic("assets/music/test.mp3", 0.6, true);
 	}
 

@@ -109,7 +109,11 @@ class RoomOne extends LevelState
 	// disabled mechanics for first room
 	override private function shoot() {}
 
-	override function createTicks() {}
+	override function addTicks() {}
 
-	override function updateTicks() {}
+	override function callUpdateHUD() {}
+
+	override function playBeat() {}
+
+	// override function updateTicks() {}
 }

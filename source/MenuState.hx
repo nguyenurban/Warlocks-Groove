@@ -16,7 +16,7 @@ class MenuState extends FlxState
 
 	override function create()
 	{
-		// Logger.createLogger();
+		Logger.createLogger();
 		bgColor = 0x00000000;
 		title = new FlxText(50, 200, 0, "Warlock's Groove", 18);
 		title.alignment = CENTER;
@@ -51,7 +51,8 @@ class MenuState extends FlxState
 	{
 		FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 		{
-			// Logger._logger.logLevelStart(1);
+			Logger.startLevel(1);
+			LevelStats.initialize(1);
 			FlxG.switchState(new RoomOne());
 		});
 	}
