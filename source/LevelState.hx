@@ -166,6 +166,8 @@ class LevelState extends FlxState
 		add(_player);
 		FlxG.camera.follow(_player, TOPDOWN, 1);
 
+		FlxG.mouse.load("assets/images/crosshair.png", 2, -13, -13);
+
 		_monsters = new FlxTypedGroup<Enemy>();
 		add(_monsters);
 

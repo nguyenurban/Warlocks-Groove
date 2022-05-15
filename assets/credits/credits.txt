@@ -1,2 +1,3 @@
 Energy icon: PiXeRaT (https://opengameart.org/users/pixerat)
 Health icon: Gerald Burke (opengameart.org)
+Crosshair  : Saturn (https://s-a-t-u-r-n.itch.io/crosshair-for-your-shooter-2d-games)
