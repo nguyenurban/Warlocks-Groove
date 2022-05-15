@@ -1,13 +1,14 @@
 import flixel.math.FlxMath;
 import flixel.math.FlxVelocity;
+import flixel.tile.FlxTilemap;
 
 class NotOctorok extends Enemy
 {
-	private static var DETECT_RAD:Float = 200;
+	private static var DETECT_RAD:Float = 800;
 
 	private var chasing:Bool;
 
-	public function new(x:Float, y:Float, target:Player)
+	public function new(x:Float, y:Float, target:Player, tilemap:FlxTilemap)
 	{
 		super(x, y, target);
 		// Set stats here
@@ -15,6 +16,7 @@ class NotOctorok extends Enemy
 		_speed = 40;
 		_dps = 20;
 		_size = 32;
+		_tilemap = tilemap;
 		setSize(_size, _size);
 		scale.set(_size / 16, _size / 16);
 		chasing = false;
@@ -34,11 +36,11 @@ class NotOctorok extends Enemy
 		var dist = FlxMath.distanceToPoint(this, _target.getMidpoint());
 		if (chasing)
 		{
-			if (dist > DETECT_RAD)
+			if (dist > DETECT_RAD || !_tilemap.ray(getMidpoint(), _target.getMidpoint()))
 			{
 				FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
 			}
-			else if (dist < DETECT_RAD)
+			else if (dist <= DETECT_RAD && _tilemap.ray(getMidpoint(), _target.getMidpoint()))
 			{
 				FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
 				velocity.x = -velocity.x;

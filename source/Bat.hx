@@ -1,15 +1,16 @@
 import flixel.FlxObject;
 import flixel.math.FlxMath;
 import flixel.math.FlxVelocity;
+import flixel.tile.FlxTilemap;
 import flixel.util.FlxColor;
 
 class Bat extends Enemy
 {
-	private static var DETECT_RAD:Float = 200;
+	private static var DETECT_RAD:Float = 800;
 
 	private var chasing:Bool;
 
-	public function new(x:Float, y:Float, target:Player)
+	public function new(x:Float, y:Float, target:Player, tilemap:FlxTilemap)
 	{
 		super(x, y, target);
 		// Set stats here
@@ -17,6 +18,7 @@ class Bat extends Enemy
 		_speed = 60;
 		_dps = 20;
 		_size = 32;
+		_tilemap = tilemap;
 		setSize(_size, _size);
 		scale.set(_size / 32, _size / 32);
 		chasing = false;
@@ -39,7 +41,7 @@ class Bat extends Enemy
 		}
 		else
 		{
-			if (FlxMath.distanceToPoint(this, _target.getMidpoint()) < DETECT_RAD)
+			if (FlxMath.distanceToPoint(this, _target.getMidpoint()) < DETECT_RAD && _tilemap.ray(getMidpoint(), _target.getMidpoint()))
 			{
 				chasing = true;
 			}

@@ -1,6 +1,7 @@
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.math.FlxVelocity;
+import flixel.tile.FlxTilemap;
 import flixel.util.FlxColor;
 
 class Enemy extends FlxSprite
@@ -10,6 +11,7 @@ class Enemy extends FlxSprite
 	private var _dps:Float;
 	private var _target:Player;
 	private var _counter:Float;
+	private var _tilemap:FlxTilemap;
 
 	public function new(x:Float, y:Float, target:Player)
 	{

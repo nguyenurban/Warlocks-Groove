@@ -281,9 +281,9 @@ class LevelState extends FlxState
 			case "player":
 				_player.setPosition(entity.x, entity.y);
 			case "bat":
-				_monsters.add(new Bat(entity.x, entity.y, _player));
+				_monsters.add(new Bat(entity.x, entity.y, _player, walls));
 			case "not_octorok":
-				_monsters.add(new NotOctorok(entity.x, entity.y, _player));
+				_monsters.add(new NotOctorok(entity.x, entity.y, _player, walls));
 			case "door":
 				_doors.add(new Door(entity.x, entity.y, true));
 			case "locked_door":
