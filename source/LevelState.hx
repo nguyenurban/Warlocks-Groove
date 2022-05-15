@@ -19,6 +19,7 @@ import flixel.util.FlxSpriteUtil.DrawStyle;
 import flixel.util.FlxTimer;
 import js.html.DOMRectReadOnly;
 
+using flixel.math.FlxPoint;
 using flixel.util.FlxSpriteUtil;
 
 enum AttackType
@@ -58,6 +59,8 @@ class LevelState extends FlxState
 	private var _energybar:FlxBar;
 	private var h_bar_timer:Float;
 	private var e_bar_timer:Float;
+	private var _healthico:FlxSprite;
+	private var _energyico:FlxSprite;
 	private var _monsters:FlxTypedGroup<Enemy>;
 	private var _projectiles:FlxTypedGroup<Projectile>;
 	private var _doors:FlxTypedGroup<Door>;
@@ -116,10 +119,10 @@ class LevelState extends FlxState
 	// private var tick_format:Array<LevelState.AttackType>;
 	// also most likely to be stored somewhere else
 	private var PERFECT_WINDOW:Float = 2 / 60;
-	private var GREAT_WINDOW:Float = 4 / 60;
+	private var GREAT_WINDOW:Float = 6 / 60;
 	// currently valued such that double-clicking on 1st stage won't cause a misfire
 	// perhaps this value can change by stage
-	private var OK_WINDOW:Float = 28 / 60;
+	private var OK_WINDOW:Float = 20 / 60;
 
 	// PURELY FOR TESTING
 	private var ENCHANT_CHANCE:Float = 0.25;
@@ -201,18 +204,24 @@ class LevelState extends FlxState
 		judge_sprite.setGraphicSize(0, 10);
 		_healthbar.value = _player.health;
 		_energybar.value = _player.getEnergy();
+		_healthico.x = _player.x - 130;
+		_healthico.y = _player.y + 16;
+		_energyico.x = _player.x - 130;
+		_energyico.y = _player.y + 30;
 		if (_healthbar.value == 100)
 		{
 			h_bar_timer += elapsed;
 			if (h_bar_timer > 3)
 			{
 				_healthbar.visible = false;
+				_healthico.visible = false;
 			}
 		}
 		else
 		{
 			h_bar_timer = 0;
 			_healthbar.visible = true;
+			_healthico.visible = true;
 		}
 		if (_energybar.value == 100)
 		{
@@ -220,12 +229,14 @@ class LevelState extends FlxState
 			if (e_bar_timer > 3)
 			{
 				_energybar.visible = false;
+				_energyico.visible = false;
 			}
 		}
 		else
 		{
 			e_bar_timer = 0;
 			_energybar.visible = true;
+			_energyico.visible = true;
 		}
 
 		// updateDebugTexts();
@@ -300,14 +311,22 @@ class LevelState extends FlxState
 	{
 		_healthbar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, _player, "health", 0, 100, true);
 		_healthbar.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
-		_healthbar.trackParent(20, -20);
+		_healthbar.trackParent(-120, 20);
 		h_bar_timer = 0;
 		add(_healthbar);
 		_energybar = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, _player, "_energy", 0, 100, true);
 		_energybar.createFilledBar(FlxColor.RED, FlxColor.BLUE, true);
-		_energybar.trackParent(-120, 20);
+		_energybar.trackParent(-120, 30);
 		e_bar_timer = 0;
 		add(_energybar);
+		_healthico = new FlxSprite(_player.x - 130, _player.y + 16);
+		_healthico.loadGraphic("assets/images/health.png");
+		_healthico.scale.set(0.75, 0.75);
+		add(_healthico);
+		_energyico = new FlxSprite(_player.x - 130, _player.y + 30);
+		_energyico.loadGraphic("assets/images/energy.png");
+		_energyico.scale.set(0.75, 0.75);
+		add(_energyico);
 	}
 
 	function placeEntities(entity:EntityData)
