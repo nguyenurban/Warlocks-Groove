@@ -15,6 +15,7 @@ import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
+import flixel.util.FlxSignal.FlxTypedSignal;
 import flixel.util.FlxSpriteUtil.DrawStyle;
 import flixel.util.FlxTimer;
 import js.html.DOMRectReadOnly;
@@ -154,6 +155,9 @@ class LevelState extends FlxState
 	// HUD
 	private var _hud:HUD;
 
+	// enemies can use this to tell the level state to spawn projectiles
+	public var _actionSignal:FlxTypedSignal<Array<Int>->Void>;
+
 	override function create()
 	{
 		super.create();
@@ -181,6 +185,8 @@ class LevelState extends FlxState
 		addTicks();
 		createPlayerBars();
 		// createTexts();
+
+		_actionSignal = new FlxTypedSignal<Array<Int>->Void>();
 
 		judge_sprite = new FlxSprite();
 		add(judge_sprite);
@@ -344,7 +350,7 @@ class LevelState extends FlxState
 			case "locked_door":
 				_doors.add(new Door(entity.x, entity.y, false));
 			case "cat_boss":
-				_monsters.add(new Cat(entity.x, entity.y, _player));
+				_monsters.add(new Cat(entity.x, entity.y, _player, _actionSignal));
 			default:
 		}
 	}

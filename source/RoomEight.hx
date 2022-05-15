@@ -54,6 +54,7 @@ class RoomEight extends LevelState
 		_hud.updateHUD(100, 100);
 		add(_hud);
 
+		_actionSignal.add(handleCall);
 		// timer = 0;
 		// beat = 0;
 		// shortest_notes_elpsd = 0;
@@ -85,5 +86,16 @@ class RoomEight extends LevelState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+	}
+
+	public function handleCall(input:Array<Int>)
+	{
+		switch (input[0])
+		{
+			case 0:
+				// TODO: replace this with proper own projectile
+				_projectiles.add(new Projectile(input[1], input[2], _player, ENEMY, PERFECT, false));
+			default:
+		}
 	}
 }
