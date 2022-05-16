@@ -74,11 +74,19 @@ class Logger
 		}
 	}
 
-	public static function playerShot(type:String, timing:String)
+	public static function playerShot(type:String, judge:String, timing:String)
 	{
 		if (_logger != null)
 		{
-			Logger._logger.logLevelAction(LoggingActions.PLAYER_SHOOT, type + ", " + timing);
+			Logger._logger.logLevelAction(LoggingActions.PLAYER_SHOOT, type + ", " + judge + ", " + timing);
+		}
+	}
+
+	public static function tookDamage(curr_room:LevelState, cause:Dynamic, dmg:Float)
+	{
+		if (_logger != null)
+		{
+			Logger._logger.logLevelAction(LoggingActions.TOOK_DAMAGE, Std.string(curr_room) + ", " + cause + ", " + dmg);
 		}
 	}
 }

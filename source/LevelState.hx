@@ -415,6 +415,7 @@ class LevelState extends FlxState
 		{
 			p.health -= e.getDamage();
 			p.damageInvuln();
+			Logger.tookDamage(this, e, e.getDamage());
 			if (p.health <= 0)
 			{
 				Logger.playerDeath(this, e);
@@ -429,6 +430,7 @@ class LevelState extends FlxState
 		{
 			p.health -= proj.getDamage();
 			p.damageInvuln();
+			Logger.tookDamage(this, proj, proj.getDamage());
 			if (p.health <= 0)
 			{
 				Logger.playerDeath(this, proj);
@@ -454,7 +456,7 @@ class LevelState extends FlxState
 				/*----------------------
 					MISFIRE LOGIC GOES HERE
 					---------------------- */
-				Logger.playerShot("Misfire", "x");
+				Logger.playerShot("Misfire", "Misfire", "x");
 			}
 			else
 			{
@@ -467,15 +469,16 @@ class LevelState extends FlxState
 				{
 					// judge_text.text = "Out of energy!";
 					judge_sprite.loadGraphic("assets/images/judge_sprites/ooe.png");
-					Logger.playerShot("OOE", Std.string(diff));
+					Logger.playerShot("OOE", "OOE", Std.string(diff));
 				}
 				else
 				{
+					var judge:String;
 					if (diff <= PERFECT_WINDOW)
 					{
 						// judge_text.text = "Perfect!!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/perfect.png");
-						Logger.playerShot("Perfect", Std.string(diff));
+						judge = "Perfect";
 						timing = LevelState.JudgeType.PERFECT;
 						closest_tick.setJudge(LevelState.JudgeType.PERFECT);
 						if (closest_tick.getEnchanted())
@@ -487,7 +490,7 @@ class LevelState extends FlxState
 					{
 						// judge_text.text = "Great!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/great.png");
-						Logger.playerShot("Great", Std.string(diff));
+						judge = "Great";
 						timing = LevelState.JudgeType.GREAT;
 						closest_tick.setJudge(LevelState.JudgeType.GREAT);
 					}
@@ -495,7 +498,7 @@ class LevelState extends FlxState
 					{ // diff <= OK_WINDOW
 						// judge_text.text = "OK";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/ok.png");
-						Logger.playerShot("OK", Std.string(diff));
+						judge = "OK";
 						timing = LevelState.JudgeType.OK;
 						closest_tick.setJudge(LevelState.JudgeType.OK);
 					}
@@ -516,7 +519,7 @@ class LevelState extends FlxState
 						proj.kill();
 					}, 1);
 					_projectiles.add(proj);
-					Logger.playerShot(Std.string(closest_tick.getType()), Std.string(diff));
+					Logger.playerShot(Std.string(closest_tick.getType()), judge, Std.string(diff));
 				}
 			}
 			judge_sprite.visible = true;
