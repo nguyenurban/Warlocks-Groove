@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "17";
+	app.meta.h["build"] = "18";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -7715,7 +7715,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				d1.unlock();
 			}
 			var lvlCompPop = new LvlCompletePopup();
-			if(!this.lvlPopup && this.currLevel == RoomEight) {
+			if(!this.lvlPopup && this.nextLevel == RoomEight) {
 				this.openSubState(lvlCompPop);
 				this.lvlPopup = true;
 			}
@@ -7924,7 +7924,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 	,get_closest_tick: function() {
 		var i = 0;
 		var earlier_beat = null;
-		while(LevelStats.shortest_notes_elpsd - i >= 0 && i * LevelStats.shortest_note_len <= this.OK_WINDOW) {
+		while(LevelStats.shortest_notes_elpsd - i >= 0 && LevelStats.timer - (LevelStats.shortest_notes_elpsd - i) * LevelStats.shortest_note_len <= this.OK_WINDOW) {
 			var curr = LevelStats._ticks[(LevelStats.shortest_notes_elpsd - i) % LevelStats._ticks.length];
 			if(curr.getJudge() == JudgeType.NONE) {
 				earlier_beat = curr;
@@ -7934,7 +7934,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 		}
 		i = 1;
 		var later_beat = null;
-		while(i * LevelStats.shortest_note_len <= this.OK_WINDOW) {
+		while(i * (LevelStats.shortest_note_len + i) - LevelStats.timer <= this.OK_WINDOW) {
 			var curr = LevelStats._ticks[(LevelStats.shortest_notes_elpsd + i) % LevelStats._ticks.length];
 			if(curr.getJudge() == JudgeType.NONE) {
 				later_beat = curr;
