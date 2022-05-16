@@ -14,6 +14,8 @@ class MagMissile extends Projectile
 	private var travel_angle:Float;
 	// in degrees per second
 	private var TURN_SPEED = 190;
+	private var HOMING_TIME = 0.5;
+	private var _homing_counter:Float;
 
 	public function new(x:Float, y:Float, target:FlxObject, timing:JudgeType, enchanted:Bool)
 	{
@@ -22,6 +24,7 @@ class MagMissile extends Projectile
 		MOVEMENT_SPEED = 150;
 		// tiny amount of inaccuracy in angles when firing shot
 		var SHOT_INACC = 5.0;
+		_homing_counter = 0;
 		loadGraphic("assets/images/shooter.png", true, 16, 16);
 		animation.add("blow", [256, 257, 258, 259], 5, false);
 		animation.add("idle", [6, 7, 8, 9], 5);
@@ -98,6 +101,11 @@ class MagMissile extends Projectile
 
 	private function AI(elapsed:Float)
 	{
+		_homing_counter += elapsed;
+		if (_homing_counter > HOMING_TIME)
+		{
+			TURN_SPEED = 0;
+		}
 		if (alive)
 		{
 			if (_target != null)

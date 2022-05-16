@@ -23,6 +23,7 @@ class Bat extends Enemy
 		scale.set(_size / 32, _size / 32);
 		chasing = false;
 		loadGraphic("assets/images/Bat_Sprite_Sheet.png", true, 32, 32);
+		updateHitbox();
 		setFacingFlip(LEFT, false, false);
 		setFacingFlip(RIGHT, false, false);
 		setFacingFlip(UP, false, false);

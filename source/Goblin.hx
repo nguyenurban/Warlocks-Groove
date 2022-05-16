@@ -11,9 +11,10 @@ import flixel.util.FlxColor;
 class Goblin extends Enemy
 {
 	private static var DETECT_RAD:Float = 800;
-
 	private static var DODGE_RAD:Float = 200;
 
+	private var dodge_change_time:Float;
+	private var dodge_dir:Float;
 	private var chasing:Bool;
 
 	public function new(x:Float, y:Float, target:Player, tilemap:FlxTilemap)
@@ -28,7 +29,11 @@ class Goblin extends Enemy
 		setSize(_size, _size);
 		scale.set(_size / 64, _size / 64);
 		chasing = false;
+		_counter = 0;
+		dodge_change_time = Random.float(3, 5);
+		dodge_dir = 90 - Random.int(0, 1) * 180;
 		loadGraphic("assets/images/Goblin_Sprite_Sheet.png", true, 64, 64);
+		updateHitbox();
 		setFacingFlip(LEFT, false, false);
 		setFacingFlip(RIGHT, false, false);
 		setFacingFlip(UP, false, false);
@@ -41,6 +46,12 @@ class Goblin extends Enemy
 
 	override function takeAction()
 	{
+		if (_counter > dodge_change_time)
+		{
+			_counter = 0;
+			dodge_change_time = Random.float(1, 3);
+			dodge_dir = 90 - Random.int(0, 1) * 180;
+		}
 		if (chasing)
 		{
 			FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
@@ -50,7 +61,7 @@ class Goblin extends Enemy
 					.x - _dodgeTarget.getMidpoint().x) + this.velocity.y * (this.getMidpoint().y - _dodgeTarget.getMidpoint().y) < 0)
 			{
 				FlxVelocity.moveTowardsPoint(this, _dodgeTarget.getMidpoint(), _speed * 2);
-				velocity.rotate(FlxPoint.weak(0, 0), 90);
+				velocity.rotate(FlxPoint.weak(0, 0), dodge_dir);
 			}
 		}
 		else
