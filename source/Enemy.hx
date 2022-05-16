@@ -1,3 +1,4 @@
+import LevelState.AttackType;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.math.FlxVelocity;
@@ -12,6 +13,7 @@ class Enemy extends FlxSprite
 	private var _target:Player;
 	private var _counter:Float;
 	private var _tilemap:FlxTilemap;
+	private var _dodgeTarget:Projectile;
 
 	public function new(x:Float, y:Float, target:Player)
 	{
@@ -46,6 +48,16 @@ class Enemy extends FlxSprite
 	public function getDamage():Float
 	{
 		return _dps;
+	}
+
+	public function dodge(p:Projectile)
+	{
+		_dodgeTarget = p;
+	}
+
+	public function getDodgeType():AttackType
+	{
+		return null;
 	}
 
 	public override function toString():String

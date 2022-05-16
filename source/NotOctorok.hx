@@ -12,7 +12,7 @@ class NotOctorok extends Enemy
 	{
 		super(x, y, target);
 		// Set stats here
-		health = 20;
+		health = 40;
 		_speed = 40;
 		_dps = 20;
 		_size = 32;

@@ -92,7 +92,7 @@ class RoomOne extends LevelState
 			}
 		}
 
-		_monsters.forEach(handleMonsterFire);
+		_monsters.forEach(handleMonsterActions);
 		// _projectiles.forEach(handleProjectileRaycasts);
 
 		FlxG.overlap(_monsters, _player, handleMonsterPlayerOverlap);

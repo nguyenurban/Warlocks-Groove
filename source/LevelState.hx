@@ -253,7 +253,7 @@ class LevelState extends FlxState
 		// {
 		// 	i.x = (i.getTick() * LevelStats.shortest_note_len - LevelStats.timer) * LevelStats.scroll_mul + LevelStats.TICK_X_OFFSET;
 		// }
-		_monsters.forEach(handleMonsterFire);
+		_monsters.forEach(handleMonsterActions);
 		// _projectiles.forEach(handleProjectileRaycasts);
 		if (_monsters.countLiving() <= 0)
 		{
@@ -292,6 +292,7 @@ class LevelState extends FlxState
 		FlxG.collide(_monsters, interactables);
 		FlxG.collide(_projectiles, walls, handleProjectileWallsCollisions);
 		FlxG.collide(_player, _doors, levelComplete);
+		FlxG.collide(_monsters, _doors);
 		super.update(elapsed);
 		FlxG.collide(_player, walls);
 		LevelStats.update(elapsed);
@@ -375,6 +376,8 @@ class LevelState extends FlxState
 				_doors.add(new Door(entity.x, entity.y, false));
 			case "cat_boss":
 				_monsters.add(new Cat(entity.x, entity.y, _player, _actionSignal));
+			case "goblin":
+				_monsters.add(new Goblin(entity.x, entity.y, _player, walls));
 			default:
 		}
 	}
@@ -398,6 +401,28 @@ class LevelState extends FlxState
 		return monster;
 	}
 
+	private function get_closest_projectile(x:Float, y:Float, projectiles:FlxTypedGroup<Projectile>, type:AttackType):Projectile
+	{
+		var closest = new FlxPoint(0, 0);
+		var dist:Float;
+		var min_dist = Math.POSITIVE_INFINITY;
+		var projectile = null;
+		for (p in projectiles)
+		{
+			if (p.getType() == type && p.alive)
+			{
+				dist = Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y));
+				if (dist < min_dist)
+				{
+					min_dist = dist;
+					closest = new FlxPoint(p.x, p.y);
+					projectile = p;
+				}
+			}
+		}
+		return projectile;
+	}
+
 	private function handleMonsterProjectileCollisions(monsters:FlxObject, projectiles:Projectile)
 	{
 		if (projectiles.getType() != ENEMY)
@@ -418,7 +443,7 @@ class LevelState extends FlxState
 		projectiles.kill();
 	}
 
-	private function handleMonsterFire(e:Enemy)
+	private function handleMonsterActions(e:Enemy)
 	{
 		if (e.shouldFire())
 		{
@@ -432,6 +457,10 @@ class LevelState extends FlxState
 				src += "unknown";
 			}
 			_projectiles.add(new Projectile(e.getMidpoint().x, e.getMidpoint().y, _player, ENEMY, PERFECT, false, src));
+		}
+		if (e.getDodgeType() != null)
+		{
+			e.dodge(get_closest_projectile(e.x, e.y, _projectiles, e.getDodgeType()));
 		}
 	}
 
@@ -709,12 +738,20 @@ class LevelState extends FlxState
 	{
 		if (d.isUnlocked())
 		{
-			Logger.nextRoom(nextLevel);
 			for (i in LevelStats._ticks)
 			{
 				remove(i);
 			}
-			FlxG.switchState(Type.createInstance(nextLevel, []));
+			if (nextLevel == null)
+			{
+				Logger.levelEnd("completion exit");
+				FlxG.switchState(new MenuState());
+			}
+			else
+			{
+				Logger.nextRoom(nextLevel);
+				FlxG.switchState(Type.createInstance(nextLevel, []));
+			}
 		}
 	}
 
