@@ -34,11 +34,6 @@ class RoomThree extends LevelState
 		createLevel();
 		nextLevel = RoomFour;
 		currLevel = RoomThree;
-		map.loadEntities(placeEntities, "player");
-		map.loadEntities(placeEntities, "monsters");
-		map.loadEntities(placeEntities, "mechanics");
-		_projectiles = new FlxTypedGroup<Projectile>();
-		add(_projectiles);
 
 		// beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		// beat_sound.volume = 0.3;
@@ -50,9 +45,7 @@ class RoomThree extends LevelState
 		// var draw_style = {smoothing: true};
 
 		// level_bounds = FlxCollision.createCameraWall(FlxG.camera, true, 1);
-		_hud = new HUD(_player, LevelStats.tick_format, LevelStats.shortest_note_len);
-		_hud.updateHUD(100, 100);
-		add(_hud);
+		createHUDandTicks();
 
 		// timer = 0;
 		// beat = 0;

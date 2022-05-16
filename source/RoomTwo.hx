@@ -22,15 +22,10 @@ class RoomTwo extends LevelState
 		createLevel();
 		nextLevel = RoomThree;
 		currLevel = RoomTwo;
-		map.loadEntities(placeEntities, "player");
-		map.loadEntities(placeEntities, "monsters");
-		map.loadEntities(placeEntities, "mechanics");
-		_projectiles = new FlxTypedGroup<Projectile>();
-		add(_projectiles);
 
 		beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		beat_sound.volume = 0.3;
-
+		createHUDandTicks();
 		// setShortestNote();
 
 		// var line_style_2 = {color: FlxColor.BLACK, thickness: 3.0};
@@ -39,9 +34,6 @@ class RoomTwo extends LevelState
 		// var draw_style = {smoothing: true};
 
 		// level_bounds = FlxCollision.createCameraWall(FlxG.camera, true, 1);
-		_hud = new HUD(_player, LevelStats.tick_format, LevelStats.shortest_note_len);
-		_hud.updateHUD(100, 100);
-		add(_hud);
 
 		// timer = 0;
 		// beat = 0;
