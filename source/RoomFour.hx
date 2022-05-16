@@ -33,6 +33,7 @@ class RoomFour extends LevelState
 		bgColor = 0xffcccccc;
 		createLevel();
 		nextLevel = RoomFive;
+		currLevel = RoomFour;
 		map.loadEntities(placeEntities, "player");
 		map.loadEntities(placeEntities, "monsters");
 		map.loadEntities(placeEntities, "mechanics");

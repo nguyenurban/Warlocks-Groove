@@ -64,6 +64,7 @@ class LevelState extends FlxState
 
 	// NEXT LEVEL STATES
 	var nextLevel:Class<LevelState>;
+	var currLevel:Class<LevelState>;
 	var lvlPopup:Bool;
 
 	// where to put this?
@@ -261,7 +262,7 @@ class LevelState extends FlxState
 				d.unlock();
 			}
 			final lvlCompPop = new LvlCompletePopup();
-			if (!lvlPopup && nextLevel != RoomTwo)
+			if (!lvlPopup && currLevel == RoomEight)
 			{
 				openSubState(lvlCompPop);
 				lvlPopup = true;
