@@ -1,5 +1,6 @@
 package;
 
+import TestMenu.TestMenuRoom1;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.addons.ui.FlxButtonPlus;
@@ -38,7 +39,7 @@ class MenuState extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
-				FlxG.switchState(new TestMenu());
+				FlxG.switchState(new TestMenuRoom1());
 			});
 		}, "", 200, 50);
 		test.x = (FlxG.width / 2) - (test.width / 2);
