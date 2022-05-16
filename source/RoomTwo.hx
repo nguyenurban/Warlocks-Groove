@@ -149,7 +149,13 @@ class MagMissileObtained extends FlxSubState
 		text.screenCenter(X);
 		add(text);
 
-		final endText = new FlxText(0, (boundingBox.y + 135), 0, "Press SPACE to continue", 15);
+		final midTextOne = new FlxText(0, (boundingBox.y + 120), 0, "Attack precisely on beat to fire a powerful homing missile", 10);
+		midTextOne.screenCenter(X);
+		add(midTextOne);
+		final midTextTwo = new FlxText(0, (boundingBox.y + 135), 0, "to destroy enemies and reach the goal door!", 10);
+		midTextTwo.screenCenter(X);
+		add(midTextTwo);
+		final endText = new FlxText(0, (boundingBox.y + 150), 0, "Press SPACE to continue", 15);
 		endText.screenCenter(X);
 		add(endText);
 
