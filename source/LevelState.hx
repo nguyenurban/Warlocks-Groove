@@ -12,6 +12,7 @@ import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
 import flixel.ui.FlxBar;
+import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.util.FlxSignal.FlxTypedSignal;
 import flixel.util.FlxTimer;
@@ -261,12 +262,20 @@ class LevelState extends FlxState
 			{
 				d.unlock();
 			}
-			final lvlCompPop = new LvlCompletePopup();
 			if (!lvlPopup && nextLevel == RoomEight)
 			{
+				final lvlCompPop = new LvlCompletePopup();
 				openSubState(lvlCompPop);
 				lvlPopup = true;
 			}
+		}
+
+		if (!_player.exists)
+		{
+			FlxG.camera.fade(FlxColor.BLACK, 1.5, false, () ->
+			{
+				FlxG.switchState(new EndGame(currLevel));
+			});
 		}
 
 		// TODO: this could potentially be split into different methods that update the hud only when
@@ -850,5 +859,65 @@ class LvlCompletePopup extends FlxSubState
 			close();
 		}
 		_timebar.value = cast(timer.timeLeft * 100);
+	}
+}
+
+class EndGame extends FlxState
+{
+	private var _title:FlxText;
+	private var _tryAgainBtn:FlxButton;
+	private var _menuBtn:FlxButton;
+	private var currLevel:Class<LevelState>;
+
+	override public function new(thisLevel:Class<LevelState>)
+	{
+		currLevel = thisLevel;
+		super();
+	}
+
+	override function create()
+	{
+		super.create();
+		bgColor = 0x00000000;
+		_title = new FlxText(0, 120, 0, "GAME OVER", 48);
+		_title.alignment = CENTER;
+		_title.screenCenter(X);
+		add(_title);
+		_title.scrollFactor.set(0, 0);
+
+		_menuBtn = new FlxButton(0, 0, "Exit to Main Menu", () ->
+		{
+			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+			{
+				Logger.levelEnd("pause exit");
+				FlxG.switchState(new MenuState());
+			});
+		});
+		_menuBtn.scale.set(3, 3);
+		_menuBtn.updateHitbox();
+		_menuBtn.label.fieldWidth = _menuBtn.width;
+		_menuBtn.label.alignment = "center";
+		_menuBtn.label.offset.y -= 20;
+		_menuBtn.screenCenter(Y);
+		_menuBtn.x = (FlxG.width / 2) - (_menuBtn.width / 2) + 200;
+		add(_menuBtn);
+
+		_tryAgainBtn = new FlxButton(0, 0, "Try Again", () ->
+		{
+			FlxG.camera.fade(FlxColor.BLACK, 1.00, false, () ->
+			{
+				Logger.startLevel(1);
+				LevelStats.initialize(1);
+				FlxG.switchState(Type.createInstance(currLevel, []));
+			});
+		});
+		_tryAgainBtn.scale.set(3, 3);
+		_tryAgainBtn.updateHitbox();
+		_tryAgainBtn.label.fieldWidth = _tryAgainBtn.width;
+		_tryAgainBtn.label.alignment = "center";
+		_tryAgainBtn.label.offset.y -= 20;
+		_tryAgainBtn.screenCenter(Y);
+		_tryAgainBtn.x = (FlxG.width / 2) - (_tryAgainBtn.width / 2) - 200;
+		add(_tryAgainBtn);
 	}
 }
