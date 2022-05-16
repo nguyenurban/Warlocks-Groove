@@ -92,4 +92,50 @@ class RoomEight extends LevelState
 			default:
 		}
 	}
+
+	private override function handleMonsterProjectileCollisions(monsters:FlxObject, projectiles:Projectile)
+	{
+		if (projectiles.getType() != ENEMY)
+		{
+			if (Std.isOfType(monsters, Cat))
+			{
+				var cat = cast(monsters, Cat);
+				if (cat.shielded)
+				{
+					if (projectiles._enchanted)
+					{
+						cat.curr_shield_hp--;
+						if (cat.curr_shield_hp == 0)
+						{
+							cat.shieldBreak.dispatch();
+							// other shield-breaking code goes here
+						}
+					}
+					else
+					{
+						// shield deflecting projectile logic goes here
+					}
+				}
+				else
+				{
+					monsters.health -= projectiles.getDamage();
+					if (monsters.health <= 0)
+					{
+						_monsters.remove(cast(monsters, Enemy));
+						monsters.kill();
+					}
+					projectiles.kill();
+					trace("projectile kill initiated");
+				}
+			}
+			monsters.health -= projectiles.getDamage();
+			if (monsters.health <= 0)
+			{
+				_monsters.remove(cast(monsters, Enemy));
+				monsters.kill();
+			}
+			projectiles.kill();
+			trace("projectile kill initiated");
+		}
+	}
 }

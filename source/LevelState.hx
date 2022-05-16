@@ -422,7 +422,16 @@ class LevelState extends FlxState
 	{
 		if (e.shouldFire())
 		{
-			_projectiles.add(new Projectile(e.getMidpoint().x, e.getMidpoint().y, _player, ENEMY, PERFECT, false));
+			var src = "From ";
+			if (Std.isOfType(e, NotOctorok))
+			{
+				src += "NotOctorok";
+			}
+			else
+			{
+				src += "unknown";
+			}
+			_projectiles.add(new Projectile(e.getMidpoint().x, e.getMidpoint().y, _player, ENEMY, PERFECT, false, src));
 		}
 	}
 
@@ -447,7 +456,7 @@ class LevelState extends FlxState
 		{
 			p.health -= proj.getDamage();
 			p.damageInvuln();
-			Logger.tookDamage(this, proj, proj.getDamage());
+			Logger.tookDamage(this, proj.src, proj.getDamage());
 			if (p.health <= 0)
 			{
 				Logger.playerDeath(this, proj);

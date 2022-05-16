@@ -16,17 +16,21 @@ class Projectile extends FlxSprite
 	private var _target:FlxObject;
 	private var _type:LevelState.AttackType;
 	private var _monsters:FlxTypedGroup<Enemy>;
-	private var _enchanted:Bool;
+
+	public var _enchanted:Bool;
+
 	private var _damage:Float;
 	private var _speed:Float;
 	private var _heading:FlxPoint;
+
+	public var src = "n/a";
 
 	public var origin_point:FlxPoint;
 
 	public var timer:FlxTimer;
 
 	public function new(x:Float, y:Float, target:FlxObject /**monsters:FlxTypedGroup<Enemy>**/, type:LevelState.AttackType, timing:LevelState.JudgeType,
-			enchanted:Bool)
+			enchanted:Bool, ?source:String)
 	{
 		super(x, y);
 		_target = target;
@@ -34,6 +38,7 @@ class Projectile extends FlxSprite
 		timer = new FlxTimer();
 		_enchanted = enchanted;
 		origin_point = this.getMidpoint();
+		src = source;
 		if (type == ENEMY)
 		{
 			makeGraphic(5, 5, FlxColor.BLACK);

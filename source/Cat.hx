@@ -22,6 +22,16 @@ class Cat extends Enemy
 	private var moving:Bool;
 	private var fb_firing:Bool;
 	private var _signal:FlxTypedSignal<Array<Int>->Void>;
+	private var SHIELD_COOLDOWN = 8.0;
+	private var curr_shield_cd:Float;
+
+	public var shielded:Bool;
+
+	private var SHIELD_HITS = 3;
+
+	public var curr_shield_hp:Int;
+
+	public var shieldBreak:FlxSignal;
 
 	public function new(x:Float, y:Float, player:Player, signal:FlxTypedSignal<Array<Int>->Void>)
 	{
@@ -37,12 +47,17 @@ class Cat extends Enemy
 		charging = false;
 		moving = false;
 		fb_firing = false;
+		shielded = true;
+		curr_shield_cd = 0.0;
+		shieldBreak = new FlxSignal();
+		shieldBreak.add(shieldBreaking);
 	}
 
 	override function update(elapsed:Float)
 	{
 		_attacktimer -= elapsed;
 		_movetimer -= elapsed;
+		curr_shield_cd -= elapsed;
 		if (_movetimer <= 0 && !charging)
 		{
 			if (moving)
@@ -70,6 +85,10 @@ class Cat extends Enemy
 					waveAtk();
 			}
 		}
+		if (curr_shield_cd <= 0 && !shielded)
+		{
+			shielded = true;
+		}
 	}
 
 	override function takeAction() {}
@@ -88,5 +107,11 @@ class Cat extends Enemy
 		var dest = FlxPoint.weak(this.x + FlxG.random.float(-MOVE_VARIANCE, MOVE_VARIANCE), this.y + FlxG.random.float(-MOVE_VARIANCE, MOVE_VARIANCE));
 		FlxVelocity.moveTowardsPoint(this, dest, _speed, MAX_MOVE_TIME);
 		_movetimer = MAX_MOVE_TIME * 1000;
+	}
+
+	private function shieldBreaking():Void
+	{
+		shielded = false;
+		curr_shield_cd = 8.0;
 	}
 }
