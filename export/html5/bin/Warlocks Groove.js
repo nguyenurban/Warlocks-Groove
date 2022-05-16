@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "8";
+	app.meta.h["build"] = "12";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -6508,19 +6508,23 @@ CapstoneLogger.prototype = {
 	}
 	,__class__: CapstoneLogger
 };
-var Cat = function(x,y,player) {
+var Cat = function(x,y,player,signal) {
+	this.FB_SHOT_VARIANCE = 10;
 	this.FB_FIRE_RATE = 0.25;
 	this.CHARGE_TIME = 2.0;
+	this.MAX_MOVE_TIME = 2000;
+	this.MOVE_VARIANCE = 100;
 	this.MOVE_TIME_CAP_MAX = 3.0;
 	this.MOVE_TIME_CAP_MIN = 1.0;
 	this.ATTACK_TIME_CAP_MAX = 8.0;
 	this.ATTACK_TIME_CAP_MIN = 5.0;
 	Enemy.call(this,x,y,player);
-	this.health = 400;
-	this._speed = 60;
+	this.health = 300;
+	this._speed = 50;
 	this._dps = 20;
 	this._target = player;
 	this._size = 64;
+	this._signal = signal;
 	this.setSize(this._size,this._size);
 	this._attacktimer = flixel_FlxG.random.float(this.ATTACK_TIME_CAP_MIN,this.ATTACK_TIME_CAP_MAX);
 	this.charging = false;
@@ -6532,17 +6536,24 @@ Cat.__name__ = "Cat";
 Cat.__super__ = Enemy;
 Cat.prototype = $extend(Enemy.prototype,{
 	update: function(elapsed) {
+		var _gthis = this;
 		this._attacktimer -= elapsed;
 		this._movetimer -= elapsed;
 		if(this._movetimer <= 0 && !this.charging) {
-			this.moving = true;
-			this.move();
+			if(this.moving) {
+				this.moving = false;
+			} else {
+				this.moving = true;
+				this.move();
+			}
 		}
 		if(this._attacktimer <= 0 && !this.moving) {
 			this._attacktimer = flixel_FlxG.random.float(this.ATTACK_TIME_CAP_MIN,this.ATTACK_TIME_CAP_MAX);
 			switch(flixel_FlxG.random.int(0,2)) {
 			case 0:
-				new flixel_util_FlxTimer().start(this.FB_FIRE_RATE,$bind(this,this.fiveBullets),5);
+				new flixel_util_FlxTimer().start(this.FB_FIRE_RATE,function(timer) {
+					flixel_FlxG.random.int(-_gthis.FB_SHOT_VARIANCE,_gthis.FB_SHOT_VARIANCE);
+				},5);
 				break;
 			case 1:
 				this.charging = true;
@@ -6565,7 +6576,29 @@ Cat.prototype = $extend(Enemy.prototype,{
 	,waveAtk: function() {
 	}
 	,move: function() {
-		this.moving = false;
+		var X = this.x + flixel_FlxG.random.float(-this.MOVE_VARIANCE,this.MOVE_VARIANCE);
+		var Y = this.y + flixel_FlxG.random.float(-this.MOVE_VARIANCE,this.MOVE_VARIANCE);
+		if(Y == null) {
+			Y = 0;
+		}
+		if(X == null) {
+			X = 0;
+		}
+		var X1 = X;
+		var Y1 = Y;
+		if(Y1 == null) {
+			Y1 = 0;
+		}
+		if(X1 == null) {
+			X1 = 0;
+		}
+		var point = flixel_math_FlxPoint._pool.get().set(X1,Y1);
+		point._inPool = false;
+		var point1 = point;
+		point1._weak = true;
+		var dest = point1;
+		flixel_math_FlxVelocity.moveTowardsPoint(this,dest,this._speed,this.MAX_MOVE_TIME);
+		this._movetimer = this.MAX_MOVE_TIME * 1000;
 	}
 	,__class__: Cat
 });
@@ -7619,18 +7652,21 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 		this._player = new Player(50,50);
 		this.add(this._player);
 		flixel_FlxG.camera.follow(this._player,flixel_FlxCameraFollowStyle.TOPDOWN,1);
+		flixel_FlxG.mouse.load("assets/images/crosshair.png",2,-13,-13);
 		this._monsters = new flixel_group_FlxTypedGroup();
 		this.add(this._monsters);
 		this._doors = new flixel_group_FlxTypedGroup();
 		this.add(this._doors);
 		this.addTicks();
 		this.createPlayerBars();
+		this._actionSignal = new flixel_util__$FlxSignal_FlxSignal1();
 		this.judge_sprite = new flixel_FlxSprite();
 		this.add(this.judge_sprite);
 		this.judge_sprite.set_visible(false);
 		this.judge_timer = 0;
 		this.beat_sound = flixel_FlxG.sound.load("assets/sounds/beat.wav");
 		this.beat_sound.set_volume(0.3);
+		this.lvlPopup = false;
 	}
 	,update: function(elapsed) {
 		flixel_FlxState.prototype.update.call(this,elapsed);
@@ -7676,6 +7712,11 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			while(d.hasNext()) {
 				var d1 = d.next();
 				d1.unlock();
+			}
+			var lvlCompPop = new LvlCompletePopup();
+			if(!this.lvlPopup && this.nextLevel != RoomTwo) {
+				this.openSubState(lvlCompPop);
+				this.lvlPopup = true;
 			}
 		}
 		this.callUpdateHUD();
@@ -7742,7 +7783,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			this._monsters.add(new Bat(entity.x,entity.y,this._player,this.walls));
 			break;
 		case "cat_boss":
-			this._monsters.add(new Cat(entity.x,entity.y,this._player));
+			this._monsters.add(new Cat(entity.x,entity.y,this._player,this._actionSignal));
 			break;
 		case "door":
 			this._doors.add(new Door(entity.x,entity.y,true));
@@ -7784,7 +7825,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				monsters.kill();
 			}
 			projectiles.kill();
-			haxe_Log.trace("projectile kill initiated",{ fileName : "source/LevelState.hx", lineNumber : 382, className : "LevelState", methodName : "handleMonsterProjectileCollisions"});
+			haxe_Log.trace("projectile kill initiated",{ fileName : "source/LevelState.hx", lineNumber : 394, className : "LevelState", methodName : "handleMonsterProjectileCollisions"});
 		}
 	}
 	,handleProjectileWallsCollisions: function(projectiles,walls) {
@@ -7839,8 +7880,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			} else {
 				var timing;
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 450, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 451, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 462, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 463, className : "LevelState", methodName : "shoot"});
 				if(!(closest_tick.getEnchanted() && diff <= this.PERFECT_WINDOW) && !this._player.useEnergy(15)) {
 					this.judge_sprite.loadGraphic("assets/images/judge_sprites/ooe.png");
 					Logger.playerShot("OOE",diff == null ? "null" : "" + diff);
@@ -8042,6 +8083,205 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 	}
 	,__class__: LevelState
 });
+var flixel_FlxSubState = function(BGColor) {
+	if(BGColor == null) {
+		BGColor = 0;
+	}
+	this._created = false;
+	flixel_FlxState.call(this);
+	this.closeCallback = null;
+	this.openCallback = null;
+	if(flixel_FlxG.renderTile) {
+		this._bgSprite = new flixel_system_FlxBGSprite();
+	}
+	this.set_bgColor(BGColor);
+};
+$hxClasses["flixel.FlxSubState"] = flixel_FlxSubState;
+flixel_FlxSubState.__name__ = "flixel.FlxSubState";
+flixel_FlxSubState.__super__ = flixel_FlxState;
+flixel_FlxSubState.prototype = $extend(flixel_FlxState.prototype,{
+	draw: function() {
+		if(flixel_FlxG.renderBlit) {
+			var _g = 0;
+			var _g1 = this.get_cameras();
+			while(_g < _g1.length) {
+				var camera = _g1[_g];
+				++_g;
+				camera.fill(this._bgColor);
+			}
+		} else {
+			this._bgSprite.draw();
+		}
+		flixel_FlxState.prototype.draw.call(this);
+	}
+	,destroy: function() {
+		flixel_FlxState.prototype.destroy.call(this);
+		this.closeCallback = null;
+		this.openCallback = null;
+		this._parentState = null;
+		this._bgSprite = null;
+	}
+	,close: function() {
+		if(this._parentState != null && this._parentState.subState == this) {
+			this._parentState.closeSubState();
+		}
+	}
+	,get_bgColor: function() {
+		return this._bgColor;
+	}
+	,set_bgColor: function(Value) {
+		if(flixel_FlxG.renderTile && this._bgSprite != null) {
+			this._bgSprite.get_pixels().setPixel32(0,0,Value);
+		}
+		return this._bgColor = Value;
+	}
+	,__class__: flixel_FlxSubState
+});
+var LvlCompletePopup = function() {
+	flixel_FlxSubState.call(this,1627389952);
+};
+$hxClasses["LvlCompletePopup"] = LvlCompletePopup;
+LvlCompletePopup.__name__ = "LvlCompletePopup";
+LvlCompletePopup.__super__ = flixel_FlxSubState;
+LvlCompletePopup.prototype = $extend(flixel_FlxSubState.prototype,{
+	create: function() {
+		var _gthis = this;
+		flixel_FlxSubState.prototype.create.call(this);
+		var boundingBox = new flixel_FlxSprite();
+		boundingBox.makeGraphic(460,197,-12416065);
+		var axes = flixel_util_FlxAxes.XY;
+		if(axes == null) {
+			axes = flixel_util_FlxAxes.XY;
+		}
+		var tmp;
+		switch(axes._hx_index) {
+		case 0:case 2:
+			tmp = true;
+			break;
+		default:
+			tmp = false;
+		}
+		if(tmp) {
+			boundingBox.set_x((flixel_FlxG.width - boundingBox.get_width()) / 2);
+		}
+		var tmp;
+		switch(axes._hx_index) {
+		case 1:case 2:
+			tmp = true;
+			break;
+		default:
+			tmp = false;
+		}
+		if(tmp) {
+			boundingBox.set_y((flixel_FlxG.height - boundingBox.get_height()) / 2);
+		}
+		boundingBox.scrollFactor.set(0,0);
+		this.add(boundingBox);
+		var text = new flixel_text_FlxText(0,boundingBox.y + 45,0,"Level Complete",25);
+		var axes = flixel_util_FlxAxes.X;
+		if(axes == null) {
+			axes = flixel_util_FlxAxes.XY;
+		}
+		var tmp;
+		switch(axes._hx_index) {
+		case 0:case 2:
+			tmp = true;
+			break;
+		default:
+			tmp = false;
+		}
+		if(tmp) {
+			text.set_x((flixel_FlxG.width - text.get_width()) / 2);
+		}
+		var tmp;
+		switch(axes._hx_index) {
+		case 1:case 2:
+			tmp = true;
+			break;
+		default:
+			tmp = false;
+		}
+		if(tmp) {
+			text.set_y((flixel_FlxG.height - text.get_height()) / 2);
+		}
+		text.scrollFactor.set(0,0);
+		this.add(text);
+		var endText = new flixel_text_FlxText(0,boundingBox.y + 135,0,"Go through the door to continue.",15);
+		var axes = flixel_util_FlxAxes.X;
+		if(axes == null) {
+			axes = flixel_util_FlxAxes.XY;
+		}
+		var tmp;
+		switch(axes._hx_index) {
+		case 0:case 2:
+			tmp = true;
+			break;
+		default:
+			tmp = false;
+		}
+		if(tmp) {
+			endText.set_x((flixel_FlxG.width - endText.get_width()) / 2);
+		}
+		var tmp;
+		switch(axes._hx_index) {
+		case 1:case 2:
+			tmp = true;
+			break;
+		default:
+			tmp = false;
+		}
+		if(tmp) {
+			endText.set_y((flixel_FlxG.height - endText.get_height()) / 2);
+		}
+		endText.scrollFactor.set(0,0);
+		this.add(endText);
+		this._timebar = new flixel_ui_FlxBar(350,430,flixel_ui_FlxBarFillDirection.HORIZONTAL_INSIDE_OUT,400,10,null,"time",0,300,true);
+		var _this = this._timebar;
+		var axes = flixel_util_FlxAxes.X;
+		if(axes == null) {
+			axes = flixel_util_FlxAxes.XY;
+		}
+		var tmp;
+		switch(axes._hx_index) {
+		case 0:case 2:
+			tmp = true;
+			break;
+		default:
+			tmp = false;
+		}
+		if(tmp) {
+			_this.set_x((flixel_FlxG.width - _this.get_width()) / 2);
+		}
+		var tmp;
+		switch(axes._hx_index) {
+		case 1:case 2:
+			tmp = true;
+			break;
+		default:
+			tmp = false;
+		}
+		if(tmp) {
+			_this.set_y((flixel_FlxG.height - _this.get_height()) / 2);
+		}
+		this._timebar.createFilledBar(-12416065,-1,true);
+		this._timebar.scrollFactor.set(0,0);
+		this.add(this._timebar);
+		this.timer = new flixel_util_FlxTimer();
+		this.timer.start(3,function(Timer) {
+			_gthis.close();
+		},1);
+	}
+	,update: function(elapsed) {
+		flixel_FlxSubState.prototype.update.call(this,elapsed);
+		var _this = flixel_FlxG.keys.justPressed;
+		if(_this.keyManager.checkStatusUnsafe(32,_this.status)) {
+			this.close();
+		}
+		var _this = this.timer;
+		this._timebar.set_value((_this.time - _this._timeCounter) * 100);
+	}
+	,__class__: LvlCompletePopup
+});
 var LevelStats = function() { };
 $hxClasses["LevelStats"] = LevelStats;
 LevelStats.__name__ = "LevelStats";
@@ -8194,8 +8434,10 @@ var LoggingActions = function() { };
 $hxClasses["LoggingActions"] = LoggingActions;
 LoggingActions.__name__ = "LoggingActions";
 var MagMissile = function(x,y,target,timing,enchanted) {
+	this.TURN_SPEED = 190;
 	Projectile.call(this,x,y,target,AttackType.RED,timing,enchanted);
 	this.MOVEMENT_SPEED = 150;
+	var SHOT_INACC = 5.0;
 	this.loadGraphic("assets/images/shooter.png",true,16,16);
 	this.animation.add("blow",[256,257,258,259],5,false);
 	this.animation.add("idle",[6,7,8,9],5);
@@ -8218,13 +8460,7 @@ var MagMissile = function(x,y,target,timing,enchanted) {
 		this._damage *= 1.2;
 		this._speed *= 1.2;
 	}
-	if(this._target != null) {
-		flixel_math_FlxVelocity.moveTowardsPoint(this,this._target.getMidpoint(),this._speed);
-		this.AI();
-	} else {
-		this._heading = flixel_FlxG.mouse.getPosition();
-		flixel_math_FlxVelocity.moveTowardsPoint(this,this._heading,this._speed);
-	}
+	this.travel_angle = flixel_math_FlxAngle.angleBetweenMouse(this,true) + flixel_FlxG.random.float(-SHOT_INACC,SHOT_INACC);
 };
 $hxClasses["MagMissile"] = MagMissile;
 MagMissile.__name__ = "MagMissile";
@@ -8235,10 +8471,10 @@ MagMissile.prototype = $extend(Projectile.prototype,{
 		if(this.alive) {
 			this.animation.play("idle");
 		} else if(this.blow) {
-			haxe_Log.trace("dmg = 0",{ fileName : "source/MagMissile.hx", lineNumber : 62, className : "MagMissile", methodName : "update"});
+			haxe_Log.trace("dmg = 0",{ fileName : "source/MagMissile.hx", lineNumber : 70, className : "MagMissile", methodName : "update"});
 			this._damage = 0;
 		}
-		this.AI();
+		this.AI(elapsed);
 	}
 	,kill: function() {
 		var _gthis = this;
@@ -8256,38 +8492,34 @@ MagMissile.prototype = $extend(Projectile.prototype,{
 	}
 	,kill_projectile: function() {
 		Projectile.prototype.kill.call(this);
-		haxe_Log.trace("projectile killed",{ fileName : "source/MagMissile.hx", lineNumber : 88, className : "MagMissile", methodName : "kill_projectile"});
+		haxe_Log.trace("projectile killed",{ fileName : "source/MagMissile.hx", lineNumber : 96, className : "MagMissile", methodName : "kill_projectile"});
 	}
-	,AI: function() {
+	,AI: function(elapsed) {
 		if(this.alive) {
 			if(this._target != null) {
-				flixel_math_FlxVelocity.moveTowardsPoint(this,this._target.getMidpoint(),this._speed);
-			} else if(this._heading == null) {
-				this._heading = flixel_FlxG.mouse.getPosition();
-				haxe_Log.trace(this._heading,{ fileName : "source/MagMissile.hx", lineNumber : 104, className : "MagMissile", methodName : "AI"});
-				var tmp = this.velocity;
-				var X = 0;
-				var Y = 0;
-				if(Y == null) {
-					Y = 0;
+				var diff = this._target.getMidpoint().subtractPoint(this.getMidpoint());
+				flixel_math_FlxAngle.getPolarCoords(diff.x,diff.y,diff);
+				if(diff.y - this.travel_angle > 0) {
+					this.travel_angle += this.TURN_SPEED * elapsed;
+				} else if(diff.y - this.travel_angle < 0) {
+					this.travel_angle -= this.TURN_SPEED * elapsed;
 				}
-				if(X == null) {
-					X = 0;
-				}
-				var X1 = X;
-				var Y1 = Y;
-				if(Y1 == null) {
-					Y1 = 0;
-				}
-				if(X1 == null) {
-					X1 = 0;
-				}
-				var point = flixel_math_FlxPoint._pool.get().set(X1,Y1);
-				point._inPool = false;
-				var point1 = point;
-				point1._weak = true;
-				tmp.rotate(point1,flixel_math_FlxAngle.angleBetweenPoint(this,this._heading,true));
 			}
+			var Speed = this._speed * elapsed;
+			var a = this.travel_angle * (Math.PI / 180);
+			var X = Math.cos(a) * Speed;
+			var Y = Math.sin(a) * Speed;
+			if(Y == null) {
+				Y = 0;
+			}
+			if(X == null) {
+				X = 0;
+			}
+			var point = flixel_math_FlxPoint._pool.get().set(X,Y);
+			point._inPool = false;
+			var res = point;
+			this.set_x(this.x + res.x);
+			this.set_y(this.y + res.y);
 		}
 	}
 	,__class__: MagMissile
@@ -8309,7 +8541,7 @@ ManifestResources.init = function(config) {
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf);
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf);
 	var bundle;
-	var data = "{\"name\":null,\"assets\":\"aoy4:pathy30:assets%2Fcredits%2Fcredits.txty4:sizei105y4:typey4:TEXTy2:idR1y7:preloadtgoR0y25:assets%2Fdata%2Flvl1.jsonR2i47799R3R4R5R7R6tgoR0y25:assets%2Fdata%2Fmap1.ogmoR2i54916R3R4R5R8R6tgoR0y23:assets%2Fdata%2Fr1.jsonR2i1706970R3R4R5R9R6tgoR0y26:assets%2Fdata%2Froom1.jsonR2i15512R3R4R5R10R6tgoR0y26:assets%2Fdata%2Froom2.jsonR2i15523R3R4R5R11R6tgoR0y26:assets%2Fdata%2Froom3.jsonR2i25334R3R4R5R12R6tgoR0y26:assets%2Fdata%2Froom4.jsonR2i15718R3R4R5R13R6tgoR0y26:assets%2Fdata%2Froom5.jsonR2i15728R3R4R5R14R6tgoR0y26:assets%2Fdata%2Froom6.jsonR2i20160R3R4R5R15R6tgoR0y26:assets%2Fdata%2Froom7.jsonR2i15941R3R4R5R16R6tgoR0y26:assets%2Fdata%2Froom8.jsonR2i21789R3R4R5R17R6tgoR0y25:assets%2Fdata%2Ftiles.pngR2i35688R3y5:IMAGER5R18R6tgoR2i28952R3y4:FONTy9:classNamey24:__ASSET__assets_font_ttfR5y17:assets%2Ffont.ttfR6tgoR0y38:assets%2Fimages%2FBat_Sprite_Sheet.pngR2i2628R3R19R5R24R6tgoR0y45:assets%2Fimages%2FCharacters_Sprite_Sheet.pngR2i46262R3R19R5R25R6tgoR0y26:assets%2Fimages%2FDoor.pngR2i648R3R19R5R26R6tgoR0y28:assets%2Fimages%2Fenergy.pngR2i235R3R19R5R27R6tgoR0y28:assets%2Fimages%2Fhealth.pngR2i625R3R19R5R28R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R29R6tgoR0y43:assets%2Fimages%2Fjudge_sprites%2Fgreat.pngR2i1361R3R19R5R30R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fmisfire.pngR2i1602R3R19R5R31R6tgoR0y40:assets%2Fimages%2Fjudge_sprites%2Fok.pngR2i833R3R19R5R32R6tgoR0y41:assets%2Fimages%2Fjudge_sprites%2Fooe.pngR2i1685R3R19R5R33R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fperfect.pngR2i1300R3R19R5R34R6tgoR0y35:assets%2Fimages%2Fmagic_missile.pngR2i12870R3R19R5R35R6tgoR0y31:assets%2Fimages%2Fmetronome.pngR2i30800R3R19R5R36R6tgoR0y27:assets%2Fimages%2Fmouse.pngR2i5211R3R19R5R37R6tgoR0y45:assets%2Fimages%2FNotOctorok_Sprite_Sheet.pngR2i1601R3R19R5R38R6tgoR0y28:assets%2Fimages%2Fplayer.pngR2i1886R3R19R5R39R6tgoR0y29:assets%2Fimages%2Fshooter.pngR2i47783R3R19R5R40R6tgoR0y35:assets%2Fimages%2Fticks%2Fgreen.pngR2i228R3R19R5R41R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_g.pngR2i225R3R19R5R42R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_o.pngR2i212R3R19R5R43R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_p.pngR2i223R3R19R5R44R6tgoR0y36:assets%2Fimages%2Fticks%2Fpurple.pngR2i212R3R19R5R45R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_g.pngR2i224R3R19R5R46R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_o.pngR2i222R3R19R5R47R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_p.pngR2i221R3R19R5R48R6tgoR0y33:assets%2Fimages%2Fticks%2Fred.pngR2i230R3R19R5R49R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_g.pngR2i225R3R19R5R50R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_o.pngR2i242R3R19R5R51R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_p.pngR2i223R3R19R5R52R6tgoR0y26:assets%2Fimages%2FWASD.pngR2i2719R3R19R5R53R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R54R6tgoR2i2364674R3y5:MUSICR5y25:assets%2Fmusic%2Fstg1.mp3y9:pathGroupaR56hR6tgoR2i10188R3y5:SOUNDR5y26:assets%2Fsounds%2Fbeat.wavR57aR59hR6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R60R6tgoR2i2114R3R55R5y26:flixel%2Fsounds%2Fbeep.mp3R57aR61y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R55R5y28:flixel%2Fsounds%2Fflixel.mp3R57aR63y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3R58R5R62R57aR61R62hgoR2i33629R3R58R5R64R57aR63R64hgoR2i15744R3R20R21y35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R20R21y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R19R5R69R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R19R5R70R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
+	var data = "{\"name\":null,\"assets\":\"aoy4:pathy30:assets%2Fcredits%2Fcredits.txty4:sizei194y4:typey4:TEXTy2:idR1y7:preloadtgoR0y25:assets%2Fdata%2Flvl1.jsonR2i47799R3R4R5R7R6tgoR0y25:assets%2Fdata%2Fmap1.ogmoR2i54916R3R4R5R8R6tgoR0y23:assets%2Fdata%2Fr1.jsonR2i1706970R3R4R5R9R6tgoR0y26:assets%2Fdata%2Froom1.jsonR2i15512R3R4R5R10R6tgoR0y26:assets%2Fdata%2Froom2.jsonR2i15523R3R4R5R11R6tgoR0y26:assets%2Fdata%2Froom3.jsonR2i25334R3R4R5R12R6tgoR0y26:assets%2Fdata%2Froom4.jsonR2i15718R3R4R5R13R6tgoR0y26:assets%2Fdata%2Froom5.jsonR2i15728R3R4R5R14R6tgoR0y26:assets%2Fdata%2Froom6.jsonR2i20160R3R4R5R15R6tgoR0y26:assets%2Fdata%2Froom7.jsonR2i15941R3R4R5R16R6tgoR0y26:assets%2Fdata%2Froom8.jsonR2i21789R3R4R5R17R6tgoR0y25:assets%2Fdata%2Ftiles.pngR2i35688R3y5:IMAGER5R18R6tgoR2i28952R3y4:FONTy9:classNamey24:__ASSET__assets_font_ttfR5y17:assets%2Ffont.ttfR6tgoR0y38:assets%2Fimages%2FBat_Sprite_Sheet.pngR2i2628R3R19R5R24R6tgoR0y45:assets%2Fimages%2FCharacters_Sprite_Sheet.pngR2i46262R3R19R5R25R6tgoR0y31:assets%2Fimages%2Fcrosshair.pngR2i208R3R19R5R26R6tgoR0y26:assets%2Fimages%2FDoor.pngR2i648R3R19R5R27R6tgoR0y28:assets%2Fimages%2Fenergy.pngR2i235R3R19R5R28R6tgoR0y28:assets%2Fimages%2Fhealth.pngR2i625R3R19R5R29R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R30R6tgoR0y43:assets%2Fimages%2Fjudge_sprites%2Fgreat.pngR2i1361R3R19R5R31R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fmisfire.pngR2i1602R3R19R5R32R6tgoR0y40:assets%2Fimages%2Fjudge_sprites%2Fok.pngR2i833R3R19R5R33R6tgoR0y41:assets%2Fimages%2Fjudge_sprites%2Fooe.pngR2i1685R3R19R5R34R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fperfect.pngR2i1300R3R19R5R35R6tgoR0y35:assets%2Fimages%2Fmagic_missile.pngR2i12870R3R19R5R36R6tgoR0y31:assets%2Fimages%2Fmetronome.pngR2i30800R3R19R5R37R6tgoR0y27:assets%2Fimages%2Fmouse.pngR2i5211R3R19R5R38R6tgoR0y45:assets%2Fimages%2FNotOctorok_Sprite_Sheet.pngR2i1601R3R19R5R39R6tgoR0y28:assets%2Fimages%2Fplayer.pngR2i1886R3R19R5R40R6tgoR0y29:assets%2Fimages%2Fshooter.pngR2i47783R3R19R5R41R6tgoR0y35:assets%2Fimages%2Fticks%2Fgreen.pngR2i228R3R19R5R42R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_g.pngR2i225R3R19R5R43R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_o.pngR2i212R3R19R5R44R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_p.pngR2i223R3R19R5R45R6tgoR0y36:assets%2Fimages%2Fticks%2Fpurple.pngR2i212R3R19R5R46R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_g.pngR2i224R3R19R5R47R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_o.pngR2i222R3R19R5R48R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_p.pngR2i221R3R19R5R49R6tgoR0y33:assets%2Fimages%2Fticks%2Fred.pngR2i230R3R19R5R50R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_g.pngR2i225R3R19R5R51R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_o.pngR2i242R3R19R5R52R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_p.pngR2i223R3R19R5R53R6tgoR0y26:assets%2Fimages%2FWASD.pngR2i2719R3R19R5R54R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R55R6tgoR2i2364674R3y5:MUSICR5y25:assets%2Fmusic%2Fstg1.mp3y9:pathGroupaR57hR6tgoR2i10188R3y5:SOUNDR5y26:assets%2Fsounds%2Fbeat.wavR58aR60hR6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R61R6tgoR2i2114R3R56R5y26:flixel%2Fsounds%2Fbeep.mp3R58aR62y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R56R5y28:flixel%2Fsounds%2Fflixel.mp3R58aR64y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3R59R5R63R58aR62R63hgoR2i33629R3R59R5R65R58aR64R65hgoR2i15744R3R20R21y35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R20R21y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R19R5R70R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R19R5R71R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
 	var manifest = lime_utils_AssetManifest.parse(data,ManifestResources.rootPath);
 	var library = lime_utils_AssetLibrary.fromManifest(manifest);
 	lime_utils_Assets.registerLibrary("default",library);
@@ -8670,6 +8902,7 @@ MenuState.__super__ = flixel_FlxState;
 MenuState.prototype = $extend(flixel_FlxState.prototype,{
 	create: function() {
 		Logger.createLogger();
+		flixel_FlxG.mouse.unload();
 		this.set_bgColor(0);
 		this.title = new flixel_text_FlxText(50,200,0,"Warlock's Groove",18);
 		this.title.set_alignment("center");
@@ -8733,7 +8966,7 @@ MenuState.prototype = $extend(flixel_FlxState.prototype,{
 		});
 	}
 	,clickExit: function() {
-		haxe_Log.trace("Exiting",{ fileName : "source/MenuState.hx", lineNumber : 62, className : "MenuState", methodName : "clickExit"});
+		haxe_Log.trace("Exiting",{ fileName : "source/MenuState.hx", lineNumber : 63, className : "MenuState", methodName : "clickExit"});
 	}
 	,__class__: MenuState
 });
@@ -8824,60 +9057,6 @@ NotOctorok.prototype = $extend(Enemy.prototype,{
 		return false;
 	}
 	,__class__: NotOctorok
-});
-var flixel_FlxSubState = function(BGColor) {
-	if(BGColor == null) {
-		BGColor = 0;
-	}
-	this._created = false;
-	flixel_FlxState.call(this);
-	this.closeCallback = null;
-	this.openCallback = null;
-	if(flixel_FlxG.renderTile) {
-		this._bgSprite = new flixel_system_FlxBGSprite();
-	}
-	this.set_bgColor(BGColor);
-};
-$hxClasses["flixel.FlxSubState"] = flixel_FlxSubState;
-flixel_FlxSubState.__name__ = "flixel.FlxSubState";
-flixel_FlxSubState.__super__ = flixel_FlxState;
-flixel_FlxSubState.prototype = $extend(flixel_FlxState.prototype,{
-	draw: function() {
-		if(flixel_FlxG.renderBlit) {
-			var _g = 0;
-			var _g1 = this.get_cameras();
-			while(_g < _g1.length) {
-				var camera = _g1[_g];
-				++_g;
-				camera.fill(this._bgColor);
-			}
-		} else {
-			this._bgSprite.draw();
-		}
-		flixel_FlxState.prototype.draw.call(this);
-	}
-	,destroy: function() {
-		flixel_FlxState.prototype.destroy.call(this);
-		this.closeCallback = null;
-		this.openCallback = null;
-		this._parentState = null;
-		this._bgSprite = null;
-	}
-	,close: function() {
-		if(this._parentState != null && this._parentState.subState == this) {
-			this._parentState.closeSubState();
-		}
-	}
-	,get_bgColor: function() {
-		return this._bgColor;
-	}
-	,set_bgColor: function(Value) {
-		if(flixel_FlxG.renderTile && this._bgSprite != null) {
-			this._bgSprite.get_pixels().setPixel32(0,0,Value);
-		}
-		return this._bgColor = Value;
-	}
-	,__class__: flixel_FlxSubState
 });
 var PauseMenu = function(BGColor) {
 	flixel_FlxSubState.call(this,BGColor);
@@ -9291,6 +9470,7 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 		this._hud = new HUD(this._player,LevelStats.tick_format,LevelStats.shortest_note_len);
 		this._hud.updateHUD(100,100);
 		this.add(this._hud);
+		this._actionSignal.add($bind(this,this.handleCall));
 	}
 	,createLevel: function() {
 		this.map = new flixel_addons_editors_ogmo_FlxOgmo3Loader("assets/data/map1.ogmo","assets/data/room8.json");
@@ -9321,6 +9501,11 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 	}
 	,update: function(elapsed) {
 		LevelState.prototype.update.call(this,elapsed);
+	}
+	,handleCall: function(input) {
+		if(input[0] == 0) {
+			this._projectiles.add(new Projectile(input[1],input[2],this._player,AttackType.ENEMY,JudgeType.PERFECT,false));
+		}
 	}
 	,__class__: RoomEight
 });
@@ -16881,818 +17066,6 @@ flixel_addons_editors_ogmo_FlxOgmo3Loader.prototype = {
 		return g;
 	}
 	,__class__: flixel_addons_editors_ogmo_FlxOgmo3Loader
-};
-var flixel_addons_editors_tiled_TiledLayer = function(source,parent) {
-	this.properties = new flixel_addons_editors_tiled_TiledPropertySet();
-	this.map = parent;
-	this.name = haxe_xml__$Access_AttribAccess.resolve(source,"name");
-	this.visible = haxe_xml__$Access_HasAttribAccess.resolve(source,"visible") && haxe_xml__$Access_AttribAccess.resolve(source,"visible") == "0" ? false : true;
-	this.opacity = haxe_xml__$Access_HasAttribAccess.resolve(source,"opacity") ? parseFloat(haxe_xml__$Access_AttribAccess.resolve(source,"opacity")) : 1.0;
-	this.offsetX = haxe_xml__$Access_HasAttribAccess.resolve(source,"offsetx") ? parseFloat(haxe_xml__$Access_AttribAccess.resolve(source,"offsetx")) : 0.0;
-	this.offsetY = haxe_xml__$Access_HasAttribAccess.resolve(source,"offsety") ? parseFloat(haxe_xml__$Access_AttribAccess.resolve(source,"offsety")) : 0.0;
-	this.loadProperties(source);
-};
-$hxClasses["flixel.addons.editors.tiled.TiledLayer"] = flixel_addons_editors_tiled_TiledLayer;
-flixel_addons_editors_tiled_TiledLayer.__name__ = "flixel.addons.editors.tiled.TiledLayer";
-flixel_addons_editors_tiled_TiledLayer.prototype = {
-	loadProperties: function(source) {
-		var _g = 0;
-		var _g1 = haxe_xml__$Access_NodeListAccess.resolve(source,"properties");
-		while(_g < _g1.length) {
-			var node = _g1[_g];
-			++_g;
-			this.properties.extend(node);
-		}
-	}
-	,__class__: flixel_addons_editors_tiled_TiledLayer
-};
-var flixel_addons_editors_tiled_TiledGroupLayer = function(source,parent,noLoadHash) {
-	this.layerMap = new haxe_ds_StringMap();
-	this.layers = [];
-	flixel_addons_editors_tiled_TiledLayer.call(this,source,parent);
-	this.type = flixel_addons_editors_tiled_TiledLayerType.GROUP;
-	this.loadLayers(source,parent,noLoadHash);
-};
-$hxClasses["flixel.addons.editors.tiled.TiledGroupLayer"] = flixel_addons_editors_tiled_TiledGroupLayer;
-flixel_addons_editors_tiled_TiledGroupLayer.__name__ = "flixel.addons.editors.tiled.TiledGroupLayer";
-flixel_addons_editors_tiled_TiledGroupLayer.__super__ = flixel_addons_editors_tiled_TiledLayer;
-flixel_addons_editors_tiled_TiledGroupLayer.prototype = $extend(flixel_addons_editors_tiled_TiledLayer.prototype,{
-	loadLayers: function(source,parent,noLoadHash) {
-		var el = source.elements();
-		while(el.hasNext()) {
-			var el1 = el.next();
-			var tmp;
-			if(haxe_xml__$Access_HasAttribAccess.resolve(el1,"name")) {
-				var key = haxe_xml__$Access_AttribAccess.resolve(el1,"name");
-				tmp = Object.prototype.hasOwnProperty.call(noLoadHash.h,key);
-			} else {
-				tmp = false;
-			}
-			if(tmp) {
-				continue;
-			}
-			var layer;
-			var _g;
-			if(el1.nodeType == Xml.Document) {
-				_g = "Document";
-			} else {
-				if(el1.nodeType != Xml.Element) {
-					throw haxe_Exception.thrown("Bad node type, expected Element but found " + (el1.nodeType == null ? "null" : XmlType.toString(el1.nodeType)));
-				}
-				_g = el1.nodeName;
-			}
-			switch(_g.toLowerCase()) {
-			case "group":
-				layer = new flixel_addons_editors_tiled_TiledGroupLayer(el1,parent,noLoadHash);
-				break;
-			case "imagelayer":
-				layer = new flixel_addons_editors_tiled_TiledImageLayer(el1,parent);
-				break;
-			case "layer":
-				layer = new flixel_addons_editors_tiled_TiledTileLayer(el1,parent);
-				break;
-			case "objectgroup":
-				layer = new flixel_addons_editors_tiled_TiledObjectLayer(el1,parent);
-				break;
-			default:
-				layer = null;
-			}
-			if(layer != null) {
-				this.layers.push(layer);
-				this.layerMap.h[layer.name] = layer;
-			}
-		}
-	}
-	,getLayer: function(name) {
-		return this.layerMap.h[name];
-	}
-	,__class__: flixel_addons_editors_tiled_TiledGroupLayer
-});
-var flixel_addons_editors_tiled_TiledImageLayer = function(source,parent) {
-	flixel_addons_editors_tiled_TiledLayer.call(this,source,parent);
-	this.type = flixel_addons_editors_tiled_TiledLayerType.IMAGE;
-	this.imagePath = haxe_xml__$Access_AttribAccess.resolve(haxe_xml__$Access_NodeAccess.resolve(source,"image"),"source");
-	this.x = haxe_xml__$Access_HasAttribAccess.resolve(source,"x") ? Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"x")) : 0;
-	this.y = haxe_xml__$Access_HasAttribAccess.resolve(source,"y") ? Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"y")) : 0;
-};
-$hxClasses["flixel.addons.editors.tiled.TiledImageLayer"] = flixel_addons_editors_tiled_TiledImageLayer;
-flixel_addons_editors_tiled_TiledImageLayer.__name__ = "flixel.addons.editors.tiled.TiledImageLayer";
-flixel_addons_editors_tiled_TiledImageLayer.__super__ = flixel_addons_editors_tiled_TiledLayer;
-flixel_addons_editors_tiled_TiledImageLayer.prototype = $extend(flixel_addons_editors_tiled_TiledLayer.prototype,{
-	__class__: flixel_addons_editors_tiled_TiledImageLayer
-});
-var flixel_addons_editors_tiled_TiledImageTile = function(Source) {
-	var _g = 0;
-	var _g1 = haxe_xml__$Access_NodeListAccess.resolve(Source,"image");
-	while(_g < _g1.length) {
-		var img = _g1[_g];
-		++_g;
-		this.width = parseFloat(haxe_xml__$Access_AttribAccess.resolve(img,"width"));
-		this.height = parseFloat(haxe_xml__$Access_AttribAccess.resolve(img,"height"));
-		this.source = haxe_xml__$Access_AttribAccess.resolve(img,"source");
-	}
-};
-$hxClasses["flixel.addons.editors.tiled.TiledImageTile"] = flixel_addons_editors_tiled_TiledImageTile;
-flixel_addons_editors_tiled_TiledImageTile.__name__ = "flixel.addons.editors.tiled.TiledImageTile";
-flixel_addons_editors_tiled_TiledImageTile.prototype = {
-	__class__: flixel_addons_editors_tiled_TiledImageTile
-};
-var flixel_addons_editors_tiled_TiledLayerType = $hxEnums["flixel.addons.editors.tiled.TiledLayerType"] = { __ename__:"flixel.addons.editors.tiled.TiledLayerType",__constructs__:null
-	,TILE: {_hx_name:"TILE",_hx_index:0,__enum__:"flixel.addons.editors.tiled.TiledLayerType",toString:$estr}
-	,OBJECT: {_hx_name:"OBJECT",_hx_index:1,__enum__:"flixel.addons.editors.tiled.TiledLayerType",toString:$estr}
-	,IMAGE: {_hx_name:"IMAGE",_hx_index:2,__enum__:"flixel.addons.editors.tiled.TiledLayerType",toString:$estr}
-	,GROUP: {_hx_name:"GROUP",_hx_index:3,__enum__:"flixel.addons.editors.tiled.TiledLayerType",toString:$estr}
-};
-flixel_addons_editors_tiled_TiledLayerType.__constructs__ = [flixel_addons_editors_tiled_TiledLayerType.TILE,flixel_addons_editors_tiled_TiledLayerType.OBJECT,flixel_addons_editors_tiled_TiledLayerType.IMAGE,flixel_addons_editors_tiled_TiledLayerType.GROUP];
-var flixel_addons_editors_tiled_TiledMap = function(data,rootPath) {
-	this.layerMap = new haxe_ds_StringMap();
-	this.noLoadHash = new haxe_ds_StringMap();
-	this.layers = [];
-	this.tilesetArray = [];
-	this.tilesets = new haxe_ds_StringMap();
-	this.properties = new flixel_addons_editors_tiled_TiledPropertySet();
-	var source = null;
-	if(rootPath != null) {
-		this.rootPath = rootPath;
-	}
-	if(typeof(data) == "string") {
-		if(this.rootPath == null) {
-			this.rootPath = haxe_io_Path.directory(data) + "/";
-		}
-		var x = Xml.parse(openfl_utils_Assets.getText(data));
-		if(x.nodeType != Xml.Document && x.nodeType != Xml.Element) {
-			throw haxe_Exception.thrown("Invalid nodeType " + (x.nodeType == null ? "null" : XmlType.toString(x.nodeType)));
-		}
-		var this1 = x;
-		source = this1;
-	} else if(((data) instanceof Xml)) {
-		if(this.rootPath == null) {
-			this.rootPath = "";
-		}
-		var xml = data;
-		if(xml.nodeType != Xml.Document && xml.nodeType != Xml.Element) {
-			throw haxe_Exception.thrown("Invalid nodeType " + (xml.nodeType == null ? "null" : XmlType.toString(xml.nodeType)));
-		}
-		var this1 = xml;
-		source = this1;
-	}
-	source = haxe_xml__$Access_NodeAccess.resolve(source,"map");
-	this.loadAttributes(source);
-	this.loadProperties(source);
-	this.loadTilesets(source);
-	this.loadLayers(source);
-};
-$hxClasses["flixel.addons.editors.tiled.TiledMap"] = flixel_addons_editors_tiled_TiledMap;
-flixel_addons_editors_tiled_TiledMap.__name__ = "flixel.addons.editors.tiled.TiledMap";
-flixel_addons_editors_tiled_TiledMap.prototype = {
-	loadAttributes: function(source) {
-		this.version = haxe_xml__$Access_AttribAccess.resolve(source,"version") != null ? haxe_xml__$Access_AttribAccess.resolve(source,"version") : "unknown";
-		this.orientation = haxe_xml__$Access_AttribAccess.resolve(source,"orientation") != null ? haxe_xml__$Access_AttribAccess.resolve(source,"orientation") : "orthogonal";
-		this.backgroundColor = haxe_xml__$Access_HasAttribAccess.resolve(source,"backgroundcolor") && haxe_xml__$Access_AttribAccess.resolve(source,"backgroundcolor") != null ? flixel_util_FlxColor.fromString(haxe_xml__$Access_AttribAccess.resolve(source,"backgroundcolor")) : 0;
-		this.width = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"width"));
-		this.height = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"height"));
-		this.tileWidth = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"tilewidth"));
-		this.tileHeight = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"tileheight"));
-		this.fullWidth = this.width * this.tileWidth;
-		this.fullHeight = this.height * this.tileHeight;
-	}
-	,loadProperties: function(source) {
-		var _g = 0;
-		var _g1 = haxe_xml__$Access_NodeListAccess.resolve(source,"properties");
-		while(_g < _g1.length) {
-			var node = _g1[_g];
-			++_g;
-			this.properties.extend(node);
-		}
-		var noLoadStr = this.properties.keys.h["noload"];
-		if(noLoadStr != null) {
-			var noLoadArr = new EReg("[,;|]","").split(noLoadStr);
-			var _g = 0;
-			while(_g < noLoadArr.length) {
-				var s = noLoadArr[_g];
-				++_g;
-				var this1 = this.noLoadHash;
-				var key = StringTools.trim(s);
-				this1.h[key] = true;
-			}
-		}
-	}
-	,loadTilesets: function(source) {
-		var _g = 0;
-		var _g1 = haxe_xml__$Access_NodeListAccess.resolve(source,"tileset");
-		while(_g < _g1.length) {
-			var node = _g1[_g];
-			++_g;
-			var name = haxe_xml__$Access_HasAttribAccess.resolve(node,"name") ? haxe_xml__$Access_AttribAccess.resolve(node,"name") : "";
-			if(!Object.prototype.hasOwnProperty.call(this.noLoadHash.h,name)) {
-				var ts = new flixel_addons_editors_tiled_TiledTileSet(node,this.rootPath);
-				this.tilesets.h[ts.name] = ts;
-				this.tilesetArray.push(ts);
-			}
-		}
-	}
-	,loadLayers: function(source) {
-		var el = source.elements();
-		while(el.hasNext()) {
-			var el1 = el.next();
-			var tmp;
-			if(haxe_xml__$Access_HasAttribAccess.resolve(el1,"name")) {
-				var this1 = this.noLoadHash;
-				var key = haxe_xml__$Access_AttribAccess.resolve(el1,"name");
-				tmp = Object.prototype.hasOwnProperty.call(this1.h,key);
-			} else {
-				tmp = false;
-			}
-			if(tmp) {
-				continue;
-			}
-			var layer;
-			var _g;
-			if(el1.nodeType == Xml.Document) {
-				_g = "Document";
-			} else {
-				if(el1.nodeType != Xml.Element) {
-					throw haxe_Exception.thrown("Bad node type, expected Element but found " + (el1.nodeType == null ? "null" : XmlType.toString(el1.nodeType)));
-				}
-				_g = el1.nodeName;
-			}
-			switch(_g.toLowerCase()) {
-			case "group":
-				layer = new flixel_addons_editors_tiled_TiledGroupLayer(el1,this,this.noLoadHash);
-				break;
-			case "imagelayer":
-				layer = new flixel_addons_editors_tiled_TiledImageLayer(el1,this);
-				break;
-			case "layer":
-				layer = new flixel_addons_editors_tiled_TiledTileLayer(el1,this);
-				break;
-			case "objectgroup":
-				layer = new flixel_addons_editors_tiled_TiledObjectLayer(el1,this);
-				break;
-			default:
-				layer = null;
-			}
-			if(layer != null) {
-				this.layers.push(layer);
-				this.layerMap.h[layer.name] = layer;
-			}
-		}
-	}
-	,getTileSet: function(name) {
-		return this.tilesets.h[name];
-	}
-	,getLayer: function(name) {
-		return this.layerMap.h[name];
-	}
-	,getGidOwner: function(gid) {
-		var h = this.tilesets.h;
-		var set_h = h;
-		var set_keys = Object.keys(h);
-		var set_length = set_keys.length;
-		var set_current = 0;
-		while(set_current < set_length) {
-			var set = set_h[set_keys[set_current++]];
-			if(gid >= set.firstGID && gid < set.firstGID + set.numTiles) {
-				return set;
-			}
-		}
-		return null;
-	}
-	,__class__: flixel_addons_editors_tiled_TiledMap
-};
-var flixel_addons_editors_tiled_TiledObject = function(source,parent) {
-	this.xmlData = source;
-	this.layer = parent;
-	this.name = haxe_xml__$Access_HasAttribAccess.resolve(source,"name") ? haxe_xml__$Access_AttribAccess.resolve(source,"name") : "";
-	this.type = haxe_xml__$Access_HasAttribAccess.resolve(source,"type") ? haxe_xml__$Access_AttribAccess.resolve(source,"type") : parent != null && Object.prototype.hasOwnProperty.call(parent.properties.keys.h,"defaultType") ? parent.properties.keys.h["defaultType"] : "";
-	this.x = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"x"));
-	this.y = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"y"));
-	this.width = haxe_xml__$Access_HasAttribAccess.resolve(source,"width") ? Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"width")) : 0;
-	this.height = haxe_xml__$Access_HasAttribAccess.resolve(source,"height") ? Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"height")) : 0;
-	this.angle = haxe_xml__$Access_HasAttribAccess.resolve(source,"rotation") ? parseFloat(haxe_xml__$Access_AttribAccess.resolve(source,"rotation")) : 0;
-	this.objectType = 0;
-	this.shared = null;
-	this.gid = -1;
-	if(haxe_xml__$Access_HasAttribAccess.resolve(source,"gid") && haxe_xml__$Access_AttribAccess.resolve(source,"gid").length != 0) {
-		var gid64 = haxe_Int64Helper.parseString(haxe_xml__$Access_AttribAccess.resolve(source,"gid"));
-		var b_high = -1;
-		var b_low = -2147483648;
-		var a_high = gid64.high & b_high;
-		var a_low = gid64.low & b_low;
-		var b_high = 0;
-		var b_low = 0;
-		var v = a_high - b_high | 0;
-		if(v == 0) {
-			v = haxe_Int32.ucompare(a_low,b_low);
-		}
-		this.flippedHorizontally = (a_high < 0 ? b_high < 0 ? v : -1 : b_high >= 0 ? v : 1) > 0;
-		var b_high = 0;
-		var b_low = 1073741824;
-		var a_high = gid64.high & b_high;
-		var a_low = gid64.low & b_low;
-		var b_high = 0;
-		var b_low = 0;
-		var v = a_high - b_high | 0;
-		if(v == 0) {
-			v = haxe_Int32.ucompare(a_low,b_low);
-		}
-		this.flippedVertically = (a_high < 0 ? b_high < 0 ? v : -1 : b_high >= 0 ? v : 1) > 0;
-		var b_high = 0;
-		var b_low = 1073741823;
-		var this1 = new haxe__$Int64__$_$_$Int64(gid64.high & b_high,gid64.low & b_low);
-		gid64 = this1;
-		this.gid = gid64.low;
-		var h = this.layer.map.tilesets.h;
-		var set_h = h;
-		var set_keys = Object.keys(h);
-		var set_length = set_keys.length;
-		var set_current = 0;
-		while(set_current < set_length) {
-			var set = set_h[set_keys[set_current++]];
-			this.shared = set.getPropertiesByGid(this.gid);
-			if(this.shared != null) {
-				break;
-			}
-		}
-		this.objectType = 4;
-	}
-	this.properties = new flixel_addons_editors_tiled_TiledPropertySet();
-	var _g = 0;
-	var _g1 = haxe_xml__$Access_NodeListAccess.resolve(source,"properties");
-	while(_g < _g1.length) {
-		var node = _g1[_g];
-		++_g;
-		this.properties.extend(node);
-	}
-	if(haxe_xml__$Access_HasNodeAccess.resolve(source,"ellipse")) {
-		this.objectType = 1;
-	} else if(haxe_xml__$Access_HasNodeAccess.resolve(source,"polygon")) {
-		this.objectType = 2;
-		this.getPoints(haxe_xml__$Access_NodeAccess.resolve(source,"polygon"));
-	} else if(haxe_xml__$Access_HasNodeAccess.resolve(source,"polyline")) {
-		this.objectType = 3;
-		this.getPoints(haxe_xml__$Access_NodeAccess.resolve(source,"polyline"));
-	}
-};
-$hxClasses["flixel.addons.editors.tiled.TiledObject"] = flixel_addons_editors_tiled_TiledObject;
-flixel_addons_editors_tiled_TiledObject.__name__ = "flixel.addons.editors.tiled.TiledObject";
-flixel_addons_editors_tiled_TiledObject.prototype = {
-	getPoints: function(node) {
-		this.points = [];
-		var pointsStr = haxe_xml__$Access_AttribAccess.resolve(node,"points").split(" ");
-		var pair;
-		var _g = 0;
-		while(_g < pointsStr.length) {
-			var p = pointsStr[_g];
-			++_g;
-			pair = p.split(",");
-			var tmp = this.points;
-			var X = parseFloat(pair[0]);
-			var Y = parseFloat(pair[1]);
-			if(Y == null) {
-				Y = 0;
-			}
-			if(X == null) {
-				X = 0;
-			}
-			var point = flixel_math_FlxPoint._pool.get().set(X,Y);
-			point._inPool = false;
-			tmp.push(point);
-		}
-	}
-	,__class__: flixel_addons_editors_tiled_TiledObject
-};
-var flixel_addons_editors_tiled_TiledObjectLayer = function(source,parent) {
-	flixel_addons_editors_tiled_TiledLayer.call(this,source,parent);
-	this.type = flixel_addons_editors_tiled_TiledLayerType.OBJECT;
-	this.objects = [];
-	this.color = haxe_xml__$Access_HasAttribAccess.resolve(source,"color") ? flixel_util_FlxColor.fromString(haxe_xml__$Access_AttribAccess.resolve(source,"color")) : 0;
-	this.loadObjects(source);
-};
-$hxClasses["flixel.addons.editors.tiled.TiledObjectLayer"] = flixel_addons_editors_tiled_TiledObjectLayer;
-flixel_addons_editors_tiled_TiledObjectLayer.__name__ = "flixel.addons.editors.tiled.TiledObjectLayer";
-flixel_addons_editors_tiled_TiledObjectLayer.__super__ = flixel_addons_editors_tiled_TiledLayer;
-flixel_addons_editors_tiled_TiledObjectLayer.prototype = $extend(flixel_addons_editors_tiled_TiledLayer.prototype,{
-	loadObjects: function(source) {
-		var _g = 0;
-		var _g1 = haxe_xml__$Access_NodeListAccess.resolve(source,"object");
-		while(_g < _g1.length) {
-			var node = _g1[_g];
-			++_g;
-			this.objects.push(new flixel_addons_editors_tiled_TiledObject(node,this));
-		}
-	}
-	,__class__: flixel_addons_editors_tiled_TiledObjectLayer
-});
-var flixel_addons_editors_tiled_TiledPropertySet = function() {
-	this.keys = new haxe_ds_StringMap();
-};
-$hxClasses["flixel.addons.editors.tiled.TiledPropertySet"] = flixel_addons_editors_tiled_TiledPropertySet;
-flixel_addons_editors_tiled_TiledPropertySet.__name__ = "flixel.addons.editors.tiled.TiledPropertySet";
-flixel_addons_editors_tiled_TiledPropertySet.prototype = {
-	get: function(Key) {
-		return this.keys.h[Key];
-	}
-	,contains: function(Key) {
-		return Object.prototype.hasOwnProperty.call(this.keys.h,Key);
-	}
-	,resolve: function(Name) {
-		return this.keys.h[Name];
-	}
-	,keysIterator: function() {
-		return new haxe_ds__$StringMap_StringMapKeyIterator(this.keys.h);
-	}
-	,extend: function(Source) {
-		var _g = 0;
-		var _g1 = haxe_xml__$Access_NodeListAccess.resolve(Source,"property");
-		while(_g < _g1.length) {
-			var prop = _g1[_g];
-			++_g;
-			var this1 = this.keys;
-			var key = haxe_xml__$Access_AttribAccess.resolve(prop,"name");
-			var value = haxe_xml__$Access_AttribAccess.resolve(prop,"value");
-			this1.h[key] = value;
-		}
-	}
-	,__class__: flixel_addons_editors_tiled_TiledPropertySet
-};
-var flixel_addons_editors_tiled_TiledTile = function(OriginalId) {
-	this.isFlipVertically = false;
-	this.isFlipHorizontally = false;
-	this.tileID = OriginalId;
-	this.tilesetID = this.tileID & 536870911;
-	this.rotate = 0;
-	this.resolveFlipAndRotation();
-};
-$hxClasses["flixel.addons.editors.tiled.TiledTile"] = flixel_addons_editors_tiled_TiledTile;
-flixel_addons_editors_tiled_TiledTile.__name__ = "flixel.addons.editors.tiled.TiledTile";
-flixel_addons_editors_tiled_TiledTile.prototype = {
-	resolveFlipAndRotation: function() {
-		var flipHorizontal = (this.tileID & -2147483648) != 0;
-		var flipVertical = (this.tileID & 1073741824) != 0;
-		if((this.tileID & 536870912) != 0) {
-			if(flipHorizontal && flipVertical) {
-				this.isFlipHorizontally = true;
-				this.rotate = 2;
-			} else if(flipHorizontal) {
-				this.rotate = 1;
-			} else if(flipVertical) {
-				this.rotate = 2;
-			} else {
-				this.isFlipVertically = true;
-				this.rotate = 2;
-			}
-		} else {
-			this.isFlipHorizontally = flipHorizontal;
-			this.isFlipVertically = flipVertical;
-		}
-	}
-	,resolveTilesetID: function() {
-		return this.tileID & 536870911;
-	}
-	,__class__: flixel_addons_editors_tiled_TiledTile
-};
-var flixel_addons_editors_tiled_TiledTileLayer = function(source,parent) {
-	flixel_addons_editors_tiled_TiledLayer.call(this,source,parent);
-	this.type = flixel_addons_editors_tiled_TiledLayerType.TILE;
-	this.x = haxe_xml__$Access_HasAttribAccess.resolve(source,"x") ? Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"x")) : 0;
-	this.y = haxe_xml__$Access_HasAttribAccess.resolve(source,"y") ? Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"y")) : 0;
-	this.width = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"width"));
-	this.height = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"height"));
-	this.tiles = [];
-	this.xmlData = haxe_xml__$Access_NodeAccess.resolve(source,"data");
-	if(this.xmlData == null) {
-		throw haxe_Exception.thrown("Error loading TiledLayer level data");
-	}
-};
-$hxClasses["flixel.addons.editors.tiled.TiledTileLayer"] = flixel_addons_editors_tiled_TiledTileLayer;
-flixel_addons_editors_tiled_TiledTileLayer.__name__ = "flixel.addons.editors.tiled.TiledTileLayer";
-flixel_addons_editors_tiled_TiledTileLayer.__super__ = flixel_addons_editors_tiled_TiledLayer;
-flixel_addons_editors_tiled_TiledTileLayer.prototype = $extend(flixel_addons_editors_tiled_TiledLayer.prototype,{
-	getByteArrayData: function() {
-		var result = null;
-		if(this.get_encoding() == "base64") {
-			var chunk = haxe_xml_Access.get_innerData(this.xmlData);
-			var compressed = false;
-			result = this.base64ToByteArray(chunk);
-			result.__endian = 1;
-			if(haxe_xml__$Access_HasAttribAccess.resolve(this.xmlData,"compression")) {
-				if(haxe_xml__$Access_AttribAccess.resolve(this.xmlData,"compression") == "zlib") {
-					compressed = true;
-				} else {
-					throw haxe_Exception.thrown("TiledLayer - data compression type not supported!");
-				}
-			}
-			if(compressed) {
-				result.uncompress(null);
-			}
-		} else {
-			throw haxe_Exception.thrown("Must use base64 encoding in order to get tileArray data.");
-		}
-		result.__endian = 1;
-		return result;
-	}
-	,base64ToByteArray: function(data) {
-		var this1 = new openfl_utils_ByteArrayData(0);
-		var output = this1;
-		var lookup = [];
-		var _g = 0;
-		var _g1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=".length;
-		while(_g < _g1) {
-			var c = _g++;
-			lookup[HxOverrides.cca("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",c)] = c;
-		}
-		var i = 0;
-		while(i < data.length - 3) {
-			if(data.charAt(i) == " " || data.charAt(i) == "\n" || data.charAt(i) == "\r") {
-				++i;
-				continue;
-			}
-			var a0 = lookup[HxOverrides.cca(data,i)];
-			var a1 = lookup[HxOverrides.cca(data,i + 1)];
-			var a2 = lookup[HxOverrides.cca(data,i + 2)];
-			var a3 = lookup[HxOverrides.cca(data,i + 3)];
-			if(a1 < 64) {
-				output.writeByte((a0 << 2) + ((a1 & 48) >> 4));
-			}
-			if(a2 < 64) {
-				output.writeByte(((a1 & 15) << 4) + ((a2 & 60) >> 2));
-			}
-			if(a3 < 64) {
-				output.writeByte(((a2 & 3) << 6) + a3);
-			}
-			i += 4;
-		}
-		output.position = 0;
-		return output;
-	}
-	,resolveTile: function(globalTileId) {
-		var tile = new flixel_addons_editors_tiled_TiledTile(globalTileId);
-		var tilesetID = tile.tilesetID;
-		var h = this.map.tilesets.h;
-		var tileset_h = h;
-		var tileset_keys = Object.keys(h);
-		var tileset_length = tileset_keys.length;
-		var tileset_current = 0;
-		while(tileset_current < tileset_length) {
-			var tileset = tileset_h[tileset_keys[tileset_current++]];
-			if(tilesetID >= tileset.firstGID && tilesetID < tileset.firstGID + tileset.numTiles) {
-				this.tiles.push(tile);
-				return tilesetID;
-			}
-		}
-		this.tiles.push(null);
-		return 0;
-	}
-	,get_encoding: function() {
-		if(this.encoding == null) {
-			this.encoding = haxe_xml__$Access_AttribAccess.resolve(this.xmlData,"encoding");
-		}
-		return this.encoding;
-	}
-	,get_csvData: function() {
-		if(this.csvData == null) {
-			if(haxe_xml__$Access_AttribAccess.resolve(this.xmlData,"encoding") == "csv") {
-				this.csvData = StringTools.ltrim(haxe_xml_Access.get_innerData(this.xmlData));
-			} else {
-				throw haxe_Exception.thrown("Must use CSV encoding in order to get CSV data.");
-			}
-		}
-		return this.csvData;
-	}
-	,get_tileArray: function() {
-		if(this.tileArray == null) {
-			this.tileArray = [];
-			if(this.get_encoding() == "csv") {
-				var endline = this.get_csvData().indexOf("\r\n") != -1 ? "\r\n" : "\n";
-				var rows = this.get_csvData().split(endline);
-				var _g = 0;
-				while(_g < rows.length) {
-					var row = rows[_g];
-					++_g;
-					var cells = row.split(",");
-					var _g1 = 0;
-					while(_g1 < cells.length) {
-						var cell = cells[_g1];
-						++_g1;
-						if(cell != "") {
-							this.tileArray.push(this.resolveTile(Std.parseInt(cell)));
-						}
-					}
-				}
-			} else {
-				var mapData = this.getByteArrayData();
-				if(mapData == null) {
-					throw haxe_Exception.thrown("Must use Base64 encoding (with or without zlip compression) in order to get 1D Array.");
-				}
-				while((UInt.toFloat(mapData.position) | 0) < (UInt.toFloat(openfl_utils_ByteArray.get_length(mapData)) | 0)) this.tileArray.push(this.resolveTile(mapData.readUnsignedInt()));
-			}
-		}
-		return this.tileArray;
-	}
-	,__class__: flixel_addons_editors_tiled_TiledTileLayer
-	,__properties__: {get_tileArray:"get_tileArray",get_csvData:"get_csvData",get_encoding:"get_encoding"}
-});
-var flixel_addons_editors_tiled_TiledTilePropertySet = function(tileID) {
-	flixel_addons_editors_tiled_TiledPropertySet.call(this);
-	this.tileID = tileID;
-	this.animationFrames = [];
-	this.tileObjects = [];
-};
-$hxClasses["flixel.addons.editors.tiled.TiledTilePropertySet"] = flixel_addons_editors_tiled_TiledTilePropertySet;
-flixel_addons_editors_tiled_TiledTilePropertySet.__name__ = "flixel.addons.editors.tiled.TiledTilePropertySet";
-flixel_addons_editors_tiled_TiledTilePropertySet.__super__ = flixel_addons_editors_tiled_TiledPropertySet;
-flixel_addons_editors_tiled_TiledTilePropertySet.prototype = $extend(flixel_addons_editors_tiled_TiledPropertySet.prototype,{
-	addAnimationFrame: function(tileID,duration) {
-		this.animationFrames.push({ tileID : tileID, duration : duration});
-	}
-	,addTileObject: function(tileObject) {
-		this.tileObjects.push(tileObject);
-	}
-	,__class__: flixel_addons_editors_tiled_TiledTilePropertySet
-});
-var flixel_addons_editors_tiled_TiledTileSet = function(data,rootPath) {
-	if(rootPath == null) {
-		rootPath = "";
-	}
-	var source;
-	this.numTiles = 16777215;
-	this.numRows = this.numCols = 1;
-	if(((data) instanceof Xml)) {
-		source = data;
-	} else if(((data) instanceof openfl_utils_ByteArrayData)) {
-		var bytes = data;
-		var x = Xml.parse(bytes.toString());
-		if(x.nodeType != Xml.Document && x.nodeType != Xml.Element) {
-			throw haxe_Exception.thrown("Invalid nodeType " + (x.nodeType == null ? "null" : XmlType.toString(x.nodeType)));
-		}
-		var this1 = x;
-		source = this1;
-		source = haxe_xml__$Access_NodeAccess.resolve(source,"tileset");
-	} else {
-		throw haxe_Exception.thrown("Unknown TMX tileset format");
-	}
-	this.firstGID = haxe_xml__$Access_HasAttribAccess.resolve(source,"firstgid") ? Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"firstgid")) : 1;
-	if(haxe_xml__$Access_HasAttribAccess.resolve(source,"source")) {
-		var sourcePath = haxe_io_Path.normalize(rootPath + haxe_xml__$Access_AttribAccess.resolve(source,"source"));
-		if(openfl_utils_Assets.exists(sourcePath)) {
-			var x = Xml.parse(openfl_utils_Assets.getText(sourcePath));
-			if(x.nodeType != Xml.Document && x.nodeType != Xml.Element) {
-				throw haxe_Exception.thrown("Invalid nodeType " + (x.nodeType == null ? "null" : XmlType.toString(x.nodeType)));
-			}
-			var this1 = x;
-			source = this1;
-			source = haxe_xml__$Access_NodeAccess.resolve(source,"tileset");
-		} else {
-			throw haxe_Exception.thrown("Invalid TSX tileset path: " + sourcePath);
-		}
-	}
-	if(!haxe_xml__$Access_HasAttribAccess.resolve(source,"source")) {
-		var node;
-		if(haxe_xml__$Access_HasNodeAccess.resolve(source,"image")) {
-			node = haxe_xml__$Access_NodeAccess.resolve(source,"image");
-			this.imageSource = haxe_xml__$Access_AttribAccess.resolve(node,"source");
-		} else {
-			node = haxe_xml__$Access_NodeAccess.resolve(source,"tile");
-			this.imageSource = "";
-			this.tileImagesSources = [];
-			var _g = 0;
-			var _g1 = haxe_xml__$Access_NodeListAccess.resolve(source,"tile");
-			while(_g < _g1.length) {
-				var node1 = _g1[_g];
-				++_g;
-				if(!haxe_xml__$Access_HasAttribAccess.resolve(node1,"id")) {
-					continue;
-				}
-				var id = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(node1,"id"));
-				this.tileImagesSources[id] = new flixel_addons_editors_tiled_TiledImageTile(node1);
-			}
-		}
-		this.name = haxe_xml__$Access_AttribAccess.resolve(source,"name");
-		var imgWidth = 0;
-		if(haxe_xml__$Access_HasAttribAccess.resolve(node,"width")) {
-			imgWidth = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(node,"width"));
-		}
-		var imgHeight = 0;
-		if(haxe_xml__$Access_HasAttribAccess.resolve(node,"height")) {
-			imgHeight = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(node,"height"));
-		}
-		if(haxe_xml__$Access_HasAttribAccess.resolve(source,"tilewidth")) {
-			this.tileWidth = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"tilewidth"));
-		}
-		if(haxe_xml__$Access_HasAttribAccess.resolve(source,"tileheight")) {
-			this.tileHeight = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"tileheight"));
-		}
-		if(haxe_xml__$Access_HasAttribAccess.resolve(source,"spacing")) {
-			this.spacing = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"spacing"));
-		}
-		if(haxe_xml__$Access_HasAttribAccess.resolve(source,"margin")) {
-			this.margin = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(source,"margin"));
-		}
-		this.properties = new flixel_addons_editors_tiled_TiledPropertySet();
-		var _g = 0;
-		var _g1 = haxe_xml__$Access_NodeListAccess.resolve(source,"properties");
-		while(_g < _g1.length) {
-			var prop = _g1[_g];
-			++_g;
-			this.properties.extend(prop);
-		}
-		this.tileProps = [];
-		this.tileTypes = [];
-		this.tileProbabilities = [];
-		var _g = 0;
-		var _g1 = haxe_xml__$Access_NodeListAccess.resolve(source,"tile");
-		while(_g < _g1.length) {
-			var node = _g1[_g];
-			++_g;
-			if(!haxe_xml__$Access_HasAttribAccess.resolve(node,"id")) {
-				continue;
-			}
-			var id = Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(node,"id"));
-			if(haxe_xml__$Access_HasAttribAccess.resolve(node,"type")) {
-				var type = haxe_xml__$Access_AttribAccess.resolve(node,"type");
-				this.tileTypes[id] = type;
-			}
-			if(haxe_xml__$Access_HasAttribAccess.resolve(node,"probability")) {
-				var probability = parseFloat(haxe_xml__$Access_AttribAccess.resolve(node,"probability"));
-				this.tileProbabilities[id] = probability;
-			}
-			this.tileProps[id] = new flixel_addons_editors_tiled_TiledTilePropertySet(id);
-			this.tileProps[id].keys.h["id"] = id == null ? "null" : "" + id;
-			var _g2 = 0;
-			var _g3 = haxe_xml__$Access_NodeListAccess.resolve(node,"properties");
-			while(_g2 < _g3.length) {
-				var prop = _g3[_g2];
-				++_g2;
-				this.tileProps[id].extend(prop);
-			}
-			if(haxe_xml__$Access_HasNodeAccess.resolve(node,"animation")) {
-				var _g4 = 0;
-				var _g5 = haxe_xml__$Access_NodeListAccess.resolve(haxe_xml__$Access_NodeAccess.resolve(node,"animation"),"frame");
-				while(_g4 < _g5.length) {
-					var frame = _g5[_g4];
-					++_g4;
-					this.tileProps[id].addAnimationFrame(Std.parseInt(haxe_xml__$Access_AttribAccess.resolve(frame,"tileid")),parseFloat(haxe_xml__$Access_AttribAccess.resolve(frame,"duration")));
-				}
-			}
-			if(haxe_xml__$Access_HasNodeAccess.resolve(node,"objectgroup")) {
-				var _g6 = 0;
-				var _g7 = haxe_xml__$Access_NodeListAccess.resolve(haxe_xml__$Access_NodeAccess.resolve(node,"objectgroup"),"object");
-				while(_g6 < _g7.length) {
-					var object = _g7[_g6];
-					++_g6;
-					var tiledObject = new flixel_addons_editors_tiled_TiledObject(object);
-					this.tileProps[id].addTileObject(tiledObject);
-				}
-			}
-		}
-		if(this.tileWidth > 0 && this.tileHeight > 0) {
-			this.numRows = imgHeight / this.tileHeight | 0;
-			this.numCols = imgWidth / this.tileWidth | 0;
-			this.numTiles = this.numRows * this.numCols;
-		}
-	} else {
-		throw haxe_Exception.thrown("TMX tileset misses source image or tiles");
-	}
-};
-$hxClasses["flixel.addons.editors.tiled.TiledTileSet"] = flixel_addons_editors_tiled_TiledTileSet;
-flixel_addons_editors_tiled_TiledTileSet.__name__ = "flixel.addons.editors.tiled.TiledTileSet";
-flixel_addons_editors_tiled_TiledTileSet.prototype = {
-	hasGid: function(Gid) {
-		if(Gid >= this.firstGID) {
-			return Gid < this.firstGID + this.numTiles;
-		} else {
-			return false;
-		}
-	}
-	,fromGid: function(Gid) {
-		return Gid - (this.firstGID - 1);
-	}
-	,toGid: function(ID) {
-		return this.firstGID + ID;
-	}
-	,getPropertiesByGid: function(Gid) {
-		if(this.tileProps != null) {
-			return this.tileProps[Gid - this.firstGID];
-		}
-		return null;
-	}
-	,getProperties: function(ID) {
-		return this.tileProps[ID];
-	}
-	,getImageSourceByGid: function(Gid) {
-		if(this.tileImagesSources != null) {
-			return this.tileImagesSources[Gid - this.firstGID];
-		}
-		return null;
-	}
-	,getImageSource: function(ID) {
-		return this.tileImagesSources[ID];
-	}
-	,getRect: function(ID) {
-		return new openfl_geom_Rectangle(ID % this.numCols * this.tileWidth,ID / this.numCols * this.tileHeight);
-	}
-	,__class__: flixel_addons_editors_tiled_TiledTileSet
 };
 var flixel_addons_plugin_FlxMouseControl = function() {
 	flixel_FlxBasic.call(this);
@@ -53570,21 +52943,6 @@ haxe_Exception.prototype = $extend(Error.prototype,{
 	,__class__: haxe_Exception
 	,__properties__: {get_native:"get_native",get_stack:"get_stack",get_message:"get_message"}
 });
-var haxe_Int32 = {};
-haxe_Int32.ucompare = function(a,b) {
-	if(a < 0) {
-		if(b < 0) {
-			return ~b - ~a | 0;
-		} else {
-			return 1;
-		}
-	}
-	if(b < 0) {
-		return -1;
-	} else {
-		return a - b | 0;
-	}
-};
 var haxe__$Int64__$_$_$Int64 = function(high,low) {
 	this.high = high;
 	this.low = low;
@@ -53593,141 +52951,6 @@ $hxClasses["haxe._Int64.___Int64"] = haxe__$Int64__$_$_$Int64;
 haxe__$Int64__$_$_$Int64.__name__ = "haxe._Int64.___Int64";
 haxe__$Int64__$_$_$Int64.prototype = {
 	__class__: haxe__$Int64__$_$_$Int64
-};
-var haxe_Int64Helper = function() { };
-$hxClasses["haxe.Int64Helper"] = haxe_Int64Helper;
-haxe_Int64Helper.__name__ = "haxe.Int64Helper";
-haxe_Int64Helper.parseString = function(sParam) {
-	var base_high = 0;
-	var base_low = 10;
-	var this1 = new haxe__$Int64__$_$_$Int64(0,0);
-	var current = this1;
-	var this1 = new haxe__$Int64__$_$_$Int64(0,1);
-	var multiplier = this1;
-	var sIsNegative = false;
-	var s = StringTools.trim(sParam);
-	if(s.charAt(0) == "-") {
-		sIsNegative = true;
-		s = s.substring(1,s.length);
-	}
-	var len = s.length;
-	var _g = 0;
-	var _g1 = len;
-	while(_g < _g1) {
-		var i = _g++;
-		var digitInt = HxOverrides.cca(s,len - 1 - i) - 48;
-		if(digitInt < 0 || digitInt > 9) {
-			throw haxe_Exception.thrown("NumberFormatError");
-		}
-		if(digitInt != 0) {
-			var digit_high = digitInt >> 31;
-			var digit_low = digitInt;
-			if(sIsNegative) {
-				var mask = 65535;
-				var al = multiplier.low & mask;
-				var ah = multiplier.low >>> 16;
-				var bl = digit_low & mask;
-				var bh = digit_low >>> 16;
-				var p00 = haxe_Int32._mul(al,bl);
-				var p10 = haxe_Int32._mul(ah,bl);
-				var p01 = haxe_Int32._mul(al,bh);
-				var p11 = haxe_Int32._mul(ah,bh);
-				var low = p00;
-				var high = (p11 + (p01 >>> 16) | 0) + (p10 >>> 16) | 0;
-				p01 <<= 16;
-				low = low + p01 | 0;
-				if(haxe_Int32.ucompare(low,p01) < 0) {
-					var ret = high++;
-					high = high | 0;
-				}
-				p10 <<= 16;
-				low = low + p10 | 0;
-				if(haxe_Int32.ucompare(low,p10) < 0) {
-					var ret1 = high++;
-					high = high | 0;
-				}
-				high = high + (haxe_Int32._mul(multiplier.low,digit_high) + haxe_Int32._mul(multiplier.high,digit_low) | 0) | 0;
-				var b_high = high;
-				var b_low = low;
-				var high1 = current.high - b_high | 0;
-				var low1 = current.low - b_low | 0;
-				if(haxe_Int32.ucompare(current.low,b_low) < 0) {
-					var ret2 = high1--;
-					high1 = high1 | 0;
-				}
-				var this1 = new haxe__$Int64__$_$_$Int64(high1,low1);
-				current = this1;
-				if(!(current.high < 0)) {
-					throw haxe_Exception.thrown("NumberFormatError: Underflow");
-				}
-			} else {
-				var mask1 = 65535;
-				var al1 = multiplier.low & mask1;
-				var ah1 = multiplier.low >>> 16;
-				var bl1 = digit_low & mask1;
-				var bh1 = digit_low >>> 16;
-				var p001 = haxe_Int32._mul(al1,bl1);
-				var p101 = haxe_Int32._mul(ah1,bl1);
-				var p011 = haxe_Int32._mul(al1,bh1);
-				var p111 = haxe_Int32._mul(ah1,bh1);
-				var low2 = p001;
-				var high2 = (p111 + (p011 >>> 16) | 0) + (p101 >>> 16) | 0;
-				p011 <<= 16;
-				low2 = low2 + p011 | 0;
-				if(haxe_Int32.ucompare(low2,p011) < 0) {
-					var ret3 = high2++;
-					high2 = high2 | 0;
-				}
-				p101 <<= 16;
-				low2 = low2 + p101 | 0;
-				if(haxe_Int32.ucompare(low2,p101) < 0) {
-					var ret4 = high2++;
-					high2 = high2 | 0;
-				}
-				high2 = high2 + (haxe_Int32._mul(multiplier.low,digit_high) + haxe_Int32._mul(multiplier.high,digit_low) | 0) | 0;
-				var b_high1 = high2;
-				var b_low1 = low2;
-				var high3 = current.high + b_high1 | 0;
-				var low3 = current.low + b_low1 | 0;
-				if(haxe_Int32.ucompare(low3,current.low) < 0) {
-					var ret5 = high3++;
-					high3 = high3 | 0;
-				}
-				var this2 = new haxe__$Int64__$_$_$Int64(high3,low3);
-				current = this2;
-				if(current.high < 0) {
-					throw haxe_Exception.thrown("NumberFormatError: Overflow");
-				}
-			}
-		}
-		var mask2 = 65535;
-		var al2 = multiplier.low & mask2;
-		var ah2 = multiplier.low >>> 16;
-		var bl2 = base_low & mask2;
-		var bh2 = base_low >>> 16;
-		var p002 = haxe_Int32._mul(al2,bl2);
-		var p102 = haxe_Int32._mul(ah2,bl2);
-		var p012 = haxe_Int32._mul(al2,bh2);
-		var p112 = haxe_Int32._mul(ah2,bh2);
-		var low4 = p002;
-		var high4 = (p112 + (p012 >>> 16) | 0) + (p102 >>> 16) | 0;
-		p012 <<= 16;
-		low4 = low4 + p012 | 0;
-		if(haxe_Int32.ucompare(low4,p012) < 0) {
-			var ret6 = high4++;
-			high4 = high4 | 0;
-		}
-		p102 <<= 16;
-		low4 = low4 + p102 | 0;
-		if(haxe_Int32.ucompare(low4,p102) < 0) {
-			var ret7 = high4++;
-			high4 = high4 | 0;
-		}
-		high4 = high4 + (haxe_Int32._mul(multiplier.low,base_high) + haxe_Int32._mul(multiplier.high,base_low) | 0) | 0;
-		var this3 = new haxe__$Int64__$_$_$Int64(high4,low4);
-		multiplier = this3;
-	}
-	return current;
 };
 var haxe_NativeStackTrace = function() { };
 $hxClasses["haxe.NativeStackTrace"] = haxe_NativeStackTrace;
@@ -55846,76 +55069,6 @@ haxe_io_Path.directory = function(path) {
 	}
 	return s.dir;
 };
-haxe_io_Path.normalize = function(path) {
-	var slash = "/";
-	path = path.split("\\").join(slash);
-	if(path == slash) {
-		return slash;
-	}
-	var target = [];
-	var _g = 0;
-	var _g1 = path.split(slash);
-	while(_g < _g1.length) {
-		var token = _g1[_g];
-		++_g;
-		if(token == ".." && target.length > 0 && target[target.length - 1] != "..") {
-			target.pop();
-		} else if(token == "") {
-			if(target.length > 0 || HxOverrides.cca(path,0) == 47) {
-				target.push(token);
-			}
-		} else if(token != ".") {
-			target.push(token);
-		}
-	}
-	var tmp = target.join(slash);
-	var acc_b = "";
-	var colon = false;
-	var slashes = false;
-	var _g2_offset = 0;
-	var _g2_s = tmp;
-	while(_g2_offset < _g2_s.length) {
-		var s = _g2_s;
-		var index = _g2_offset++;
-		var c = s.charCodeAt(index);
-		if(c >= 55296 && c <= 56319) {
-			c = c - 55232 << 10 | s.charCodeAt(index + 1) & 1023;
-		}
-		var c1 = c;
-		if(c1 >= 65536) {
-			++_g2_offset;
-		}
-		var c2 = c1;
-		switch(c2) {
-		case 47:
-			if(!colon) {
-				slashes = true;
-			} else {
-				var i = c2;
-				colon = false;
-				if(slashes) {
-					acc_b += "/";
-					slashes = false;
-				}
-				acc_b += String.fromCodePoint(i);
-			}
-			break;
-		case 58:
-			acc_b += ":";
-			colon = true;
-			break;
-		default:
-			var i1 = c2;
-			colon = false;
-			if(slashes) {
-				acc_b += "/";
-				slashes = false;
-			}
-			acc_b += String.fromCodePoint(i1);
-		}
-	}
-	return acc_b;
-};
 haxe_io_Path.prototype = {
 	__class__: haxe_io_Path
 };
@@ -55950,27 +55103,6 @@ haxe_iterators_MapKeyValueIterator.prototype = {
 	}
 	,__class__: haxe_iterators_MapKeyValueIterator
 };
-var haxe_xml__$Access_NodeAccess = {};
-haxe_xml__$Access_NodeAccess.resolve = function(this1,name) {
-	var x = this1.elementsNamed(name).next();
-	if(x == null) {
-		var xname;
-		if(this1.nodeType == Xml.Document) {
-			xname = "Document";
-		} else {
-			if(this1.nodeType != Xml.Element) {
-				throw haxe_Exception.thrown("Bad node type, expected Element but found " + (this1.nodeType == null ? "null" : XmlType.toString(this1.nodeType)));
-			}
-			xname = this1.nodeName;
-		}
-		throw haxe_Exception.thrown(xname + " is missing element " + name);
-	}
-	if(x.nodeType != Xml.Document && x.nodeType != Xml.Element) {
-		throw haxe_Exception.thrown("Invalid nodeType " + (x.nodeType == null ? "null" : XmlType.toString(x.nodeType)));
-	}
-	var this1 = x;
-	return this1;
-};
 var haxe_xml__$Access_AttribAccess = {};
 haxe_xml__$Access_AttribAccess.resolve = function(this1,name) {
 	if(this1.nodeType == Xml.Document) {
@@ -55992,10 +55124,6 @@ haxe_xml__$Access_HasAttribAccess.resolve = function(this1,name) {
 	}
 	return this1.exists(name);
 };
-var haxe_xml__$Access_HasNodeAccess = {};
-haxe_xml__$Access_HasNodeAccess.resolve = function(this1,name) {
-	return this1.elementsNamed(name).hasNext();
-};
 var haxe_xml__$Access_NodeListAccess = {};
 haxe_xml__$Access_NodeListAccess.resolve = function(this1,name) {
 	var l = [];
@@ -56009,90 +55137,6 @@ haxe_xml__$Access_NodeListAccess.resolve = function(this1,name) {
 		l.push(this1);
 	}
 	return l;
-};
-var haxe_xml_Access = {};
-haxe_xml_Access.__properties__ = {get_innerData:"get_innerData"};
-haxe_xml_Access.get_innerData = function(this1) {
-	if(this1.nodeType != Xml.Document && this1.nodeType != Xml.Element) {
-		throw haxe_Exception.thrown("Bad node type, expected Element or Document but found " + (this1.nodeType == null ? "null" : XmlType.toString(this1.nodeType)));
-	}
-	var it_current = 0;
-	var it_array = this1.children;
-	if(it_current >= it_array.length) {
-		var tmp;
-		if(this1.nodeType == Xml.Document) {
-			tmp = "Document";
-		} else {
-			if(this1.nodeType != Xml.Element) {
-				throw haxe_Exception.thrown("Bad node type, expected Element but found " + (this1.nodeType == null ? "null" : XmlType.toString(this1.nodeType)));
-			}
-			tmp = this1.nodeName;
-		}
-		throw haxe_Exception.thrown(tmp + " does not have data");
-	}
-	var v = it_array[it_current++];
-	if(it_current < it_array.length) {
-		var n = it_array[it_current++];
-		var tmp;
-		if(v.nodeType == Xml.PCData && n.nodeType == Xml.CData) {
-			if(v.nodeType == Xml.Document || v.nodeType == Xml.Element) {
-				throw haxe_Exception.thrown("Bad node type, unexpected " + (v.nodeType == null ? "null" : XmlType.toString(v.nodeType)));
-			}
-			tmp = StringTools.trim(v.nodeValue) == "";
-		} else {
-			tmp = false;
-		}
-		if(tmp) {
-			if(it_current >= it_array.length) {
-				if(n.nodeType == Xml.Document || n.nodeType == Xml.Element) {
-					throw haxe_Exception.thrown("Bad node type, unexpected " + (n.nodeType == null ? "null" : XmlType.toString(n.nodeType)));
-				}
-				return n.nodeValue;
-			}
-			var n2 = it_array[it_current++];
-			var tmp;
-			if(n2.nodeType == Xml.PCData) {
-				if(n2.nodeType == Xml.Document || n2.nodeType == Xml.Element) {
-					throw haxe_Exception.thrown("Bad node type, unexpected " + (n2.nodeType == null ? "null" : XmlType.toString(n2.nodeType)));
-				}
-				tmp = StringTools.trim(n2.nodeValue) == "";
-			} else {
-				tmp = false;
-			}
-			if(tmp && it_current >= it_array.length) {
-				if(n.nodeType == Xml.Document || n.nodeType == Xml.Element) {
-					throw haxe_Exception.thrown("Bad node type, unexpected " + (n.nodeType == null ? "null" : XmlType.toString(n.nodeType)));
-				}
-				return n.nodeValue;
-			}
-		}
-		var tmp;
-		if(this1.nodeType == Xml.Document) {
-			tmp = "Document";
-		} else {
-			if(this1.nodeType != Xml.Element) {
-				throw haxe_Exception.thrown("Bad node type, expected Element but found " + (this1.nodeType == null ? "null" : XmlType.toString(this1.nodeType)));
-			}
-			tmp = this1.nodeName;
-		}
-		throw haxe_Exception.thrown(tmp + " does not only have data");
-	}
-	if(v.nodeType != Xml.PCData && v.nodeType != Xml.CData) {
-		var tmp;
-		if(this1.nodeType == Xml.Document) {
-			tmp = "Document";
-		} else {
-			if(this1.nodeType != Xml.Element) {
-				throw haxe_Exception.thrown("Bad node type, expected Element but found " + (this1.nodeType == null ? "null" : XmlType.toString(this1.nodeType)));
-			}
-			tmp = this1.nodeName;
-		}
-		throw haxe_Exception.thrown(tmp + " does not have data");
-	}
-	if(v.nodeType == Xml.Document || v.nodeType == Xml.Element) {
-		throw haxe_Exception.thrown("Bad node type, unexpected " + (v.nodeType == null ? "null" : XmlType.toString(v.nodeType)));
-	}
-	return v.nodeValue;
 };
 var haxe_xml_XmlParserException = function(message,xml,position) {
 	this.xml = xml;
@@ -72423,7 +71467,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 167534;
+	this.version = 659886;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -117978,6 +117022,7 @@ AssetPaths.tiles__png = "assets/data/tiles.png";
 AssetPaths.font__ttf = "assets/font.ttf";
 AssetPaths.Bat_Sprite_Sheet__png = "assets/images/Bat_Sprite_Sheet.png";
 AssetPaths.Characters_Sprite_Sheet__png = "assets/images/Characters_Sprite_Sheet.png";
+AssetPaths.crosshair__png = "assets/images/crosshair.png";
 AssetPaths.Door__png = "assets/images/Door.png";
 AssetPaths.energy__png = "assets/images/energy.png";
 AssetPaths.health__png = "assets/images/health.png";
@@ -118211,20 +117256,6 @@ flixel_FlxG.initialWidth = 0;
 flixel_FlxG.initialHeight = 0;
 flixel_FlxG.initialZoom = 0;
 flixel_FlxG.signals = new flixel_system_frontEnds_SignalFrontEnd();
-flixel_addons_editors_tiled_TiledObject.FLIPPED_VERTICALLY_FLAG = 1073741824;
-flixel_addons_editors_tiled_TiledObject.FLIPPED_HORIZONTALLY_FLAG = -2147483648;
-flixel_addons_editors_tiled_TiledObject.RECTANGLE = 0;
-flixel_addons_editors_tiled_TiledObject.ELLIPSE = 1;
-flixel_addons_editors_tiled_TiledObject.POLYGON = 2;
-flixel_addons_editors_tiled_TiledObject.POLYLINE = 3;
-flixel_addons_editors_tiled_TiledObject.TILE = 4;
-flixel_addons_editors_tiled_TiledTile.FLIPPED_HORIZONTAL = -2147483648;
-flixel_addons_editors_tiled_TiledTile.FLIPPED_VERTICAL = 1073741824;
-flixel_addons_editors_tiled_TiledTile.FLIPPED_DIAGONAL = 536870912;
-flixel_addons_editors_tiled_TiledTile.ROTATE_0 = 0;
-flixel_addons_editors_tiled_TiledTile.ROTATE_90 = 1;
-flixel_addons_editors_tiled_TiledTile.ROTATE_270 = 2;
-flixel_addons_editors_tiled_TiledTileLayer.BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 flixel_addons_plugin_FlxMouseControl.ASCENDING = -1;
 flixel_addons_plugin_FlxMouseControl.DESCENDING = 1;
 flixel_addons_plugin_FlxMouseControl.sortIndex = "y";
@@ -119249,9 +118280,6 @@ flixel_util_FlxSort.DESCENDING = 1;
 flixel_util_FlxSpriteUtil.flashGfxSprite = new openfl_display_Sprite();
 flixel_util_FlxSpriteUtil.flashGfx = flixel_util_FlxSpriteUtil.flashGfxSprite.get_graphics();
 flixel_util_LabelValuePair._pool = new flixel_util_FlxPool_$flixel_$util_$LabelValuePair(flixel_util_LabelValuePair);
-haxe_Int32._mul = Math.imul != null ? Math.imul : function(a,b) {
-	return a * (b & 65535) + (a * (b >>> 16) << 16 | 0) | 0;
-};
 haxe_Serializer.USE_CACHE = false;
 haxe_Serializer.USE_ENUM_INDEX = false;
 haxe_Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";

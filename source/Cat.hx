@@ -26,7 +26,7 @@ class Cat extends Enemy
 	public function new(x:Float, y:Float, player:Player, signal:FlxTypedSignal<Array<Int>->Void>)
 	{
 		super(x, y, player);
-		health = 150;
+		health = 300;
 		_speed = 50;
 		_dps = 20;
 		_target = player;
@@ -85,7 +85,7 @@ class Cat extends Enemy
 
 	private function move():Void
 	{
-		var dest = new FlxPoint(this.x + FlxG.random.float(-MOVE_VARIANCE, MOVE_VARIANCE), this.y + FlxG.random.float(-MOVE_VARIANCE, MOVE_VARIANCE));
+		var dest = FlxPoint.weak(this.x + FlxG.random.float(-MOVE_VARIANCE, MOVE_VARIANCE), this.y + FlxG.random.float(-MOVE_VARIANCE, MOVE_VARIANCE));
 		FlxVelocity.moveTowardsPoint(this, dest, _speed, MAX_MOVE_TIME);
 		_movetimer = MAX_MOVE_TIME * 1000;
 	}

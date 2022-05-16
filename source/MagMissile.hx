@@ -6,14 +6,22 @@ import flixel.math.FlxPoint;
 import flixel.math.FlxVelocity;
 import flixel.util.FlxTimer;
 
+using flixel.math.FlxPoint;
+
 class MagMissile extends Projectile
 {
 	private var blow:Bool;
+	private var travel_angle:Float;
+	// in degrees per second
+	private var TURN_SPEED = 190;
 
 	public function new(x:Float, y:Float, target:FlxObject, timing:JudgeType, enchanted:Bool)
 	{
 		super(x, y, target, LevelState.AttackType.RED, timing, enchanted);
+		// base movement speed
 		MOVEMENT_SPEED = 150;
+		// tiny amount of inaccuracy in angles when firing shot
+		var SHOT_INACC = 5.0;
 		loadGraphic("assets/images/shooter.png", true, 16, 16);
 		animation.add("blow", [256, 257, 258, 259], 5, false);
 		animation.add("idle", [6, 7, 8, 9], 5);
@@ -38,16 +46,16 @@ class MagMissile extends Projectile
 			_speed *= 1.2;
 		}
 
-		if (_target != null)
-		{
-			FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
-			AI();
-		}
-		else
-		{
-			_heading = FlxG.mouse.getPosition();
-			FlxVelocity.moveTowardsPoint(this, _heading, _speed);
-		}
+		travel_angle = FlxAngle.angleBetweenMouse(this, true) + FlxG.random.float(-SHOT_INACC, SHOT_INACC);
+		// if (_target != null)
+		// {
+		// 	FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
+		// }
+		// else
+		// {
+		// 	_heading = FlxG.mouse.getPosition();
+		// 	FlxVelocity.moveTowardsPoint(this, _heading, _speed);
+		// }
 	}
 
 	override function update(elapsed:Float)
@@ -62,7 +70,7 @@ class MagMissile extends Projectile
 			trace("dmg = 0");
 			_damage = 0;
 		}
-		AI();
+		AI(elapsed);
 	}
 
 	override function kill()
@@ -88,23 +96,37 @@ class MagMissile extends Projectile
 		trace("projectile killed");
 	}
 
-	private function AI()
+	private function AI(elapsed:Float)
 	{
 		if (alive)
 		{
 			if (_target != null)
 			{
-				FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
+				var diff = _target.getMidpoint().subtractPoint(this.getMidpoint());
+				// transforms cartesian difference into polar difference (x = radius in degs)
+				FlxAngle.getPolarCoords(diff.x, diff.y, diff);
+				if (diff.y - travel_angle > 0)
+				{
+					travel_angle += TURN_SPEED * elapsed;
+				}
+				else if (diff.y - travel_angle < 0)
+				{
+					travel_angle -= TURN_SPEED * elapsed;
+				}
+				// FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
 			}
 			else
 			{
-				if (_heading == null)
-				{
-					_heading = FlxG.mouse.getPosition();
-					trace(_heading);
-					velocity.rotate(FlxPoint.weak(0, 0), FlxAngle.angleBetweenPoint(this, _heading, true));
-				}
+				// if (_heading == null)
+				// {
+				// 	_heading = FlxG.mouse.getPosition();
+				// 	trace(_heading);
+				// 	velocity.rotate(FlxPoint.weak(0, 0), FlxAngle.angleBetweenPoint(this, _heading, true));
+				// }
 			}
+			var res = FlxVelocity.velocityFromAngle(travel_angle, _speed * elapsed);
+			this.x += res.x;
+			this.y += res.y;
 		}
 	}
 }
