@@ -40,9 +40,10 @@ class RoomOne extends LevelState
 	{
 		var WASD = new FlxSprite(70, 200);
 		WASD.loadGraphic("assets/images/WASD.png", false, 80, 64, true);
+		WASD.setGraphicSize(120, 96);
 		add(WASD);
-		var instr = new FlxText(50, 260, 0, "TO MOVE AROUND", 10);
-		instr.setFormat("assets/font.ttf", 20, FlxColor.RED, LEFT);
+		var instr = new FlxText(40, 280, 0, "TO MOVE AROUND", 10);
+		instr.setFormat("assets/font.ttf", 30, FlxColor.RED, LEFT);
 		instr.setBorderStyle(OUTLINE, FlxColor.BLACK, 1);
 		add(instr);
 	}

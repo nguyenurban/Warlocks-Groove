@@ -57,11 +57,11 @@ class RoomTwo extends LevelState
 		add(walls);
 		add(interactables);
 		loadTutorial();
-		metronome = new Metronome(350, 15, _player);
+		metronome = new Metronome(355, 25, _player);
 		_monsters.add(metronome);
 		var metro_health = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, metronome, "health", 0, 15, true);
 		metro_health.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
-		metro_health.trackParent(-10, 50);
+		metro_health.trackParent(-20, 50);
 		add(metro_health);
 	}
 
@@ -71,7 +71,7 @@ class RoomTwo extends LevelState
 		mouse.loadGraphic("assets/images/mouse.png", false, 80, 64, true);
 		add(mouse);
 		var instr = new FlxText(50, 360, 0, "FIRE ON BEAT", 10);
-		instr.setFormat("assets/font.ttf", 20, FlxColor.RED, LEFT);
+		instr.setFormat("assets/font.ttf", 30, FlxColor.RED, LEFT);
 		instr.setBorderStyle(OUTLINE, FlxColor.BLACK, 1);
 		add(instr);
 		final MagMissilePopup = new MagMissileObtained();

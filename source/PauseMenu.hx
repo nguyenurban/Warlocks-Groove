@@ -16,7 +16,7 @@ class PauseMenu extends FlxSubState
 	{
 		super.create();
 
-		_title = new FlxText(0, 150, 0, "Pause Menu", 28);
+		_title = new FlxText(0, 120, 0, "Pause Menu", 32);
 		_title.alignment = CENTER;
 		_title.screenCenter(X);
 		add(_title);
@@ -30,20 +30,36 @@ class PauseMenu extends FlxSubState
 				FlxG.switchState(new MenuState());
 			});
 		});
-		_menuBtn.screenCenter(XY);
-		// _menuBtn.y = FlxG.height - 200;
+		_menuBtn.scale.set(3, 3);
+		_menuBtn.updateHitbox();
+		_menuBtn.label.fieldWidth = _menuBtn.width;
+		_menuBtn.label.alignment = "center";
+		_menuBtn.label.offset.y -= 20;
+		_menuBtn.screenCenter(X);
+		_menuBtn.y = 350;
 		add(_menuBtn);
-		_menuBtn.scrollFactor.set(0, 0);
 
 		_backBtn = new FlxButton(0, 0, "Continue", () -> close());
+		_backBtn.scale.set(3, 3);
+		_backBtn.updateHitbox();
+		_backBtn.label.fieldWidth = _backBtn.width;
+		_backBtn.label.alignment = "center";
+		_backBtn.label.offset.y -= 20;
 		_backBtn.screenCenter(X);
-		_backBtn.y = _menuBtn.y - _backBtn.height - 20;
+		_backBtn.y = _menuBtn.y - 100;
 		add(_backBtn);
-		_backBtn.scrollFactor.set(0, 0);
 
-		// _desktopBtn = new FlxButton(0, 0, "Exit to Desktop", () -> Sys.exit(0));
-		// _backBtn.screenCenter(X);
-		// _backBtn.y = _menuBtn.y + _desktopBtn.height + 2;
-		// add(_backBtn);
+		// _desktopBtn = new FlxButton(0, 0, "Exit to Desktop", () ->
+		// {
+		// 	trace("Clicked");
+		// });
+		// _desktopBtn.scale.set(2, 2);
+		// _desktopBtn.updateHitbox();
+		// _desktopBtn.label.fieldWidth = _desktopBtn.width;
+		// _desktopBtn.label.alignment = "center";
+		// _desktopBtn.label.offset.y -= 10;
+		// _desktopBtn.screenCenter(X);
+		// _desktopBtn.y = _menuBtn.y + 40;
+		// add(_desktopBtn);
 	}
 }
