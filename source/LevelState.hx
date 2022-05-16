@@ -182,7 +182,7 @@ class LevelState extends FlxState
 		// 	LevelState.AttackType.RED,
 		// 	LevelState.AttackType.RED,
 		// ];
-		addTicks();
+		// addTicks();
 		createPlayerBars();
 		// createTexts();
 
@@ -340,6 +340,23 @@ class LevelState extends FlxState
 		_energyico.loadGraphic("assets/images/energy.png");
 		_energyico.scale.set(0.75, 0.75);
 		add(_energyico);
+	}
+
+	private function createHUDandTicks()
+	{
+		map.loadEntities(placeEntities, "player");
+		map.loadEntities(placeEntities, "monsters");
+		map.loadEntities(placeEntities, "mechanics");
+		_projectiles = new FlxTypedGroup<Projectile>();
+		add(_projectiles);
+
+		if (currLevel != RoomOne)
+		{
+			_hud = new HUD(_player, LevelStats.tick_format, LevelStats.shortest_note_len);
+			_hud.updateHUD(100, 100);
+			add(_hud);
+			addTicks();
+		}
 	}
 
 	function placeEntities(entity:EntityData)
