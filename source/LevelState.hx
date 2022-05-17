@@ -104,6 +104,10 @@ class LevelState extends FlxState
 	private var timeline_arw:FlxShapeArrow;
 	// private var SCROLL_MUL = 350;
 	private var beat_sound:FlxSound;
+	private var fire_sound:FlxSound;
+	private var hit_sound:FlxSound;
+	private var kill_sound:FlxSound;
+	private var fire_e_sound:FlxSound;
 	private var DELAY = 0.066;
 
 	// to be loaded in by a stage's own file
@@ -200,6 +204,14 @@ class LevelState extends FlxState
 		judge_timer = 0;
 		beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		beat_sound.volume = 0.3;
+		hit_sound = FlxG.sound.load("assets/sounds/hit.mp3");
+		hit_sound.volume = 0.2;
+		kill_sound = FlxG.sound.load("assets/sounds/kill.mp3");
+		kill_sound.volume = 0.7;
+		fire_sound = FlxG.sound.load("assets/sounds/fire.mp3");
+		fire_sound.volume = 0.4;
+		fire_e_sound = FlxG.sound.load("assets/sounds/fire_e.mp3");
+		fire_e_sound.volume = 0.2;
 		lvlPopup = false;
 	}
 
@@ -447,6 +459,13 @@ class LevelState extends FlxState
 			{
 				_monsters.remove(cast(monsters, Enemy));
 				monsters.kill();
+				kill_sound.play();
+			}
+			else
+			{
+				var m = cast(monsters, Enemy);
+				FlxSpriteUtil.flicker(m, m.DMG_FLICKER);
+				hit_sound.play();
 			}
 			projectiles.kill();
 			trace("projectile kill initiated");
@@ -589,6 +608,11 @@ class LevelState extends FlxState
 						proj.kill();
 					}, 1);
 					_projectiles.add(proj);
+					fire_sound.play();
+					if (closest_tick.getEnchanted() && judge == "Perfect")
+					{
+						fire_e_sound.play();
+					}
 					Logger.playerShot(Std.string(closest_tick.getType()), judge, Std.string(diff));
 				}
 			}
