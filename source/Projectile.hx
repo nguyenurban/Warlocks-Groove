@@ -43,7 +43,7 @@ class Projectile extends FlxSprite
 		{
 			makeGraphic(5, 5, FlxColor.BLACK);
 			FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
-			_damage = 5;
+			_damage = 15;
 		}
 	}
 

@@ -1,4 +1,5 @@
 import flixel.FlxG;
+import flixel.FlxSprite;
 import flixel.math.FlxPoint;
 import flixel.math.FlxVelocity;
 import flixel.util.FlxSignal;
@@ -31,6 +32,7 @@ class Cat extends Enemy
 
 	public var curr_shield_hp:Int;
 
+	public var shield:FlxSprite;
 	public var shieldBreak:FlxSignal;
 
 	public function new(x:Float, y:Float, player:Player, signal:FlxTypedSignal<Array<Int>->Void>)
@@ -49,6 +51,8 @@ class Cat extends Enemy
 		fb_firing = false;
 		shielded = true;
 		curr_shield_cd = 0.0;
+		shield = new FlxSprite();
+		shield.loadGraphic("assets/images/cat_shield.png");
 		shieldBreak = new FlxSignal();
 		shieldBreak.add(shieldBreaking);
 	}
