@@ -33,15 +33,8 @@ class Tick extends FlxSprite
 				_sprite_file = "assets/images/ticks/green";
 			default:
 		}
-		loadGraphic(_sprite_file + ".png", false, 10, height, true);
-		var line_style = {color: FlxColor.LIME, thickness: 3.0};
-		var draw_style = {smoothing: true};
-		drawGlow();
-		if (enchanted)
-		{
-			drawGlow();
-			// FlxSpriteUtil.drawRect(this, 0, 0, 10, height, FlxColor.TRANSPARENT, line_style, draw_style);
-		}
+		loadGraphic(_sprite_file + (_enchanted ? "_e.png" : ".png"), false, 6, height, true);
+		// drawGlow();
 	}
 
 	override public function update(elapsed:Float):Void
@@ -80,27 +73,31 @@ class Tick extends FlxSprite
 		switch (input)
 		{
 			case PERFECT:
-				loadGraphic(_sprite_file + "_p.png", false, 10, Std.int(height));
+				loadGraphic(_sprite_file + "_p" + (_enchanted ? "_e.png" : ".png"), false, 10, Std.int(height));
 			case GREAT:
 				loadGraphic(_sprite_file + "_g.png", false, 10, Std.int(height));
 			case OK:
 				loadGraphic(_sprite_file + "_o.png", false, 10, Std.int(height));
 			case NONE:
-				loadGraphic(_sprite_file + ".png", false, 10, Std.int(height));
+				loadGraphic(_sprite_file + (_enchanted ? "_e.png" : ".png"), false, 10, Std.int(height));
 			default:
 		}
-		drawGlow();
 	}
 
 	public function drawGlow():Void
 	{
-		// var draw_style = {smoothing: true};
-		// var line_style = {color: (_enchanted && (_judge == PERFECT || _judge == NONE) ? FlxColor.LIME : FlxColor.BLACK), thickness: 3.5}
-		// FlxSpriteUtil.drawRect(this, 0, 0, 10, height, FlxColor.TRANSPARENT, line_style, draw_style);
+		var draw_style = {smoothing: true};
+		var line_style = {
+			color: (_enchanted && (_judge == PERFECT || _judge == NONE) ? FlxColor.LIME : FlxColor.BLACK),
+			thickness: 3.5
+		}
+		FlxSpriteUtil.drawRect(this, 0, 0, 10, height, FlxColor.TRANSPARENT, line_style, draw_style);
+		this.dirty = true;
 	}
 
 	public function setEnchanted(enchant:Bool):Void
 	{
 		_enchanted = enchant;
+		// drawGlow();
 	}
 }
