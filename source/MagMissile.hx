@@ -13,7 +13,8 @@ class MagMissile extends Projectile
 	private var blow:Bool;
 	private var travel_angle:Float;
 	// in degrees per second
-	private var TURN_SPEED = 190;
+	private var BASE_TURN_SPEED = 190;
+	private var TURN_SPEED:Float;
 	private var HOMING_TIME = 0.5;
 	private var _homing_counter:Float;
 
@@ -28,12 +29,13 @@ class MagMissile extends Projectile
 		loadGraphic("assets/images/shooter.png", true, 16, 16);
 		animation.add("blow", [256, 257, 258, 259], 5, false);
 		animation.add("idle", [6, 7, 8, 9], 5);
-
+		TURN_SPEED = BASE_TURN_SPEED;
 		switch (timing)
 		{
 			case PERFECT:
 				_speed = MOVEMENT_SPEED * 1.2;
 				_damage = 7;
+				TURN_SPEED *= 1.2;
 			case GREAT:
 				_speed = MOVEMENT_SPEED;
 				_damage = 5;
@@ -45,8 +47,9 @@ class MagMissile extends Projectile
 
 		if (enchanted && timing == PERFECT)
 		{
-			_damage *= 1.2;
-			_speed *= 1.2;
+			_damage *= 1.5;
+			_speed *= 2.0;
+			TURN_SPEED *= 2.0;
 		}
 
 		travel_angle = FlxAngle.angleBetweenMouse(this, true) + FlxG.random.float(-SHOT_INACC, SHOT_INACC);
@@ -80,7 +83,14 @@ class MagMissile extends Projectile
 	{
 		alive = false;
 		drag.x = drag.y = 10000;
-		this.setGraphicSize(64, 64);
+		if (this._enchanted)
+		{
+			this.setGraphicSize(96, 96);
+		}
+		else
+		{
+			this.setGraphicSize(64, 64);
+		}
 		this.alpha = 0.5;
 		animation.play("blow");
 		if (!blow)

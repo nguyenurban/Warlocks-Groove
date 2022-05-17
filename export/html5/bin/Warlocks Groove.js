@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "32";
+	app.meta.h["build"] = "34";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -7835,11 +7835,13 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 		this.beat_sound = flixel_FlxG.sound.load("assets/sounds/beat.wav");
 		this.beat_sound.set_volume(0.3);
 		this.hit_sound = flixel_FlxG.sound.load("assets/sounds/hit.mp3");
-		this.hit_sound.set_volume(0.5);
+		this.hit_sound.set_volume(0.2);
 		this.kill_sound = flixel_FlxG.sound.load("assets/sounds/kill.mp3");
 		this.kill_sound.set_volume(0.7);
 		this.fire_sound = flixel_FlxG.sound.load("assets/sounds/fire.mp3");
 		this.fire_sound.set_volume(0.4);
+		this.fire_e_sound = flixel_FlxG.sound.load("assets/sounds/fire_e.mp3");
+		this.fire_e_sound.set_volume(0.2);
 		this.lvlPopup = false;
 	}
 	,update: function(elapsed) {
@@ -8054,7 +8056,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				this.hit_sound.play();
 			}
 			projectiles.kill();
-			haxe_Log.trace("projectile kill initiated",{ fileName : "source/LevelState.hx", lineNumber : 468, className : "LevelState", methodName : "handleMonsterProjectileCollisions"});
+			haxe_Log.trace("projectile kill initiated",{ fileName : "source/LevelState.hx", lineNumber : 471, className : "LevelState", methodName : "handleMonsterProjectileCollisions"});
 		}
 	}
 	,handleProjectileWallsCollisions: function(projectiles,walls) {
@@ -8120,8 +8122,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			} else {
 				var timing;
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 551, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 552, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 554, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 555, className : "LevelState", methodName : "shoot"});
 				if(!(closest_tick.getEnchanted() && diff <= this.PERFECT_WINDOW) && !this._player.useEnergy(15)) {
 					this.judge_sprite.loadGraphic("assets/images/judge_sprites/ooe.png");
 					Logger.playerShot("OOE","OOE",diff == null ? "null" : "" + diff);
@@ -8155,6 +8157,9 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 					},1);
 					this._projectiles.add(proj);
 					this.fire_sound.play();
+					if(closest_tick.getEnchanted() && judge == "Perfect") {
+						this.fire_e_sound.play();
+					}
 					Logger.playerShot(Std.string(closest_tick.getType()),judge,diff == null ? "null" : "" + diff);
 				}
 			}
@@ -8885,7 +8890,7 @@ LvlTwoRoomOne.prototype = $extend(LevelState.prototype,{
 });
 var MagMissile = function(x,y,target,timing,enchanted) {
 	this.HOMING_TIME = 0.5;
-	this.TURN_SPEED = 190;
+	this.BASE_TURN_SPEED = 190;
 	Projectile.call(this,x,y,target,AttackType.RED,timing,enchanted);
 	this.MOVEMENT_SPEED = 150;
 	var SHOT_INACC = 5.0;
@@ -8893,10 +8898,12 @@ var MagMissile = function(x,y,target,timing,enchanted) {
 	this.loadGraphic("assets/images/shooter.png",true,16,16);
 	this.animation.add("blow",[256,257,258,259],5,false);
 	this.animation.add("idle",[6,7,8,9],5);
+	this.TURN_SPEED = this.BASE_TURN_SPEED;
 	switch(timing._hx_index) {
 	case 1:
 		this._speed = this.MOVEMENT_SPEED * 1.2;
 		this._damage = 7;
+		this.TURN_SPEED *= 1.2;
 		break;
 	case 2:
 		this._speed = this.MOVEMENT_SPEED;
@@ -8909,8 +8916,9 @@ var MagMissile = function(x,y,target,timing,enchanted) {
 	default:
 	}
 	if(enchanted && timing == JudgeType.PERFECT) {
-		this._damage *= 1.2;
-		this._speed *= 1.2;
+		this._damage *= 1.5;
+		this._speed *= 2.0;
+		this.TURN_SPEED *= 2.0;
 	}
 	this.travel_angle = flixel_math_FlxAngle.angleBetweenMouse(this,true) + flixel_FlxG.random.float(-SHOT_INACC,SHOT_INACC);
 };
@@ -8923,7 +8931,7 @@ MagMissile.prototype = $extend(Projectile.prototype,{
 		if(this.alive) {
 			this.animation.play("idle");
 		} else if(this.blow) {
-			haxe_Log.trace("dmg = 0",{ fileName : "source/MagMissile.hx", lineNumber : 73, className : "MagMissile", methodName : "update"});
+			haxe_Log.trace("dmg = 0",{ fileName : "source/MagMissile.hx", lineNumber : 76, className : "MagMissile", methodName : "update"});
 			this._damage = 0;
 		}
 		this.AI(elapsed);
@@ -8932,7 +8940,12 @@ MagMissile.prototype = $extend(Projectile.prototype,{
 		var _gthis = this;
 		this.set_alive(false);
 		this.drag.set_x(this.drag.set_y(10000));
-		this.setGraphicSize(64,64);
+		if(this._enchanted) {
+			this.setGraphicSize(96,96);
+		} else {
+			this.setGraphicSize(64,64);
+		}
+		this.updateHitbox();
 		this.set_alpha(0.5);
 		this.animation.play("blow");
 		if(!this.blow) {
@@ -8944,7 +8957,7 @@ MagMissile.prototype = $extend(Projectile.prototype,{
 	}
 	,kill_projectile: function() {
 		Projectile.prototype.kill.call(this);
-		haxe_Log.trace("projectile killed",{ fileName : "source/MagMissile.hx", lineNumber : 99, className : "MagMissile", methodName : "kill_projectile"});
+		haxe_Log.trace("projectile killed",{ fileName : "source/MagMissile.hx", lineNumber : 110, className : "MagMissile", methodName : "kill_projectile"});
 	}
 	,AI: function(elapsed) {
 		this._homing_counter += elapsed;
@@ -8997,7 +9010,7 @@ ManifestResources.init = function(config) {
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf);
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf);
 	var bundle;
-	var data = "{\"name\":null,\"assets\":\"aoy4:pathy30:assets%2Fcredits%2Fcredits.txty4:sizei445y4:typey4:TEXTy2:idR1y7:preloadtgoR0y25:assets%2Fdata%2Flvl1.jsonR2i47799R3R4R5R7R6tgoR0y30:assets%2Fdata%2Flvl2room1.jsonR2i15742R3R4R5R8R6tgoR0y25:assets%2Fdata%2Fmap1.ogmoR2i55828R3R4R5R9R6tgoR0y23:assets%2Fdata%2Fr1.jsonR2i1706970R3R4R5R10R6tgoR0y26:assets%2Fdata%2Froom1.jsonR2i15512R3R4R5R11R6tgoR0y26:assets%2Fdata%2Froom2.jsonR2i15523R3R4R5R12R6tgoR0y26:assets%2Fdata%2Froom3.jsonR2i25334R3R4R5R13R6tgoR0y26:assets%2Fdata%2Froom4.jsonR2i15718R3R4R5R14R6tgoR0y26:assets%2Fdata%2Froom5.jsonR2i15728R3R4R5R15R6tgoR0y26:assets%2Fdata%2Froom6.jsonR2i20160R3R4R5R16R6tgoR0y26:assets%2Fdata%2Froom7.jsonR2i15941R3R4R5R17R6tgoR0y26:assets%2Fdata%2Froom8.jsonR2i21789R3R4R5R18R6tgoR0y25:assets%2Fdata%2Ftiles.pngR2i35688R3y5:IMAGER5R19R6tgoR2i28952R3y4:FONTy9:classNamey24:__ASSET__assets_font_ttfR5y17:assets%2Ffont.ttfR6tgoR0y38:assets%2Fimages%2FBat_Sprite_Sheet.pngR2i2628R3R20R5R25R6tgoR0y32:assets%2Fimages%2Fcat_shield.pngR2i511218R3R20R5R26R6tgoR0y45:assets%2Fimages%2FCharacters_Sprite_Sheet.pngR2i46262R3R20R5R27R6tgoR0y31:assets%2Fimages%2Fcrosshair.pngR2i208R3R20R5R28R6tgoR0y26:assets%2Fimages%2FDoor.pngR2i648R3R20R5R29R6tgoR0y28:assets%2Fimages%2Fenergy.pngR2i235R3R20R5R30R6tgoR0y41:assets%2Fimages%2FGoblin_Sprite_Sheet.pngR2i39977R3R20R5R31R6tgoR0y28:assets%2Fimages%2Fhealth.pngR2i625R3R20R5R32R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R33R6tgoR0y43:assets%2Fimages%2Fjudge_sprites%2Fgreat.pngR2i1361R3R20R5R34R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fmisfire.pngR2i1602R3R20R5R35R6tgoR0y40:assets%2Fimages%2Fjudge_sprites%2Fok.pngR2i833R3R20R5R36R6tgoR0y41:assets%2Fimages%2Fjudge_sprites%2Fooe.pngR2i1685R3R20R5R37R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fperfect.pngR2i1300R3R20R5R38R6tgoR0y35:assets%2Fimages%2Fmagic_missile.pngR2i12870R3R20R5R39R6tgoR0y31:assets%2Fimages%2Fmetronome.pngR2i30800R3R20R5R40R6tgoR0y27:assets%2Fimages%2Fmouse.pngR2i5211R3R20R5R41R6tgoR0y45:assets%2Fimages%2FNotOctorok_Sprite_Sheet.pngR2i1601R3R20R5R42R6tgoR0y28:assets%2Fimages%2Fplayer.pngR2i1886R3R20R5R43R6tgoR0y29:assets%2Fimages%2Fshooter.pngR2i47783R3R20R5R44R6tgoR0y35:assets%2Fimages%2Fticks%2Fgreen.pngR2i228R3R20R5R45R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_e.pngR2i233R3R20R5R46R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_g.pngR2i225R3R20R5R47R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_o.pngR2i212R3R20R5R48R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_p.pngR2i223R3R20R5R49R6tgoR0y39:assets%2Fimages%2Fticks%2Fgreen_p_e.pngR2i245R3R20R5R50R6tgoR0y36:assets%2Fimages%2Fticks%2Fpurple.pngR2i212R3R20R5R51R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_e.pngR2i233R3R20R5R52R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_g.pngR2i224R3R20R5R53R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_o.pngR2i222R3R20R5R54R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_p.pngR2i221R3R20R5R55R6tgoR0y40:assets%2Fimages%2Fticks%2Fpurple_p_e.pngR2i231R3R20R5R56R6tgoR0y33:assets%2Fimages%2Fticks%2Fred.pngR2i230R3R20R5R57R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_e.pngR2i234R3R20R5R58R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_g.pngR2i225R3R20R5R59R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_o.pngR2i242R3R20R5R60R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_p.pngR2i223R3R20R5R61R6tgoR0y37:assets%2Fimages%2Fticks%2Fred_p_e.pngR2i233R3R20R5R62R6tgoR0y26:assets%2Fimages%2FWASD.pngR2i2719R3R20R5R63R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R64R6tgoR2i2364674R3y5:MUSICR5y25:assets%2Fmusic%2Fstg1.mp3y9:pathGroupaR66hR6tgoR2i10188R3y5:SOUNDR5y26:assets%2Fsounds%2Fbeat.wavR67aR69hR6tgoR2i3336R3R65R5y26:assets%2Fsounds%2Ffire.mp3R67aR70hR6tgoR2i6720R3R65R5y25:assets%2Fsounds%2Fhit.mp3R67aR71hR6tgoR2i8064R3R65R5y26:assets%2Fsounds%2Fkill.mp3R67aR72hR6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R73R6tgoR2i2114R3R65R5y26:flixel%2Fsounds%2Fbeep.mp3R67aR74y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R65R5y28:flixel%2Fsounds%2Fflixel.mp3R67aR76y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3R68R5R75R67aR74R75hgoR2i33629R3R68R5R77R67aR76R77hgoR2i15744R3R21R22y35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R21R22y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R20R5R82R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R20R5R83R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
+	var data = "{\"name\":null,\"assets\":\"aoy4:pathy30:assets%2Fcredits%2Fcredits.txty4:sizei499y4:typey4:TEXTy2:idR1y7:preloadtgoR0y25:assets%2Fdata%2Flvl1.jsonR2i47799R3R4R5R7R6tgoR0y30:assets%2Fdata%2Flvl2room1.jsonR2i15742R3R4R5R8R6tgoR0y25:assets%2Fdata%2Fmap1.ogmoR2i55828R3R4R5R9R6tgoR0y23:assets%2Fdata%2Fr1.jsonR2i1706970R3R4R5R10R6tgoR0y26:assets%2Fdata%2Froom1.jsonR2i15512R3R4R5R11R6tgoR0y26:assets%2Fdata%2Froom2.jsonR2i15523R3R4R5R12R6tgoR0y26:assets%2Fdata%2Froom3.jsonR2i25334R3R4R5R13R6tgoR0y26:assets%2Fdata%2Froom4.jsonR2i15718R3R4R5R14R6tgoR0y26:assets%2Fdata%2Froom5.jsonR2i15728R3R4R5R15R6tgoR0y26:assets%2Fdata%2Froom6.jsonR2i20160R3R4R5R16R6tgoR0y26:assets%2Fdata%2Froom7.jsonR2i15941R3R4R5R17R6tgoR0y26:assets%2Fdata%2Froom8.jsonR2i21789R3R4R5R18R6tgoR0y25:assets%2Fdata%2Ftiles.pngR2i35688R3y5:IMAGER5R19R6tgoR2i28952R3y4:FONTy9:classNamey24:__ASSET__assets_font_ttfR5y17:assets%2Ffont.ttfR6tgoR0y38:assets%2Fimages%2FBat_Sprite_Sheet.pngR2i2628R3R20R5R25R6tgoR0y32:assets%2Fimages%2Fcat_shield.pngR2i511218R3R20R5R26R6tgoR0y45:assets%2Fimages%2FCharacters_Sprite_Sheet.pngR2i46262R3R20R5R27R6tgoR0y31:assets%2Fimages%2Fcrosshair.pngR2i208R3R20R5R28R6tgoR0y26:assets%2Fimages%2FDoor.pngR2i648R3R20R5R29R6tgoR0y28:assets%2Fimages%2Fenergy.pngR2i235R3R20R5R30R6tgoR0y41:assets%2Fimages%2FGoblin_Sprite_Sheet.pngR2i39977R3R20R5R31R6tgoR0y28:assets%2Fimages%2Fhealth.pngR2i625R3R20R5R32R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R33R6tgoR0y43:assets%2Fimages%2Fjudge_sprites%2Fgreat.pngR2i1361R3R20R5R34R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fmisfire.pngR2i1602R3R20R5R35R6tgoR0y40:assets%2Fimages%2Fjudge_sprites%2Fok.pngR2i833R3R20R5R36R6tgoR0y41:assets%2Fimages%2Fjudge_sprites%2Fooe.pngR2i1685R3R20R5R37R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fperfect.pngR2i1300R3R20R5R38R6tgoR0y35:assets%2Fimages%2Fmagic_missile.pngR2i12870R3R20R5R39R6tgoR0y31:assets%2Fimages%2Fmetronome.pngR2i30800R3R20R5R40R6tgoR0y27:assets%2Fimages%2Fmouse.pngR2i5211R3R20R5R41R6tgoR0y45:assets%2Fimages%2FNotOctorok_Sprite_Sheet.pngR2i1601R3R20R5R42R6tgoR0y28:assets%2Fimages%2Fplayer.pngR2i1886R3R20R5R43R6tgoR0y29:assets%2Fimages%2Fshooter.pngR2i47783R3R20R5R44R6tgoR0y35:assets%2Fimages%2Fticks%2Fgreen.pngR2i228R3R20R5R45R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_e.pngR2i233R3R20R5R46R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_g.pngR2i225R3R20R5R47R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_o.pngR2i212R3R20R5R48R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_p.pngR2i223R3R20R5R49R6tgoR0y39:assets%2Fimages%2Fticks%2Fgreen_p_e.pngR2i245R3R20R5R50R6tgoR0y36:assets%2Fimages%2Fticks%2Fpurple.pngR2i212R3R20R5R51R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_e.pngR2i233R3R20R5R52R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_g.pngR2i224R3R20R5R53R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_o.pngR2i222R3R20R5R54R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_p.pngR2i221R3R20R5R55R6tgoR0y40:assets%2Fimages%2Fticks%2Fpurple_p_e.pngR2i231R3R20R5R56R6tgoR0y33:assets%2Fimages%2Fticks%2Fred.pngR2i230R3R20R5R57R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_e.pngR2i234R3R20R5R58R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_g.pngR2i225R3R20R5R59R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_o.pngR2i242R3R20R5R60R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_p.pngR2i223R3R20R5R61R6tgoR0y37:assets%2Fimages%2Fticks%2Fred_p_e.pngR2i233R3R20R5R62R6tgoR0y26:assets%2Fimages%2FWASD.pngR2i2719R3R20R5R63R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R64R6tgoR2i2364674R3y5:MUSICR5y25:assets%2Fmusic%2Fstg1.mp3y9:pathGroupaR66hR6tgoR2i10188R3y5:SOUNDR5y26:assets%2Fsounds%2Fbeat.wavR67aR69hR6tgoR2i3336R3R65R5y26:assets%2Fsounds%2Ffire.mp3R67aR70hR6tgoR2i5856R3R65R5y28:assets%2Fsounds%2Ffire_e.mp3R67aR71hR6tgoR2i6720R3R65R5y25:assets%2Fsounds%2Fhit.mp3R67aR72hR6tgoR2i8064R3R65R5y26:assets%2Fsounds%2Fkill.mp3R67aR73hR6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R74R6tgoR2i2114R3R65R5y26:flixel%2Fsounds%2Fbeep.mp3R67aR75y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R65R5y28:flixel%2Fsounds%2Fflixel.mp3R67aR77y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3R68R5R76R67aR75R76hgoR2i33629R3R68R5R78R67aR77R78hgoR2i15744R3R21R22y35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R21R22y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R20R5R83R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R20R5R84R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
 	var manifest = lime_utils_AssetManifest.parse(data,ManifestResources.rootPath);
 	var library = lime_utils_AssetLibrary.fromManifest(manifest);
 	lime_utils_Assets.registerLibrary("default",library);

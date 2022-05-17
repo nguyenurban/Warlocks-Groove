@@ -107,6 +107,7 @@ class LevelState extends FlxState
 	private var fire_sound:FlxSound;
 	private var hit_sound:FlxSound;
 	private var kill_sound:FlxSound;
+	private var fire_e_sound:FlxSound;
 	private var DELAY = 0.066;
 
 	// to be loaded in by a stage's own file
@@ -209,6 +210,8 @@ class LevelState extends FlxState
 		kill_sound.volume = 0.7;
 		fire_sound = FlxG.sound.load("assets/sounds/fire.mp3");
 		fire_sound.volume = 0.4;
+		fire_e_sound = FlxG.sound.load("assets/sounds/fire_e.mp3");
+		fire_e_sound.volume = 0.2;
 		lvlPopup = false;
 	}
 
@@ -606,6 +609,10 @@ class LevelState extends FlxState
 					}, 1);
 					_projectiles.add(proj);
 					fire_sound.play();
+					if (closest_tick.getEnchanted() && judge == "Perfect")
+					{
+						fire_e_sound.play();
+					}
 					Logger.playerShot(Std.string(closest_tick.getType()), judge, Std.string(diff));
 				}
 			}
