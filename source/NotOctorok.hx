@@ -4,7 +4,7 @@ import flixel.tile.FlxTilemap;
 
 class NotOctorok extends Enemy
 {
-	private static var DETECT_RAD:Float = 800;
+	private static var DETECT_RAD:Float = 700;
 
 	private var chasing:Bool;
 
@@ -37,7 +37,7 @@ class NotOctorok extends Enemy
 		var dist = FlxMath.distanceToPoint(this, _target.getMidpoint());
 		if (chasing)
 		{
-			if (dist > DETECT_RAD / 2 || !_tilemap.ray(getMidpoint(), _target.getMidpoint()))
+			if (dist > DETECT_RAD / 2 && _tilemap.ray(getMidpoint(), _target.getMidpoint()))
 			{
 				FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
 			}
@@ -54,7 +54,7 @@ class NotOctorok extends Enemy
 		}
 		else
 		{
-			if (dist < DETECT_RAD)
+			if (dist < DETECT_RAD && _tilemap.ray(getMidpoint(), _target.getMidpoint()))
 			{
 				chasing = true;
 			}

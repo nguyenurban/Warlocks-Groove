@@ -6,7 +6,7 @@ import flixel.util.FlxColor;
 
 class Bat extends Enemy
 {
-	private static var DETECT_RAD:Float = 800;
+	private static var DETECT_RAD:Float = 700;
 
 	private var chasing:Bool;
 

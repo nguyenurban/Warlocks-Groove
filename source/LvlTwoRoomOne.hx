@@ -32,7 +32,7 @@ class LvlTwoRoomOne extends LevelState
 
 		bgColor = 0xffcccccc;
 		createLevel();
-		nextLevel = null;
+		nextLevel = LvlTwoRoomTwo;
 		currLevel = LvlTwoRoomOne;
 
 		// beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
