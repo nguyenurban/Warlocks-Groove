@@ -6,3 +6,4 @@ NotOctorok Sprite Sheet: https://opengameart.org/content/monster-sprites
 Goblin Sprite Sheet: https://opengameart.org/content/lpc-goblin
 Cat shield: Bonasaiheldin | http://bonasaiheld.org
 Hit, fire, kill sound: Muncheybobo (opengameart.org)
+Enemy bullet: Master484 (http://m484games.ucoz.com)

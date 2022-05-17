@@ -22,7 +22,7 @@ class Cat extends Enemy
 	private var FB_SHOT_VARIANCE = 10;
 	private var moving:Bool;
 	private var fb_firing:Bool;
-	private var _signal:FlxTypedSignal<Array<Int>->Void>;
+	private var _signal:FlxTypedSignal<Array<Float>->Void>;
 	private var SHIELD_COOLDOWN = 8.0;
 	private var curr_shield_cd:Float;
 
@@ -35,7 +35,7 @@ class Cat extends Enemy
 	public var shield:FlxSprite;
 	public var shieldBreak:FlxSignal;
 
-	public function new(x:Float, y:Float, player:Player, signal:FlxTypedSignal<Array<Int>->Void>)
+	public function new(x:Float, y:Float, player:Player, signal:FlxTypedSignal<Array<Float>->Void>)
 	{
 		super(x, y, player);
 		health = 300;
@@ -80,7 +80,8 @@ class Cat extends Enemy
 			switch FlxG.random.int(0, 2)
 			{
 				case 0:
-					new FlxTimer().start(FB_FIRE_RATE, (timer:FlxTimer) -> ([0, this.x + FlxG.random.int(-FB_SHOT_VARIANCE, FB_SHOT_VARIANCE), this.y]), 5);
+					new FlxTimer().start(FB_FIRE_RATE,
+						(timer:FlxTimer) -> _signal.dispatch([0, this.x + FlxG.random.int(-FB_SHOT_VARIANCE, FB_SHOT_VARIANCE), this.y]), 5);
 				case 1:
 					charging = true;
 					new FlxTimer().start(CHARGE_TIME, chargeAtk, 1);

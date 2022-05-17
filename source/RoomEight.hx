@@ -82,7 +82,7 @@ class RoomEight extends LevelState
 		super.update(elapsed);
 	}
 
-	public function handleCall(input:Array<Int>)
+	public function handleCall(input:Array<Float>)
 	{
 		switch (input[0])
 		{

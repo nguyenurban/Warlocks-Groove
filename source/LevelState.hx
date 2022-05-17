@@ -160,7 +160,7 @@ class LevelState extends FlxState
 	private var _hud:HUD;
 
 	// enemies can use this to tell the level state to spawn projectiles
-	public var _actionSignal:FlxTypedSignal<Array<Int>->Void>;
+	public var _actionSignal:FlxTypedSignal<Array<Float>->Void>;
 
 	override function create()
 	{
@@ -197,7 +197,7 @@ class LevelState extends FlxState
 		createPlayerBars();
 		// createTexts();
 
-		_actionSignal = new FlxTypedSignal<Array<Int>->Void>();
+		_actionSignal = new FlxTypedSignal<Array<Float>->Void>();
 
 		judge_sprite = new FlxSprite();
 		add(judge_sprite);
