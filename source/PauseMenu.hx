@@ -27,6 +27,7 @@ class PauseMenu extends FlxSubState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.levelEnd("pause exit");
+				LevelStats.bgm.stop();
 				FlxG.switchState(new MenuState());
 			});
 		});
@@ -39,7 +40,11 @@ class PauseMenu extends FlxSubState
 		_menuBtn.y = 350;
 		add(_menuBtn);
 
-		_backBtn = new FlxButton(0, 0, "Continue", () -> close());
+		_backBtn = new FlxButton(0, 0, "Continue", () ->
+		{
+			LevelStats.bgm.play();
+			close();
+		});
 		_backBtn.scale.set(3, 3);
 		_backBtn.updateHitbox();
 		_backBtn.label.fieldWidth = _backBtn.width;

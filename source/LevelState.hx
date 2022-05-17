@@ -173,6 +173,7 @@ class LevelState extends FlxState
 		FlxG.camera.deadzone = new FlxRect(FlxG.camera.x + FlxG.width / 2 - _player.width / 2, FlxG.camera.y + 7 * FlxG.height / 12 - _player.height / 2,
 			_player.width, _player.height);
 		FlxG.camera.setSize(FlxG.width, FlxG.height);
+		FlxG.autoPause = false;
 
 		FlxG.mouse.load("assets/images/crosshair.png", 2, -13, -13);
 
@@ -289,6 +290,7 @@ class LevelState extends FlxState
 
 		if (!_player.exists)
 		{
+			LevelStats.bgm.stop();
 			FlxG.camera.fade(FlxColor.BLACK, 1.5, false, () ->
 			{
 				FlxG.switchState(new EndGame(currLevel));
@@ -345,8 +347,10 @@ class LevelState extends FlxState
 	private function handleKeyboard()
 	{
 		if (FlxG.keys.anyPressed([ESCAPE]))
-			// FlxG.sound.pause();
+		{
+			LevelStats.bgm.pause();
 			openSubState(new PauseMenu(FlxColor.BLACK));
+		}
 	}
 
 	private function createPlayerBars()

@@ -1,4 +1,8 @@
 import flixel.FlxG;
+import flixel.system.FlxSound;
+import flixel.util.FlxTimer;
+import howler.Howl;
+import openfl.media.Sound;
 import openfl.utils.IAssetCache;
 
 class LevelStats extends BaseLevel
@@ -31,6 +35,14 @@ class LevelStats extends BaseLevel
 	public static var TIMELINE_BOTTOM = 50;
 	public static var TICK_X_OFFSET:Int;
 
+	// public static var bgm_loop:Howl;
+	// public static var bgm:Howl;
+	public static var bgm:FlxSound;
+	public static var intro_beats:Int;
+	public static var looping_beats:Int;
+	public static var inIntro:Bool;
+	public static var loop_timer:Float;
+
 	public static function initialize(level_no:Int)
 	{
 		curr_level = level_no;
@@ -51,6 +63,12 @@ class LevelStats extends BaseLevel
 				scroll_mul = 350;
 				enchant_chance = 0.25;
 				ticks_len = 16;
+				bgm = FlxG.sound.load("assets/music/stg1.wav", 0.5);
+				bgm.persist = true;
+				// bgm = setupSound("assets/music/stg1_intro.mp3", true);
+				// bgm_loop = setupSound("assets/music/stg1.mp3", false);
+				intro_beats = 32;
+				looping_beats = 24 * 4;
 			case -1: // Only for testing purposes ...to be removed
 				bpm = 130;
 				tick_format = [RED, PURPLE, RED, PURPLE];
@@ -61,6 +79,8 @@ class LevelStats extends BaseLevel
 				ticks_len = 16;
 			default:
 		}
+		inIntro = true;
+		loop_timer = 0;
 		qtr_note = 60 / bpm;
 
 		switch (shortest_note)
@@ -75,29 +95,55 @@ class LevelStats extends BaseLevel
 		started = false;
 	}
 
+	public static function setupSound(url:String, isIntro:Bool)
+	{
+		// var out:Howl = null;
+		// var options:HowlOptions = {html5: true};
+		// options.preload = true;
+		// options.src = [url];
+		// options.autoplay = false;
+		// options.loop = !isIntro;
+		// options.volume = 0.6;
+		// if (isIntro)
+		// {
+		// 	options.onend = function(dummy:Int)
+		// 	{
+		// 		loopMusic();
+		// 	};
+		// }
+		// out = new Howl(options);
+		// return out;
+	}
+
 	public static function startMusic()
 	{
 		createTicks();
 		started = true;
-		if (FlxG.sound.music == null)
-		{
-			FlxG.sound.play("assets/music/stg1_intro.mp3", 0.6, false, null, true, loopMusic);
-		}
+		bgm.play();
+		// new FlxTimer().start((intro_beats + looping_beats) * qtr_note, loopMusic);
 	}
 
-	public static function loopMusic()
-	{
-		FlxG.sound.playMusic("assets/music/stg1.mp3", 0.6);
-	}
+	// public static function loopMusic()
+	// {
+	// 	bgm = bgm_loop;
+	// 	bgm.play();
+	// }
 
 	public static function update(elapsed:Float)
 	{
 		if (started)
 		{
 			timer += elapsed;
+			loop_timer += elapsed;
 			beat = timer / qtr_note;
 			shortest_notes_elpsd = Math.floor(timer / shortest_note_len);
 			updateTicks();
+			if (loop_timer > (looping_beats + (inIntro ? intro_beats : 0)) * qtr_note)
+			{
+				loop_timer = 0;
+				inIntro = false;
+				bgm.play(true, intro_beats * qtr_note * 1000);
+			}
 		}
 	}
 

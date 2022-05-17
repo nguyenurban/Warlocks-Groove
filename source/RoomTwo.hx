@@ -24,6 +24,7 @@ class RoomTwo extends LevelState
 		currLevel = RoomTwo;
 
 		LevelStats.startMusic();
+		LevelStats.bgm.pause();
 		beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		beat_sound.volume = 0.3;
 		createHUDandTicks();
@@ -167,6 +168,7 @@ class MagMissileObtained extends FlxSubState
 		{
 			// LevelStats.startMusic();
 			close();
+			LevelStats.bgm.resume();
 		}
 	}
 }
