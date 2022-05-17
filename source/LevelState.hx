@@ -611,7 +611,7 @@ class LevelState extends FlxState
 		}
 		i = 1;
 		var later_beat = null;
-		while (i * (LevelStats.shortest_note_len + i) - LevelStats.timer <= OK_WINDOW)
+		while ((LevelStats.shortest_notes_elpsd + i) * LevelStats.shortest_note_len - LevelStats.timer <= OK_WINDOW)
 		{
 			var curr = LevelStats._ticks[(LevelStats.shortest_notes_elpsd + i) % LevelStats._ticks.length];
 			if (curr.getJudge() == NONE)
