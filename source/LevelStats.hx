@@ -51,6 +51,14 @@ class LevelStats extends BaseLevel
 				scroll_mul = 350;
 				enchant_chance = 0.25;
 				ticks_len = 16;
+			case -1: // Only for testing purposes ...to be removed
+				bpm = 130;
+				tick_format = [RED, PURPLE, RED, PURPLE];
+				shortest_note = QUARTER;
+				snpq = 1;
+				scroll_mul = 350;
+				enchant_chance = 0.25;
+				ticks_len = 16;
 			default:
 		}
 		qtr_note = 60 / bpm;

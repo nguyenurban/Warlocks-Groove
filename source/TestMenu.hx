@@ -289,8 +289,8 @@ class TestMenuRoom2 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(1);
-				LevelStats.initialize(1);
-				FlxG.switchState(new RoomEight());
+				LevelStats.initialize(-1);
+				FlxG.switchState(new LvlTwoRoomOne());
 			});
 		}, "Room 8", 100, 30);
 		room8.x = (FlxG.width / 2) - (room8.width / 2) + 150;
