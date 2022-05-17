@@ -345,6 +345,7 @@ class LevelState extends FlxState
 	private function handleKeyboard()
 	{
 		if (FlxG.keys.anyPressed([ESCAPE]))
+			// FlxG.sound.pause();
 			openSubState(new PauseMenu(FlxColor.BLACK));
 	}
 

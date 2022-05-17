@@ -164,6 +164,7 @@ class MagMissileObtained extends FlxSubState
 		super.update(elapsed);
 		if (FlxG.keys.justPressed.SPACE)
 		{
+			LevelStats.startMusic();
 			close();
 		}
 	}

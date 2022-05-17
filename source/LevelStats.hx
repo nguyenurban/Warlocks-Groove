@@ -14,7 +14,7 @@ class LevelStats extends BaseLevel
 	public static var ticks_len:Int;
 	public static var _ticks:Array<Tick>;
 	public static var scroll_mul:Int;
-
+	public static var started:Bool;
 	// PURELY FOR TESTING
 	public static var enchant_chance:Float;
 
@@ -72,15 +72,33 @@ class LevelStats extends BaseLevel
 			case SIXTEENTH:
 				shortest_note_len = qtr_note / 4;
 		}
+		started = false;
+	}
+
+	public static function startMusic()
+	{
 		createTicks();
+		started = true;
+		if (FlxG.sound.music == null)
+		{
+			FlxG.sound.play("assets/music/stg1_intro.mp3", 0.6, false, null, true, loopMusic);
+		}
+	}
+
+	public static function loopMusic()
+	{
+		FlxG.sound.playMusic("assets/music/stg1.mp3", 0.6);
 	}
 
 	public static function update(elapsed:Float)
 	{
-		timer += elapsed;
-		beat = timer / qtr_note;
-		shortest_notes_elpsd = Math.floor(timer / shortest_note_len);
-		updateTicks();
+		if (started)
+		{
+			timer += elapsed;
+			beat = timer / qtr_note;
+			shortest_notes_elpsd = Math.floor(timer / shortest_note_len);
+			updateTicks();
+		}
 	}
 
 	private static function createTicks()
