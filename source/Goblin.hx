@@ -11,7 +11,7 @@ import flixel.util.FlxColor;
 class Goblin extends Enemy
 {
 	private static var DETECT_RAD:Float = 800;
-	private static var DODGE_RAD:Float = 200;
+	private static var DODGE_RAD:Float = 300;
 
 	private var dodge_change_time:Float;
 	private var dodge_dir:Float;

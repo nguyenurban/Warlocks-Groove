@@ -16,7 +16,7 @@ class HUD extends FlxTypedGroup<FlxSprite>
 	private var _hp_bar:FlxBar;
 	private var _energy:FlxText;
 	private var timeline_box:FlxShapeBox;
-	private var _timeline_arw:FlxShapeArrow;
+	private var _timeline_arw:FlxShapeBox; // FlxShapeArrow;
 	private var _ticks:Array<Tick>;
 	private var _boss_hp:FlxBar;
 
@@ -43,15 +43,18 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		_energy.setBorderStyle(OUTLINE, FlxColor.BLUE, 1);
 		add(_energy);
 
-		var line_style_2 = {color: FlxColor.BLACK, thickness: 4.0};
-		_timeline_arw = new FlxShapeArrow(FlxG.width / 2, 100, new FlxPoint(10, 50), new FlxPoint(10, 0), 15, line_style_2);
+		var lineStyle:LineStyle = {color: FlxColor.BLACK /**FlxColor.RED**/, thickness: 1};
+
+		timeline_box = new FlxShapeBox(0, 0, FlxG.width, TIMELINE_BOTTOM - TIMELINE_TOP, lineStyle, FlxColor.GRAY);
+		// timeline_box = new FlxShapeBox(TIMELINE_LEFT, TIMELINE_TOP, TIMELINE_RIGHT - TIMELINE_LEFT, TIMELINE_BOTTOM - TIMELINE_TOP, lineStyle, FlxColor.BLACK);
+		// timeline_box.alpha = 0.2;
+		add(timeline_box);
+
+		var line_style_2 = {color: FlxColor.BLACK, thickness: 1.0}; // 4.0};
+		// _timeline_arw = new FlxShapeArrow(FlxG.width / 2, 100, new FlxPoint(10, 50), new FlxPoint(10, 0), 15, line_style_2);
+		_timeline_arw = new FlxShapeBox(FlxG.width / 2, 0, 10, TIMELINE_BOTTOM - TIMELINE_TOP, line_style_2, FlxColor.BLACK);
 		add(_timeline_arw);
 
-		var lineStyle:LineStyle = {color: FlxColor.RED, thickness: 1};
-		timeline_box = new FlxShapeBox(0, 0, FlxG.width, TIMELINE_BOTTOM - TIMELINE_TOP, lineStyle, FlxColor.BLACK);
-		// timeline_box = new FlxShapeBox(TIMELINE_LEFT, TIMELINE_TOP, TIMELINE_RIGHT - TIMELINE_LEFT, TIMELINE_BOTTOM - TIMELINE_TOP, lineStyle, FlxColor.BLACK);
-		timeline_box.alpha = 0.2;
-		add(timeline_box);
 		forEach((sprite:FlxSprite) -> sprite.scrollFactor.set(0, 0));
 	}
 

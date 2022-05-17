@@ -8,6 +8,7 @@ import flixel.FlxSubState;
 import flixel.addons.display.shapes.*;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxRect;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
@@ -163,7 +164,11 @@ class LevelState extends FlxState
 		FlxG.worldBounds.set(-65536, -65536, 65536 * 2, 65536 * 2);
 		_player = new Player(50, 50);
 		add(_player);
-		FlxG.camera.follow(_player, TOPDOWN, 1);
+		FlxG.camera.follow(_player, 1);
+		FlxG.camera.setPosition(0, 0);
+		FlxG.camera.deadzone = new FlxRect(FlxG.camera.x + FlxG.width / 2 - _player.width / 2, FlxG.camera.y + 7 * FlxG.height / 12 - _player.height / 2,
+			_player.width, _player.height);
+		FlxG.camera.setSize(FlxG.width, FlxG.height);
 
 		FlxG.mouse.load("assets/images/crosshair.png", 2, -13, -13);
 
@@ -302,6 +307,7 @@ class LevelState extends FlxState
 		FlxG.collide(_projectiles, walls, handleProjectileWallsCollisions);
 		FlxG.collide(_player, _doors, levelComplete);
 		FlxG.collide(_monsters, _doors);
+		FlxG.collide(_projectiles, _doors);
 		super.update(elapsed);
 		FlxG.collide(_player, walls);
 		LevelStats.update(elapsed);

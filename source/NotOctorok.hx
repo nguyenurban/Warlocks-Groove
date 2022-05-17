@@ -37,11 +37,11 @@ class NotOctorok extends Enemy
 		var dist = FlxMath.distanceToPoint(this, _target.getMidpoint());
 		if (chasing)
 		{
-			if (dist > DETECT_RAD || !_tilemap.ray(getMidpoint(), _target.getMidpoint()))
+			if (dist > DETECT_RAD / 2 || !_tilemap.ray(getMidpoint(), _target.getMidpoint()))
 			{
 				FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
 			}
-			else if (dist <= DETECT_RAD && _tilemap.ray(getMidpoint(), _target.getMidpoint()))
+			else if (dist <= DETECT_RAD / 2 && _tilemap.ray(getMidpoint(), _target.getMidpoint()))
 			{
 				FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
 				velocity.x = -velocity.x;
