@@ -15,6 +15,8 @@ class Enemy extends FlxSprite
 	private var _tilemap:FlxTilemap;
 	private var _dodgeTarget:Projectile;
 
+	public var DMG_FLICKER = 0.75;
+
 	public function new(x:Float, y:Float, target:Player)
 	{
 		super(x, y);
