@@ -414,15 +414,18 @@ class LevelState extends FlxState
 		var closest = new FlxPoint(0, 0);
 		var dist:Float;
 		var min_dist = Math.POSITIVE_INFINITY;
-		var monster = monsters.getFirstAlive();
+		var monster = null;
 		for (mons in monsters)
 		{
-			dist = Math.sqrt((mons.x - x) * (mons.x - x) + (mons.y - y) * (mons.y - y));
-			if (dist < min_dist)
+			if (mons.alive)
 			{
-				min_dist = dist;
-				closest = new FlxPoint(mons.x, mons.y);
-				monster = mons;
+				dist = Math.sqrt((mons.x - x) * (mons.x - x) + (mons.y - y) * (mons.y - y));
+				if (dist < min_dist && walls.ray(FlxPoint.weak(x, y), mons.getMidpoint()))
+				{
+					min_dist = dist;
+					closest = new FlxPoint(mons.x, mons.y);
+					monster = mons;
+				}
 			}
 		}
 		return monster;

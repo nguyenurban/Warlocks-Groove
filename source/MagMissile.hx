@@ -120,17 +120,28 @@ class MagMissile extends Projectile
 		{
 			if (_target != null)
 			{
-				var diff = _target.getMidpoint().subtractPoint(this.getMidpoint());
-				// transforms cartesian difference into polar difference (x = radius in degs)
-				FlxAngle.getPolarCoords(diff.x, diff.y, diff);
-				if (diff.y - travel_angle > 0)
+				var diff = this.getMidpoint().subtractPoint(_target.getMidpoint());
+				diff.rotate(FlxPoint.weak(0, 0), 90);
+				var travel = FlxVelocity.velocityFromAngle(travel_angle, _speed * elapsed);
+				if (diff.x * travel.x + diff.y * travel.y > 0)
 				{
 					travel_angle += TURN_SPEED * elapsed;
 				}
-				else if (diff.y - travel_angle < 0)
+				else if (diff.x * travel.x + diff.y * travel.y < 0)
 				{
 					travel_angle -= TURN_SPEED * elapsed;
 				}
+				// var diff = _target.getMidpoint().subtractPoint(this.getMidpoint());
+				// // transforms cartesian difference into polar difference (x = radius in degs)
+				// FlxAngle.getPolarCoords(diff.x, diff.y, diff);
+				// if (diff.y - travel_angle > 0)
+				// {
+				// 	travel_angle += TURN_SPEED * elapsed;
+				// }
+				// else if (diff.y - travel_angle < 0)
+				// {
+				// 	travel_angle -= TURN_SPEED * elapsed;
+				// }
 				// FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
 			}
 			else
