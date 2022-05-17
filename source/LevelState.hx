@@ -781,9 +781,12 @@ class LevelState extends FlxState
 	{
 		if (d.isUnlocked())
 		{
-			for (i in LevelStats._ticks)
+			if (LevelStats._ticks != null)
 			{
-				remove(i);
+				for (i in LevelStats._ticks)
+				{
+					remove(i);
+				}
 			}
 			if (nextLevel == null)
 			{
