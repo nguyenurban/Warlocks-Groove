@@ -19,6 +19,10 @@ class LevelStats extends BaseLevel
 	public static var _ticks:Array<Tick>;
 	public static var scroll_mul:Int;
 
+	/**
+	 * Whether or note `LevelStats.initialize()` has been called yet. Resets
+	 * upon calling `stopMusic()`.
+	 */
 	public static var initialized:Bool;
 
 	/**
@@ -30,9 +34,22 @@ class LevelStats extends BaseLevel
 	public static var enchant_chance:Float;
 
 	public static var bpm:Float;
+
+	/**
+	 * Duration of one quarter note.
+	 */
 	public static var qtr_note:Float;
+
 	public static var shortest_note:LevelState.NoteType;
+
+	/**
+	 * (shortest notes per quarter note)
+	 */
 	public static var snpq:Int;
+
+	/**
+	 * Represents one measure's worth of timing
+	 */
 	public static var tick_format:Array<LevelState.AttackType>;
 
 	// supposed boundaries of timeline display
@@ -83,9 +100,9 @@ class LevelStats extends BaseLevel
 				looping_beats = 24 * 4;
 			case 2: // Only for testing purposes ...to be removed
 				bpm = 130;
-				tick_format = [RED, PURPLE, RED, PURPLE];
-				shortest_note = QUARTER;
-				snpq = 1;
+				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
+				shortest_note = EIGHTH;
+				snpq = 2;
 				scroll_mul = 350;
 				enchant_chance = 0.25;
 				ticks_len = 16;
