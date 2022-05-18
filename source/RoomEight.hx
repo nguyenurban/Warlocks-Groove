@@ -47,7 +47,15 @@ class RoomEight extends LevelState
 
 		// level_bounds = FlxCollision.createCameraWall(FlxG.camera, true, 1);
 		createHUDandTicks();
-
+		var boss = null;
+		for (m in _monsters)
+		{
+			if (m.alive)
+			{
+				boss = m;
+			}
+		}
+		_hud.spawnBossBar(boss);
 		_actionSignal.add(handleCall);
 		// timer = 0;
 		// beat = 0;
@@ -90,9 +98,9 @@ class RoomEight extends LevelState
 				// TODO: replace this with proper own projectile
 				_projectiles.add(new EnemyBullet(input[1], input[2], _player, _player.getMidpoint(), "FB from Cat", 120.0));
 			case 1:
-				_projectiles.add(new WaveBullet(input[1], input[2], _player, _player.getMidpoint(), "Wave from Cat", 155.0));
-			case 2:
 				_projectiles.add(new LargeBullet(input[1], input[2], _player, _player.getMidpoint(), "Large from Cat", 200.0));
+			case 2:
+				_projectiles.add(new WaveBullet(input[1], input[2], _player, _player.getMidpoint(), "Wave from Cat", 155.0));
 			default:
 		}
 	}

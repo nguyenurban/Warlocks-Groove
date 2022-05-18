@@ -364,6 +364,7 @@ class LevelState extends FlxState
 				openSubState(new PauseMenu(FlxColor.BLACK));
 			}
 		}
+		Logger.checkTimeout();
 	}
 
 	private function createPlayerBars()
@@ -587,6 +588,7 @@ class LevelState extends FlxState
 
 	private function shoot()
 	{
+		Logger.checkTimeout();
 		// TODO: change up accounting for energy
 		if (_player.alive && (FlxG.mouse.justPressed || FlxG.mouse.justPressedRight || FlxG.keys.justPressed.SPACE))
 		{
@@ -1001,6 +1003,7 @@ class EndGame extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
+				Logger.checkTimeout();
 				Logger.levelEnd("game over exit");
 				FlxG.switchState(new MenuState());
 			});
@@ -1018,6 +1021,7 @@ class EndGame extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 1.00, false, () ->
 			{
+				Logger.checkTimeout();
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
 				if (currLevel != RoomOne)

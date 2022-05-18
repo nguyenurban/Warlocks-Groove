@@ -39,6 +39,7 @@ class MenuState extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
+				Logger.checkTimeout();
 				FlxG.switchState(new TestMenuRoom1());
 			});
 		}, "", 200, 50);

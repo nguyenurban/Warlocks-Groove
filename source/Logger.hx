@@ -1,3 +1,5 @@
+import haxe.Timer;
+
 class Logger
 { // LOGGING
 	private static var GAME_KEY = "8dbec9d91700db8b32c0b2a1028499a9";
@@ -6,10 +8,14 @@ class Logger
 	// should use static functions instead of directly accessing logger's methods in case
 	// logger is null
 	private static var _logger:CapstoneLogger;
-
+	private static var user_id:String;
 	// test categories: 0 = debugging
 	// 1 = 1st iteration
 	private static var TEST_CATEGORY = 0;
+	public static var active = false;
+	public static var last_player_action:Float;
+	private static var timer:Timer;
+	private static var SESSION_TIMEOUT = 300;
 
 	public static function createLogger()
 	{
@@ -20,12 +26,36 @@ class Logger
 			uid = _logger.generateUuid();
 			_logger.setSavedUserId(uid);
 		}
+		user_id = uid;
 
 		/**
 		 * Code to be changed when levels are added
 		 */
-		_logger.startNewSession(uid, disable); // should callback be something different?
 
+		newSession();
+
+		last_player_action = Timer.stamp();
+	}
+
+	/**
+	 * Call this whenever the player did anything in-game in order to measure inactivity
+	 */
+	public static function checkTimeout()
+	{
+		var now = Timer.stamp();
+		if (now - SESSION_TIMEOUT > last_player_action)
+		{
+			levelEnd("timed out " + SESSION_TIMEOUT + " seconds ago");
+			newSession();
+			if (LevelStats.initialized)
+			{
+				startLevel(LevelStats.curr_level);
+			}
+		}
+		else
+		{
+			last_player_action = now;
+		}
 	}
 
 	// if unable to start new session in logger, disable it
@@ -39,7 +69,13 @@ class Logger
 		else
 		{
 			trace("logger started");
+			active = true;
 		}
+	}
+
+	public static function newSession()
+	{
+		_logger.startNewSession(user_id, disable); // should callback be something different?
 	}
 
 	public static function startLevel(level:Int)

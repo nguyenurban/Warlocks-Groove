@@ -56,6 +56,7 @@ class Cat extends Enemy
 		curr_shield_cd = 0.0;
 		shield = new FlxSprite();
 		shield.loadGraphic("assets/images/cat_shield.png");
+		// stamp(shield, 0, 0);
 		shieldBreak = new FlxSignal();
 		shieldBreak.add(shieldBreaking);
 		_movetimer = FlxG.random.float(MOVE_TIME_CAP_MIN, MOVE_TIME_CAP_MAX);
@@ -71,6 +72,8 @@ class Cat extends Enemy
 
 	override function takeAction()
 	{
+		shield.x = this.x;
+		shield.y = this.y;
 		if (_movetimer <= 0 && !charging)
 		{
 			if (moving)
@@ -102,6 +105,7 @@ class Cat extends Enemy
 				case 1:
 					charging = true;
 					new FlxTimer().start(CHARGE_TIME, chargeAtk);
+					_attacktimer = CHARGE_TIME + FlxG.random.float(ATTACK_TIME_CAP_MIN, ATTACK_TIME_CAP_MAX);
 
 				/**
 				 * DISABLING WAVE ATTACK TEMPORARILY

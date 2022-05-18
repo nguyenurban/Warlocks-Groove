@@ -19,6 +19,8 @@ class LevelStats extends BaseLevel
 	public static var _ticks:Array<Tick>;
 	public static var scroll_mul:Int;
 
+	public static var initialized:Bool;
+
 	/**
 	 * If music (and timer) has started already
 	 */
@@ -108,6 +110,7 @@ class LevelStats extends BaseLevel
 			case SIXTEENTH:
 				shortest_note_len = qtr_note / 4;
 		}
+		initialized = true;
 		started = false;
 	}
 
@@ -166,6 +169,7 @@ class LevelStats extends BaseLevel
 				tick.kill();
 			}
 		}
+		initialized = false;
 	}
 
 	public static function update(elapsed:Float)

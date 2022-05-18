@@ -175,20 +175,24 @@ class Player extends FlxSprite
 		if (up)
 		{
 			animation.play("run_up");
+			Logger.checkTimeout();
 		}
 		else if (down)
 		{
 			animation.play("run_down");
+			Logger.checkTimeout();
 		}
 		else if (left)
 		{
 			facing = FlxObject.LEFT;
 			animation.play("run_side");
+			Logger.checkTimeout();
 		}
 		else if (right)
 		{
 			facing = FlxObject.RIGHT;
 			animation.play("run_side");
+			Logger.checkTimeout();
 		}
 		else
 		{

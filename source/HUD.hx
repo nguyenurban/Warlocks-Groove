@@ -76,8 +76,10 @@ class HUD extends FlxTypedGroup<FlxSprite>
 
 	// boss hp bar will only appear when in a specific room designated as a boss arena
 	// (mostly blocked until boss is implemented)
-	public function spawnBossBar()
+	public function spawnBossBar(boss:Enemy)
 	{
-		_boss_hp = new FlxBar(0, 100, LEFT_TO_RIGHT);
+		_boss_hp = new FlxBar(0, TIMELINE_BOTTOM - TIMELINE_TOP, FlxBarFillDirection.LEFT_TO_RIGHT, FlxG.width, 30, boss, "health", 0, boss.health);
+		add(_boss_hp);
+		_boss_hp.scrollFactor.set(0, 0);
 	}
 }
