@@ -79,18 +79,18 @@ class RoomOne extends LevelState
 		// TODO: this could potentially be split into different methods that update the hud only when
 		// necessary, not every frame call
 		shoot();
-		for (proj in _projectiles)
-		{
-			if (proj.getType() != ENEMY)
-			{
-				var closest_mons = get_closest_monster(proj.x, proj.y, _monsters);
-				proj.update_target(closest_mons);
-				if (proj.getType() == LevelState.AttackType.PURPLE)
-				{
-					handleProjectileRaycasts(cast(proj, IceLaser));
-				}
-			}
-		}
+		// for (proj in _projectiles)
+		// {
+		// 	if (proj.getType() != ENEMY)
+		// 	{
+		// 		var closest_mons = get_closest_monster(proj.x, proj.y, _monsters);
+		// 		proj.update_target(closest_mons);
+		// 		if (proj.getType() == LevelState.AttackType.PURPLE)
+		// 		{
+		// 			handleProjectileRaycasts(cast(proj, IceLaser));
+		// 		}
+		// 	}
+		// }
 
 		_monsters.forEach(handleMonsterActions);
 		// _projectiles.forEach(handleProjectileRaycasts);

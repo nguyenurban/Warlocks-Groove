@@ -1,5 +1,6 @@
 package;
 
+import IceLaser.LaserBeam;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -310,10 +311,10 @@ class LevelState extends FlxState
 			{
 				var closest_mons = get_closest_monster(proj.x, proj.y, _monsters);
 				proj.update_target(closest_mons);
-				if (proj.getType() == LevelState.AttackType.PURPLE)
-				{
-					handleProjectileRaycasts(cast(proj, IceLaser));
-				}
+				// if (proj.getType() == LevelState.AttackType.PURPLE)
+				// {
+				// 	handleProjectileRaycasts(cast(proj, IceLaser));
+				// }
 			}
 		}
 		FlxG.overlap(_monsters, _player, handleMonsterPlayerOverlap);
@@ -617,17 +618,19 @@ class LevelState extends FlxState
 					if (closest_tick.getType() == LevelState.AttackType.RED)
 					{
 						proj = new MagMissile(_player.x, _player.y, _monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
+						proj.timer.start(2.0, function(Timer:FlxTimer)
+						{
+							// proj.canvas.exists = false;
+							proj.kill();
+						}, 1);
+						_projectiles.add(proj);
 					}
-					else // if (closest_tick.getType() == LevelState.AttackType.PURPLE)
+					else if (closest_tick.getType() == LevelState.AttackType.PURPLE)
 					{
-						proj = new IceLaser(_player.x, _player.y, _monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
+						// proj = new IceLaser(_player.x, _player.y, _monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
+						shootLaser(_monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
 					}
-					proj.timer.start(2.0, function(Timer:FlxTimer)
-					{
-						// proj.canvas.exists = false;
-						proj.kill();
-					}, 1);
-					_projectiles.add(proj);
+
 					fire_sound.play();
 					if (closest_tick.getEnchanted() && judge == "Perfect")
 					{
@@ -687,18 +690,19 @@ class LevelState extends FlxState
 			- earlier_beat.getTick() * LevelStats.shortest_note_len <= later_beat.getTick() * LevelStats.shortest_note_len - LevelStats.timer ? earlier_beat : later_beat;
 	}
 
-	private function handleProjectileRaycasts(p:IceLaser)
+	private function shootLaser(target:FlxObject, timing:JudgeType, enchanted:Bool)
 	{
-		cast(p, IceLaser);
-		if (p.canvas == null)
-		{
-			p.canvas = new FlxSprite();
-			p.canvas.makeGraphic(4096, 4096, FlxColor.TRANSPARENT, true);
-			add(p.canvas);
-		}
-		var line_style_2 = {color: FlxColor.BLUE, thickness: 3.0};
-		var drawStyle:DrawStyle = {smoothing: true};
-		p.canvas.drawLine(p.origin_point.x, p.origin_point.y, p.x + 2, p.y + 2, line_style_2, drawStyle);
+		// var ground:Float = FlxG.height - 100;
+		var source:FlxPoint = _player.getMidpoint();
+		var mouse:FlxPoint = FlxG.mouse.getPosition();
+		var deg:Float = source.angleBetween(mouse) - 90;
+		// var groundPoint = FlxPoint.get(source.x + (ground - source.y) / Math.tan(deg * FlxAngle.TO_RAD), ground); // Work on this
+		var length:Float = 1000; // source.distanceTo(groundPoint);
+
+		var laser:IceLaser = new IceLaser(source.x, source.y, target, timing, enchanted);
+		_projectiles.add(laser);
+		var laserGraphic:FlxSprite = new LaserBeam(source.x, source.y, length, deg);
+		add(laserGraphic);
 	}
 
 	// private function debugTickDisplay()
