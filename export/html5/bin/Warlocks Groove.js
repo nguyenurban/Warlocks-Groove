@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "51";
+	app.meta.h["build"] = "55";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -8127,6 +8127,9 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 		case "player":
 			this._player.setPosition(entity.x,entity.y);
 			break;
+		case "water_strider":
+			this._monsters.add(new WaterStrider(entity.x,entity.y,this._player,this.walls));
+			break;
 		default:
 		}
 	}
@@ -8232,10 +8235,44 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			var src = "From ";
 			if(((e) instanceof NotOctorok)) {
 				src += "NotOctorok";
+			} else if(((e) instanceof WaterStrider)) {
+				src += "WaterStrider";
 			} else {
 				src += "unknown";
 			}
-			this._projectiles.add(new EnemyBullet(e.getMidpoint().x,e.getMidpoint().y,this._player,null,src));
+			if(src == "From WaterStrider") {
+				var _g = 1;
+				while(_g < 24) {
+					var angle = _g++;
+					var a = angle * 15 * (Math.PI / 180);
+					var X = Math.cos(a) * 50;
+					var Y = Math.sin(a) * 50;
+					if(Y == null) {
+						Y = 0;
+					}
+					if(X == null) {
+						X = 0;
+					}
+					var point = flixel_math_FlxPoint._pool.get().set(X,Y);
+					point._inPool = false;
+					var dir = point;
+					var _this = e.getMidpoint();
+					var X1 = dir.x;
+					var Y1 = dir.y;
+					if(Y1 == null) {
+						Y1 = 0;
+					}
+					if(X1 == null) {
+						X1 = 0;
+					}
+					_this.set_x(_this.x + X1);
+					_this.set_y(_this.y + Y1);
+					var tar = _this;
+					this._projectiles.add(new StriderShockwave(e.getMidpoint().x,e.getMidpoint().y,this._player,tar,src,100));
+				}
+			} else {
+				this._projectiles.add(new EnemyBullet(e.getMidpoint().x,e.getMidpoint().y,this._player,null,src));
+			}
 		}
 		if(e.getDodgeType() != null) {
 			e.dodge(this.get_closest_projectile(e.x,e.y,this._projectiles,e.getDodgeType()));
@@ -8289,8 +8326,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			} else {
 				var timing;
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 590, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 591, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 608, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 609, className : "LevelState", methodName : "shoot"});
 				if(!(closest_tick.getEnchanted() && diff <= this.PERFECT_WINDOW) && !this._player.useEnergy(15)) {
 					this.judge_sprite.loadGraphic("assets/images/judge_sprites/ooe.png");
 					Logger.playerShot("OOE","OOE",diff == null ? "null" : "" + diff);
@@ -9615,7 +9652,7 @@ ManifestResources.init = function(config) {
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf);
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf);
 	var bundle;
-	var data = "{\"name\":null,\"assets\":\"aoy4:pathy30:assets%2Fcredits%2Fcredits.txty4:sizei586y4:typey4:TEXTy2:idR1y7:preloadtgoR0y25:assets%2Fdata%2Flvl1.jsonR2i47799R3R4R5R7R6tgoR0y30:assets%2Fdata%2Flvl2room1.jsonR2i15749R3R4R5R8R6tgoR0y30:assets%2Fdata%2Flvl2room2.jsonR2i23262R3R4R5R9R6tgoR0y30:assets%2Fdata%2Flvl2room3.jsonR2i25548R3R4R5R10R6tgoR0y30:assets%2Fdata%2Flvl2room4.jsonR2i21547R3R4R5R11R6tgoR0y30:assets%2Fdata%2Flvl2room5.jsonR2i19348R3R4R5R12R6tgoR0y30:assets%2Fdata%2Flvl2room6.jsonR2i20117R3R4R5R13R6tgoR0y30:assets%2Fdata%2Flvl2room7.jsonR2i21192R3R4R5R14R6tgoR0y30:assets%2Fdata%2Flvl2room8.jsonR2i25154R3R4R5R15R6tgoR0y25:assets%2Fdata%2Fmap1.ogmoR2i56747R3R4R5R16R6tgoR0y23:assets%2Fdata%2Fr1.jsonR2i1706970R3R4R5R17R6tgoR0y26:assets%2Fdata%2Froom1.jsonR2i15512R3R4R5R18R6tgoR0y26:assets%2Fdata%2Froom2.jsonR2i15523R3R4R5R19R6tgoR0y26:assets%2Fdata%2Froom3.jsonR2i25334R3R4R5R20R6tgoR0y26:assets%2Fdata%2Froom4.jsonR2i15718R3R4R5R21R6tgoR0y26:assets%2Fdata%2Froom5.jsonR2i15728R3R4R5R22R6tgoR0y26:assets%2Fdata%2Froom6.jsonR2i20160R3R4R5R23R6tgoR0y26:assets%2Fdata%2Froom7.jsonR2i15941R3R4R5R24R6tgoR0y26:assets%2Fdata%2Froom8.jsonR2i21789R3R4R5R25R6tgoR0y25:assets%2Fdata%2Ftiles.pngR2i35688R3y5:IMAGER5R26R6tgoR2i28952R3y4:FONTy9:classNamey24:__ASSET__assets_font_ttfR5y17:assets%2Ffont.ttfR6tgoR0y38:assets%2Fimages%2FBat_Sprite_Sheet.pngR2i2628R3R27R5R32R6tgoR0y32:assets%2Fimages%2Fcat_shield.pngR2i511218R3R27R5R33R6tgoR0y30:assets%2Fimages%2Fcat_wave.pngR2i909R3R27R5R34R6tgoR0y45:assets%2Fimages%2FCharacters_Sprite_Sheet.pngR2i46262R3R27R5R35R6tgoR0y31:assets%2Fimages%2Fcrosshair.pngR2i208R3R27R5R36R6tgoR0y26:assets%2Fimages%2FDoor.pngR2i648R3R27R5R37R6tgoR0y34:assets%2Fimages%2Fenemy_bullet.pngR2i154R3R27R5R38R6tgoR0y28:assets%2Fimages%2Fenergy.pngR2i235R3R27R5R39R6tgoR0y41:assets%2Fimages%2FGoblin_Sprite_Sheet.pngR2i39977R3R27R5R40R6tgoR0y28:assets%2Fimages%2Fhealth.pngR2i625R3R27R5R41R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R42R6tgoR0y43:assets%2Fimages%2Fjudge_sprites%2Fgreat.pngR2i1361R3R27R5R43R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fmisfire.pngR2i1602R3R27R5R44R6tgoR0y40:assets%2Fimages%2Fjudge_sprites%2Fok.pngR2i833R3R27R5R45R6tgoR0y41:assets%2Fimages%2Fjudge_sprites%2Fooe.pngR2i1685R3R27R5R46R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fperfect.pngR2i1300R3R27R5R47R6tgoR0y27:assets%2Fimages%2Flaser.pngR2i165R3R27R5R48R6tgoR0y35:assets%2Fimages%2Fmagic_missile.pngR2i12870R3R27R5R49R6tgoR0y31:assets%2Fimages%2Fmetronome.pngR2i30800R3R27R5R50R6tgoR0y27:assets%2Fimages%2Fmouse.pngR2i5211R3R27R5R51R6tgoR0y45:assets%2Fimages%2FNotOctorok_Sprite_Sheet.pngR2i1601R3R27R5R52R6tgoR0y28:assets%2Fimages%2Fplayer.pngR2i1886R3R27R5R53R6tgoR0y29:assets%2Fimages%2Fshooter.pngR2i47783R3R27R5R54R6tgoR0y35:assets%2Fimages%2Fticks%2Fgreen.pngR2i228R3R27R5R55R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_e.pngR2i233R3R27R5R56R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_g.pngR2i225R3R27R5R57R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_o.pngR2i212R3R27R5R58R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_p.pngR2i223R3R27R5R59R6tgoR0y39:assets%2Fimages%2Fticks%2Fgreen_p_e.pngR2i245R3R27R5R60R6tgoR0y36:assets%2Fimages%2Fticks%2Fpurple.pngR2i212R3R27R5R61R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_e.pngR2i233R3R27R5R62R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_g.pngR2i224R3R27R5R63R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_o.pngR2i222R3R27R5R64R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_p.pngR2i221R3R27R5R65R6tgoR0y40:assets%2Fimages%2Fticks%2Fpurple_p_e.pngR2i231R3R27R5R66R6tgoR0y33:assets%2Fimages%2Fticks%2Fred.pngR2i230R3R27R5R67R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_e.pngR2i234R3R27R5R68R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_g.pngR2i225R3R27R5R69R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_o.pngR2i242R3R27R5R70R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_p.pngR2i223R3R27R5R71R6tgoR0y37:assets%2Fimages%2Fticks%2Fred_p_e.pngR2i233R3R27R5R72R6tgoR0y26:assets%2Fimages%2FWASD.pngR2i2719R3R27R5R73R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R74R6tgoR2i10421314R3y5:SOUNDR5y25:assets%2Fmusic%2Fstg1.wavy9:pathGroupaR76hR6tgoR2i10188R3R75R5y26:assets%2Fsounds%2Fbeat.wavR77aR78hR6tgoR2i3336R3y5:MUSICR5y26:assets%2Fsounds%2Ffire.mp3R77aR80hR6tgoR2i5856R3R79R5y28:assets%2Fsounds%2Ffire_e.mp3R77aR81hR6tgoR2i6720R3R79R5y25:assets%2Fsounds%2Fhit.mp3R77aR82hR6tgoR2i8064R3R79R5y26:assets%2Fsounds%2Fkill.mp3R77aR83hR6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R84R6tgoR0y43:assets%2Funused%2FM484BulletCollection1.pngR2i22490R3R27R5R85R6tgoR2i2114R3R79R5y26:flixel%2Fsounds%2Fbeep.mp3R77aR86y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R79R5y28:flixel%2Fsounds%2Fflixel.mp3R77aR88y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3R75R5R87R77aR86R87hgoR2i33629R3R75R5R89R77aR88R89hgoR2i15744R3R28R29y35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R28R29y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R27R5R94R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R27R5R95R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
+	var data = "{\"name\":null,\"assets\":\"aoy4:pathy30:assets%2Fcredits%2Fcredits.txty4:sizei586y4:typey4:TEXTy2:idR1y7:preloadtgoR0y25:assets%2Fdata%2Flvl1.jsonR2i47799R3R4R5R7R6tgoR0y30:assets%2Fdata%2Flvl2room1.jsonR2i15749R3R4R5R8R6tgoR0y30:assets%2Fdata%2Flvl2room2.jsonR2i23262R3R4R5R9R6tgoR0y30:assets%2Fdata%2Flvl2room3.jsonR2i25548R3R4R5R10R6tgoR0y30:assets%2Fdata%2Flvl2room4.jsonR2i21547R3R4R5R11R6tgoR0y30:assets%2Fdata%2Flvl2room5.jsonR2i19348R3R4R5R12R6tgoR0y30:assets%2Fdata%2Flvl2room6.jsonR2i20117R3R4R5R13R6tgoR0y30:assets%2Fdata%2Flvl2room7.jsonR2i21192R3R4R5R14R6tgoR0y30:assets%2Fdata%2Flvl2room8.jsonR2i25154R3R4R5R15R6tgoR0y25:assets%2Fdata%2Fmap1.ogmoR2i56747R3R4R5R16R6tgoR0y23:assets%2Fdata%2Fr1.jsonR2i1706970R3R4R5R17R6tgoR0y26:assets%2Fdata%2Froom1.jsonR2i15512R3R4R5R18R6tgoR0y26:assets%2Fdata%2Froom2.jsonR2i15523R3R4R5R19R6tgoR0y26:assets%2Fdata%2Froom3.jsonR2i25334R3R4R5R20R6tgoR0y26:assets%2Fdata%2Froom4.jsonR2i15718R3R4R5R21R6tgoR0y26:assets%2Fdata%2Froom5.jsonR2i15728R3R4R5R22R6tgoR0y26:assets%2Fdata%2Froom6.jsonR2i20160R3R4R5R23R6tgoR0y26:assets%2Fdata%2Froom7.jsonR2i15941R3R4R5R24R6tgoR0y26:assets%2Fdata%2Froom8.jsonR2i21789R3R4R5R25R6tgoR0y25:assets%2Fdata%2Ftiles.pngR2i35688R3y5:IMAGER5R26R6tgoR2i28952R3y4:FONTy9:classNamey24:__ASSET__assets_font_ttfR5y17:assets%2Ffont.ttfR6tgoR0y38:assets%2Fimages%2FBat_Sprite_Sheet.pngR2i2628R3R27R5R32R6tgoR0y32:assets%2Fimages%2Fcat_shield.pngR2i511218R3R27R5R33R6tgoR0y30:assets%2Fimages%2Fcat_wave.pngR2i909R3R27R5R34R6tgoR0y45:assets%2Fimages%2FCharacters_Sprite_Sheet.pngR2i46262R3R27R5R35R6tgoR0y31:assets%2Fimages%2Fcrosshair.pngR2i208R3R27R5R36R6tgoR0y26:assets%2Fimages%2FDoor.pngR2i648R3R27R5R37R6tgoR0y34:assets%2Fimages%2Fenemy_bullet.pngR2i154R3R27R5R38R6tgoR0y28:assets%2Fimages%2Fenergy.pngR2i235R3R27R5R39R6tgoR0y41:assets%2Fimages%2FGoblin_Sprite_Sheet.pngR2i39977R3R27R5R40R6tgoR0y28:assets%2Fimages%2Fhealth.pngR2i625R3R27R5R41R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R42R6tgoR0y43:assets%2Fimages%2Fjudge_sprites%2Fgreat.pngR2i1361R3R27R5R43R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fmisfire.pngR2i1602R3R27R5R44R6tgoR0y40:assets%2Fimages%2Fjudge_sprites%2Fok.pngR2i833R3R27R5R45R6tgoR0y41:assets%2Fimages%2Fjudge_sprites%2Fooe.pngR2i1685R3R27R5R46R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fperfect.pngR2i1300R3R27R5R47R6tgoR0y27:assets%2Fimages%2Flaser.pngR2i165R3R27R5R48R6tgoR0y35:assets%2Fimages%2Fmagic_missile.pngR2i12870R3R27R5R49R6tgoR0y31:assets%2Fimages%2Fmetronome.pngR2i30800R3R27R5R50R6tgoR0y27:assets%2Fimages%2Fmouse.pngR2i5211R3R27R5R51R6tgoR0y45:assets%2Fimages%2FNotOctorok_Sprite_Sheet.pngR2i1601R3R27R5R52R6tgoR0y28:assets%2Fimages%2Fplayer.pngR2i1886R3R27R5R53R6tgoR0y29:assets%2Fimages%2Fshooter.pngR2i47783R3R27R5R54R6tgoR0y38:assets%2Fimages%2FStriderShockwave.pngR2i55581R3R27R5R55R6tgoR0y35:assets%2Fimages%2Fticks%2Fgreen.pngR2i228R3R27R5R56R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_e.pngR2i233R3R27R5R57R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_g.pngR2i225R3R27R5R58R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_o.pngR2i212R3R27R5R59R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_p.pngR2i223R3R27R5R60R6tgoR0y39:assets%2Fimages%2Fticks%2Fgreen_p_e.pngR2i245R3R27R5R61R6tgoR0y36:assets%2Fimages%2Fticks%2Fpurple.pngR2i212R3R27R5R62R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_e.pngR2i233R3R27R5R63R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_g.pngR2i224R3R27R5R64R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_o.pngR2i222R3R27R5R65R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_p.pngR2i221R3R27R5R66R6tgoR0y40:assets%2Fimages%2Fticks%2Fpurple_p_e.pngR2i231R3R27R5R67R6tgoR0y33:assets%2Fimages%2Fticks%2Fred.pngR2i230R3R27R5R68R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_e.pngR2i234R3R27R5R69R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_g.pngR2i225R3R27R5R70R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_o.pngR2i242R3R27R5R71R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_p.pngR2i223R3R27R5R72R6tgoR0y37:assets%2Fimages%2Fticks%2Fred_p_e.pngR2i233R3R27R5R73R6tgoR0y26:assets%2Fimages%2FWASD.pngR2i2719R3R27R5R74R6tgoR0y47:assets%2Fimages%2FWaterStrider_Sprite_Sheet.pngR2i33166R3R27R5R75R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R76R6tgoR2i10421314R3y5:SOUNDR5y25:assets%2Fmusic%2Fstg1.wavy9:pathGroupaR78hR6tgoR2i10188R3R77R5y26:assets%2Fsounds%2Fbeat.wavR79aR80hR6tgoR2i3336R3y5:MUSICR5y26:assets%2Fsounds%2Ffire.mp3R79aR82hR6tgoR2i5856R3R81R5y28:assets%2Fsounds%2Ffire_e.mp3R79aR83hR6tgoR2i6720R3R81R5y25:assets%2Fsounds%2Fhit.mp3R79aR84hR6tgoR2i8064R3R81R5y26:assets%2Fsounds%2Fkill.mp3R79aR85hR6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R86R6tgoR0y43:assets%2Funused%2FM484BulletCollection1.pngR2i22490R3R27R5R87R6tgoR2i2114R3R81R5y26:flixel%2Fsounds%2Fbeep.mp3R79aR88y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R81R5y28:flixel%2Fsounds%2Fflixel.mp3R79aR90y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3R77R5R89R79aR88R89hgoR2i33629R3R77R5R91R79aR90R91hgoR2i15744R3R28R29y35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R28R29y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R27R5R96R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R27R5R97R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
 	var manifest = lime_utils_AssetManifest.parse(data,ManifestResources.rootPath);
 	var library = lime_utils_AssetLibrary.fromManifest(manifest);
 	lime_utils_Assets.registerLibrary("default",library);
@@ -11577,6 +11614,28 @@ Std.parseInt = function(x) {
 	}
 	return null;
 };
+var StriderShockwave = function(x,y,target,targetPoint,src,speed) {
+	EnemyBullet.call(this,x,y,target,targetPoint,src,speed);
+	this.loadGraphic("assets/images/StriderShockwave.png",true,100,100);
+	this.animation.add("anim",[0,1,2],6,false);
+	this.acceleration.set(this.velocity.x,this.velocity.y);
+	this.scale.set(0.5,0.5);
+	this.updateHitbox();
+};
+$hxClasses["StriderShockwave"] = StriderShockwave;
+StriderShockwave.__name__ = "StriderShockwave";
+StriderShockwave.__super__ = EnemyBullet;
+StriderShockwave.prototype = $extend(EnemyBullet.prototype,{
+	update: function(elapsed) {
+		EnemyBullet.prototype.update.call(this,elapsed);
+		this.scale.set(this.scale.x - 0.1 * elapsed,this.scale.y - 0.1 * elapsed);
+		this.updateHitbox();
+		if(this.scale.x < 0 || this.scale.y < 0) {
+			this.kill();
+		}
+	}
+	,__class__: StriderShockwave
+});
 var _$String_String_$Impl_$ = function() { };
 $hxClasses["_String.String_Impl_"] = _$String_String_$Impl_$;
 _$String_String_$Impl_$.__name__ = "_String.String_Impl_";
@@ -11993,7 +12052,7 @@ TestMenuRoom2.prototype = $extend(flixel_FlxState.prototype,{
 			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				var nextState = new RoomTwo();
+				var nextState = new LvlTwoRoomTwo();
 				if(flixel_FlxG.game._state.switchTo(nextState)) {
 					flixel_FlxG.game._requestedState = nextState;
 				}
@@ -12006,7 +12065,7 @@ TestMenuRoom2.prototype = $extend(flixel_FlxState.prototype,{
 			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				var nextState = new RoomThree();
+				var nextState = new LvlTwoRoomThree();
 				if(flixel_FlxG.game._state.switchTo(nextState)) {
 					flixel_FlxG.game._requestedState = nextState;
 				}
@@ -12019,7 +12078,7 @@ TestMenuRoom2.prototype = $extend(flixel_FlxState.prototype,{
 			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				var nextState = new RoomFour();
+				var nextState = new LvlTwoRoomFour();
 				if(flixel_FlxG.game._state.switchTo(nextState)) {
 					flixel_FlxG.game._requestedState = nextState;
 				}
@@ -12032,7 +12091,7 @@ TestMenuRoom2.prototype = $extend(flixel_FlxState.prototype,{
 			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				var nextState = new RoomFive();
+				var nextState = new LvlTwoRoomFive();
 				if(flixel_FlxG.game._state.switchTo(nextState)) {
 					flixel_FlxG.game._requestedState = nextState;
 				}
@@ -12045,7 +12104,7 @@ TestMenuRoom2.prototype = $extend(flixel_FlxState.prototype,{
 			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				var nextState = new RoomSix();
+				var nextState = new LvlTwoRoomSix();
 				if(flixel_FlxG.game._state.switchTo(nextState)) {
 					flixel_FlxG.game._requestedState = nextState;
 				}
@@ -12058,7 +12117,7 @@ TestMenuRoom2.prototype = $extend(flixel_FlxState.prototype,{
 			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				var nextState = new RoomSeven();
+				var nextState = new LvlTwoRoomSeven();
 				if(flixel_FlxG.game._state.switchTo(nextState)) {
 					flixel_FlxG.game._requestedState = nextState;
 				}
@@ -12386,13 +12445,305 @@ UnicodeString.get_length = function(this1) {
 	}
 	return l;
 };
+var WaterStrider = function(x,y,target,tilemap) {
+	this.ACTION_TIME = 6;
+	this.DODGE_RAD = 400;
+	Enemy.call(this,x,y,target);
+	this.health = 400;
+	this._speed = 120;
+	this._dps = 20;
+	this._size = 256;
+	this.setSize(this._size,this._size * 128 / 144);
+	this.scale.set(this._size / 144,this._size / 128);
+	this.chasing = false;
+	this._tilemap = tilemap;
+	var Angle = 360 * Math.random();
+	var Speed = this._speed;
+	var a = Angle * (Math.PI / 180);
+	var X = Math.cos(a) * Speed;
+	var Y = Math.sin(a) * Speed;
+	if(Y == null) {
+		Y = 0;
+	}
+	if(X == null) {
+		X = 0;
+	}
+	var point = flixel_math_FlxPoint._pool.get().set(X,Y);
+	point._inPool = false;
+	this.prop_vel = point;
+	while(true) {
+		var tmp = this._tilemap;
+		var tmp1 = this.getMidpoint();
+		var _this = this.getMidpoint();
+		var X = this._size / 2 + this.prop_vel.x * this._speed + this.acceleration.x * this.ACTION_TIME;
+		var Y = this._size / 2 * 128 / 144 + this.prop_vel.y * this._speed + this.acceleration.y * this.ACTION_TIME;
+		if(Y == null) {
+			Y = 0;
+		}
+		if(X == null) {
+			X = 0;
+		}
+		_this.set_x(_this.x + X);
+		_this.set_y(_this.y + Y);
+		if(!tmp.ray(tmp1,_this)) {
+			break;
+		}
+		var tmp2 = this.prop_vel;
+		var X1 = 0;
+		var Y1 = 0;
+		if(Y1 == null) {
+			Y1 = 0;
+		}
+		if(X1 == null) {
+			X1 = 0;
+		}
+		var X11 = X1;
+		var Y11 = Y1;
+		if(Y11 == null) {
+			Y11 = 0;
+		}
+		if(X11 == null) {
+			X11 = 0;
+		}
+		var point = flixel_math_FlxPoint._pool.get().set(X11,Y11);
+		point._inPool = false;
+		var point1 = point;
+		point1._weak = true;
+		tmp2.rotate(point1,90);
+	}
+	this.dodge_dir = 90 - Math.floor(2 * Math.random()) * 180;
+	this.dodge_timer = new flixel_util_FlxTimer();
+	this.dodge_timer.start(3 + 2 * Math.random());
+	this.loadGraphic("assets/images/WaterStrider_Sprite_Sheet.png",true,144,128);
+	this.updateHitbox();
+	this._facingFlip.h[1] = { x : false, y : false};
+	this._facingFlip.h[16] = { x : false, y : false};
+	this._facingFlip.h[256] = { x : false, y : false};
+	this._facingFlip.h[4096] = { x : false, y : false};
+	this.animation.add("l",[9],6,false);
+	this.animation.add("r",[5],6,false);
+	this.animation.add("u",[2],6,false);
+	this.animation.add("d",[8],6,false);
+	this.animation.add("idle_l",[11,10,9,10],6,false);
+	this.animation.add("idle_r",[3,4,5,4],6,false);
+	this.animation.add("idle_u",[0,1,2,1],6,false);
+	this.animation.add("idle_d",[6,7,8,7],6,false);
+};
+$hxClasses["WaterStrider"] = WaterStrider;
+WaterStrider.__name__ = "WaterStrider";
+WaterStrider.__super__ = Enemy;
+WaterStrider.prototype = $extend(Enemy.prototype,{
+	takeAction: function() {
+		if(this.dodge_timer.finished) {
+			this.dodge_dir = 90 - Math.floor(2 * Math.random()) * 180;
+			this.dodge_timer.reset(3 + 2 * Math.random());
+		}
+		var tmp;
+		if(this.chasing && this._dodgeTarget != null) {
+			var Target = this._dodgeTarget.getMidpoint();
+			var dx = this.x + this.origin.x - Target.x;
+			var dy = this.y + this.origin.y - Target.y;
+			if(Target._weak) {
+				Target.put();
+			}
+			tmp = (Math.sqrt(dx * dx + dy * dy) | 0) < this.DODGE_RAD;
+		} else {
+			tmp = false;
+		}
+		if(tmp && this.velocity.x * (this.getMidpoint().x - this._dodgeTarget.getMidpoint().x) + this.velocity.y * (this.getMidpoint().y - this._dodgeTarget.getMidpoint().y) < 0) {
+			flixel_math_FlxVelocity.moveTowardsPoint(this,this._dodgeTarget.getMidpoint(),this._speed * 1.5);
+			var tmp = this.velocity;
+			var X = 0;
+			var Y = 0;
+			if(Y == null) {
+				Y = 0;
+			}
+			if(X == null) {
+				X = 0;
+			}
+			var X1 = X;
+			var Y1 = Y;
+			if(Y1 == null) {
+				Y1 = 0;
+			}
+			if(X1 == null) {
+				X1 = 0;
+			}
+			var point = flixel_math_FlxPoint._pool.get().set(X1,Y1);
+			point._inPool = false;
+			var point1 = point;
+			point1._weak = true;
+			tmp.rotate(point1,this.dodge_dir);
+		}
+		if(!this.chasing && this._counter > this.ACTION_TIME) {
+			this.velocity = this.prop_vel;
+			this.acceleration.set(-this.velocity.x / this.ACTION_TIME,-this.velocity.y / this.ACTION_TIME);
+		} else if(this.chasing && this._counter > this.ACTION_TIME) {
+			this.chasing = false;
+			this.velocity.set(0,0);
+			this.acceleration.set(0,0);
+			var Angle = 360 * Math.random();
+			var Speed = this._speed;
+			var a = Angle * (Math.PI / 180);
+			var X = Math.cos(a) * Speed;
+			var Y = Math.sin(a) * Speed;
+			if(Y == null) {
+				Y = 0;
+			}
+			if(X == null) {
+				X = 0;
+			}
+			var point = flixel_math_FlxPoint._pool.get().set(X,Y);
+			point._inPool = false;
+			this.prop_vel = point;
+			while(true) {
+				var tmp = this._tilemap;
+				var tmp1 = this.getMidpoint();
+				var _this = this.getMidpoint();
+				var X = this._size / 2 + this.prop_vel.x * this._speed + this.acceleration.x * this.ACTION_TIME;
+				var Y = this._size / 2 * 128 / 144 + this.prop_vel.y * this._speed + this.acceleration.y * this.ACTION_TIME;
+				if(Y == null) {
+					Y = 0;
+				}
+				if(X == null) {
+					X = 0;
+				}
+				_this.set_x(_this.x + X);
+				_this.set_y(_this.y + Y);
+				if(!tmp.ray(tmp1,_this)) {
+					break;
+				}
+				var tmp2 = this.prop_vel;
+				var X1 = 0;
+				var Y1 = 0;
+				if(Y1 == null) {
+					Y1 = 0;
+				}
+				if(X1 == null) {
+					X1 = 0;
+				}
+				var X11 = X1;
+				var Y11 = Y1;
+				if(Y11 == null) {
+					Y11 = 0;
+				}
+				if(X11 == null) {
+					X11 = 0;
+				}
+				var point = flixel_math_FlxPoint._pool.get().set(X11,Y11);
+				point._inPool = false;
+				var point1 = point;
+				point1._weak = true;
+				tmp2.rotate(point1,90);
+			}
+			this._counter = 0;
+		}
+		if(this.velocity.x < 0) {
+			this.set_facing(1);
+			if(this.velocity.y < 0 && this.velocity.y < this.velocity.x) {
+				this.set_facing(256);
+			} else if(this.velocity.y > 0 && this.velocity.y > -this.velocity.x) {
+				this.set_facing(4096);
+			}
+		} else if(this.velocity.x > 0) {
+			this.set_facing(16);
+			if(this.velocity.y > 0 && this.velocity.y > this.velocity.x) {
+				this.set_facing(4096);
+			} else if(this.velocity.y < 0 && this.velocity.y < -this.velocity.x) {
+				this.set_facing(256);
+			}
+		} else if(this.prop_vel.x < 0) {
+			this.set_facing(1);
+			if(this.prop_vel.y < 0 && this.prop_vel.y < this.prop_vel.x) {
+				this.set_facing(256);
+			} else if(this.prop_vel.y > 0 && this.prop_vel.y > -this.prop_vel.x) {
+				this.set_facing(4096);
+			}
+		} else if(this.prop_vel.x > 0) {
+			this.set_facing(16);
+			if(this.prop_vel.y > 0 && this.prop_vel.y > this.prop_vel.x) {
+				this.set_facing(4096);
+			} else if(this.prop_vel.y < 0 && this.prop_vel.y < -this.prop_vel.x) {
+				this.set_facing(256);
+			}
+		}
+		if(this.chasing) {
+			switch(this.facing) {
+			case 1:
+				this.animation.play("l");
+				break;
+			case 16:
+				this.animation.play("r");
+				break;
+			case 256:
+				this.animation.play("u");
+				break;
+			case 4096:
+				this.animation.play("d");
+				break;
+			default:
+			}
+		} else {
+			switch(this.facing) {
+			case 1:
+				this.animation.play("idle_l");
+				break;
+			case 16:
+				this.animation.play("idle_r");
+				break;
+			case 256:
+				this.animation.play("idle_u");
+				break;
+			case 4096:
+				this.animation.play("idle_d");
+				break;
+			default:
+			}
+		}
+	}
+	,shouldFire: function() {
+		if(!this.chasing && this._counter > this.ACTION_TIME) {
+			this.chasing = true;
+			this._counter = 0;
+			return true;
+		}
+		return false;
+	}
+	,getDodgeType: function() {
+		return AttackType.RED;
+	}
+	,__class__: WaterStrider
+});
 var WaveBullet = function(x,y,target,targetPoint,src,speed) {
 	EnemyBullet.call(this,x,y,target,targetPoint,src,speed);
 	this.loadGraphic("assets/images/cat_wave.png",true,32,32);
 	this.animation.add("n",[0,1,2,3,4,5],5);
 	this.animation.play("n");
-	this.setGraphicSize(64,106);
+	this.setGraphicSize(64,96);
 	this.updateHitbox();
+	this.set_height(69);
+	this.set_width(14);
+	var X = 26;
+	var Y = 15;
+	if(Y == null) {
+		Y = 0;
+	}
+	if(X == null) {
+		X = 0;
+	}
+	var X1 = X;
+	var Y1 = Y;
+	if(Y1 == null) {
+		Y1 = 0;
+	}
+	if(X1 == null) {
+		X1 = 0;
+	}
+	var point = flixel_math_FlxPoint._pool.get().set(X1,Y1);
+	point._inPool = false;
+	var point1 = point;
+	point1._weak = true;
+	this.offset = point1;
 	var point = target == null ? targetPoint : target.getMidpoint();
 	var diff = flixel_math_FlxAngle.angleBetweenPoint(this,point,true);
 	this.set_angle(diff);
