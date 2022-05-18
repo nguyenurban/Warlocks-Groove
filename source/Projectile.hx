@@ -39,7 +39,7 @@ class Projectile extends FlxSprite
 		_enchanted = enchanted;
 		origin_point = this.getMidpoint();
 		src = source;
-		if (type == ENEMY)
+		if (type == ENEMY && _target != null)
 		{
 			makeGraphic(5, 5, FlxColor.BLACK);
 			FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);

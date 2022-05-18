@@ -7,6 +7,9 @@
 --macro lime._internal.macros.DefineMacro.run()
 -cp C:/HaxeToolkit/haxe/lib/lime/7,9,0/src
 -D lime=7.9.0
+--macro keep('IntIterator')
+-cp C:/HaxeToolkit/haxe/lib/hscript/2,4,0
+-D hscript=2.4.0
 -cp C:/HaxeToolkit/haxe/lib/random/1,4,1/src
 -D random=1.4.1
 -cp C:/HaxeToolkit/haxe/lib/howlerjs/2,0,4/src

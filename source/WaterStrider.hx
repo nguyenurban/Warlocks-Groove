@@ -10,7 +10,7 @@ import flixel.util.FlxTimer;
 class WaterStrider extends Enemy
 {
 	private var DODGE_RAD = 400;
-	private var ACTION_TIME = 6;
+	private var ACTION_TIME = 4;
 	private var chasing:Bool;
 	private var prop_vel:FlxPoint;
 	private var dodge_dir:Float;
@@ -23,7 +23,7 @@ class WaterStrider extends Enemy
 		health = 400;
 		_speed = 120;
 		_dps = 20;
-		_size = 256;
+		_size = 224;
 		setSize(_size, _size * 128 / 144);
 		scale.set(_size / 144, _size / 128);
 		chasing = false;
