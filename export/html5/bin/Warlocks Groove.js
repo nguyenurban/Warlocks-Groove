@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "49";
+	app.meta.h["build"] = "50";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -6530,12 +6530,14 @@ var Cat = function(x,y,player,signal) {
 	this.FB_SHOT_VARIANCE = 10;
 	this.FB_FIRE_RATE = 0.25;
 	this.CHARGE_TIME = 2.0;
-	this.MAX_MOVE_TIME = 2.0;
-	this.MOVE_VARIANCE = 100;
-	this.MOVE_TIME_CAP_MAX = 3.0;
-	this.MOVE_TIME_CAP_MIN = 1.0;
-	this.ATTACK_TIME_CAP_MAX = 8.0;
-	this.ATTACK_TIME_CAP_MIN = 5.0;
+	this.MAX_MOVING_TIME = 3.0;
+	this.MIN_MOVING_TIME = 1.5;
+	this.MOVE_VARIANCE_MAX = 500;
+	this.MOVE_VARIANCE_MIN = 100;
+	this.MOVE_TIME_CAP_MAX = 1.0;
+	this.MOVE_TIME_CAP_MIN = 0.4;
+	this.ATTACK_TIME_CAP_MAX = 3.0;
+	this.ATTACK_TIME_CAP_MIN = 1.0;
 	Enemy.call(this,x,y,player);
 	this.health = 300;
 	this._speed = 50;
@@ -6595,9 +6597,33 @@ Cat.prototype = $extend(Enemy.prototype,{
 				this._movetimer = flixel_FlxG.random.float(this.MOVE_TIME_CAP_MIN,this.MOVE_TIME_CAP_MAX);
 			} else {
 				this.moving = true;
-				this._movetimer = this.MAX_MOVE_TIME - flixel_FlxG.random.float();
-				this.move();
+				this._movetimer = flixel_FlxG.random.float(this.MIN_MOVING_TIME,this.MAX_MOVING_TIME);
+				var curr_move = flixel_FlxG.random.float(this.MOVE_VARIANCE_MIN,this.MOVE_VARIANCE_MAX);
+				var X = this.x + (flixel_FlxG.random.float(0,100) < 50 ? 1 : -1) * curr_move;
+				var Y = this.y + (flixel_FlxG.random.float(0,100) < 50 ? 1 : -1) * curr_move;
+				if(Y == null) {
+					Y = 0;
+				}
+				if(X == null) {
+					X = 0;
+				}
+				var X1 = X;
+				var Y1 = Y;
+				if(Y1 == null) {
+					Y1 = 0;
+				}
+				if(X1 == null) {
+					X1 = 0;
+				}
+				var point = flixel_math_FlxPoint._pool.get().set(X1,Y1);
+				point._inPool = false;
+				var point1 = point;
+				point1._weak = true;
+				this.curr_dest = point1;
 			}
+		}
+		if(this.moving) {
+			flixel_math_FlxVelocity.moveTowardsPoint(this,this.curr_dest,this._speed);
 		}
 		if(this._attacktimer <= 0 && !this.moving) {
 			this._attacktimer = flixel_FlxG.random.float(this.ATTACK_TIME_CAP_MIN,this.ATTACK_TIME_CAP_MAX);
@@ -6627,30 +6653,6 @@ Cat.prototype = $extend(Enemy.prototype,{
 		this.charging = false;
 	}
 	,waveAtk: function() {
-	}
-	,move: function() {
-		var X = this.x + flixel_FlxG.random.float(-this.MOVE_VARIANCE,this.MOVE_VARIANCE);
-		var Y = this.y + flixel_FlxG.random.float(-this.MOVE_VARIANCE,this.MOVE_VARIANCE);
-		if(Y == null) {
-			Y = 0;
-		}
-		if(X == null) {
-			X = 0;
-		}
-		var X1 = X;
-		var Y1 = Y;
-		if(Y1 == null) {
-			Y1 = 0;
-		}
-		if(X1 == null) {
-			X1 = 0;
-		}
-		var point = flixel_math_FlxPoint._pool.get().set(X1,Y1);
-		point._inPool = false;
-		var point1 = point;
-		point1._weak = true;
-		var dest = point1;
-		flixel_math_FlxVelocity.moveTowardsPoint(this,dest,this._speed);
 	}
 	,shieldBreaking: function() {
 		this.shielded = false;
