@@ -107,7 +107,7 @@ class RoomEight extends LevelState
 						cat.curr_shield_hp--;
 						if (cat.curr_shield_hp == 0)
 						{
-							cat.shieldBreak.dispatch();
+							cat.shieldBreaking();
 							// other shield-breaking code goes here
 						}
 					}

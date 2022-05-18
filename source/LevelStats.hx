@@ -43,6 +43,11 @@ class LevelStats extends BaseLevel
 	public static var inIntro:Bool;
 	public static var loop_timer:Float;
 
+	/**
+	 * Whether or not the timer has stopped once (for the sake of reusing ticks).
+	 */
+	// public static var stoppedOnce = false;
+
 	public static function initialize(level_no:Int)
 	{
 		curr_level = level_no;
@@ -115,6 +120,9 @@ class LevelStats extends BaseLevel
 		// return out;
 	}
 
+	/**
+	 * Only plays from the beginning (internal timer starts from 0). Creates ticks as well. 
+	 */
 	public static function startMusic()
 	{
 		createTicks();
@@ -128,6 +136,23 @@ class LevelStats extends BaseLevel
 	// 	bgm = bgm_loop;
 	// 	bgm.play();
 	// }
+
+	/**
+	 * Stops music, resets timer, and kills ticks.
+	 */
+	public static function stopMusic()
+	{
+		bgm.stop();
+		timer = 0;
+		started = false;
+		loop_timer = 0;
+		inIntro = true;
+		// stoppedOnce = true;
+		for (tick in _ticks)
+		{
+			tick.kill();
+		}
+	}
 
 	public static function update(elapsed:Float)
 	{
@@ -149,16 +174,32 @@ class LevelStats extends BaseLevel
 
 	private static function createTicks()
 	{
-		_ticks = new Array();
-		for (i in 0...(tick_format.length * 4))
+		if (_ticks != null)
 		{
-			var tick = new Tick(tick_format[i % tick_format.length], i, Math.random() <= enchant_chance,
-				Std.int((i * shortest_note_len - timer) * scroll_mul) + TICK_X_OFFSET, TIMELINE_BOTTOM - TIMELINE_TOP);
-			_ticks[i] = tick;
-			// tick.makeGraphic(20, TIMELINE_BOTTOM - TIMELINE_TOP, temp_color, true);
-			// tick.x = (i * shortest_note_len - timer) * scroll_mul;
-			// tick.y = -150;
-			tick.scrollFactor.set(0, 0);
+			for (i in 0...(tick_format.length * 4))
+			{
+				_ticks[i].revive();
+				_ticks[i].setType(tick_format[i % tick_format.length]);
+				_ticks[i].setTick(i);
+				_ticks[i].setEnchanted(Math.random() <= enchant_chance);
+				_ticks[i].x = Std.int((i * shortest_note_len - timer) * scroll_mul) + TICK_X_OFFSET;
+				_ticks[i].y = TIMELINE_BOTTOM - TIMELINE_TOP;
+				_ticks[i].scrollFactor.set(0, 0);
+			}
+		}
+		else
+		{
+			_ticks = new Array();
+			for (i in 0...(tick_format.length * 4))
+			{
+				var tick = new Tick(tick_format[i % tick_format.length], i, Math.random() <= enchant_chance,
+					Std.int((i * shortest_note_len - timer) * scroll_mul) + TICK_X_OFFSET, TIMELINE_BOTTOM - TIMELINE_TOP);
+				_ticks[i] = tick;
+				// tick.makeGraphic(20, TIMELINE_BOTTOM - TIMELINE_TOP, temp_color, true);
+				// tick.x = (i * shortest_note_len - timer) * scroll_mul;
+				// tick.y = -150;
+				tick.scrollFactor.set(0, 0);
+			}
 		}
 	}
 

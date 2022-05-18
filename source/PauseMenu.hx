@@ -4,6 +4,7 @@ import flixel.addons.ui.FlxButtonPlus;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
+import flixel.util.FlxSignal;
 
 class PauseMenu extends FlxSubState
 {
@@ -11,6 +12,18 @@ class PauseMenu extends FlxSubState
 	private var _backBtn:FlxButton;
 	private var _menuBtn:FlxButton;
 	private var _desktopBtn:FlxButton;
+
+	/**
+	 * Used to properly delete ticks from parent LevelState.
+	 */
+	public var deleteSignal:FlxSignal;
+
+	public function new(bg_color:FlxColor, signal:() -> Void)
+	{
+		super(bg_color);
+		deleteSignal = new FlxSignal();
+		deleteSignal.add(signal);
+	}
 
 	override function create()
 	{
@@ -21,13 +34,13 @@ class PauseMenu extends FlxSubState
 		_title.screenCenter(X);
 		add(_title);
 		_title.scrollFactor.set(0, 0);
-
 		_menuBtn = new FlxButton(0, 0, "Exit to Main Menu", () ->
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.levelEnd("pause exit");
-				LevelStats.bgm.stop();
+				deleteSignal.dispatch();
+				LevelStats.stopMusic();
 				FlxG.switchState(new MenuState());
 			});
 		});

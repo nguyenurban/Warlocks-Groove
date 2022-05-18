@@ -16,6 +16,7 @@ class RoomTwo extends LevelState
 	override public function create()
 	{
 		super.create();
+		LevelStats.bgm.pause();
 		FlxG.fixedTimestep = false;
 
 		bgColor = 0xffcccccc;
@@ -23,8 +24,7 @@ class RoomTwo extends LevelState
 		nextLevel = RoomThree;
 		currLevel = RoomTwo;
 
-		LevelStats.startMusic();
-		LevelStats.bgm.pause();
+		// LevelStats.startMusic();
 		beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		beat_sound.volume = 0.3;
 		createHUDandTicks();

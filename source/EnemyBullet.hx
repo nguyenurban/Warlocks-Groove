@@ -12,7 +12,7 @@ private var target_point:FlxPoint;
 
 class EnemyBullet extends Projectile
 {
-	public function new(x:Float, y:Float, target:FlxObject, targetPoint:FlxPoint, src:String, speed:Float)
+	public function new(x:Float, y:Float, target:FlxObject, targetPoint:FlxPoint, src:String, ?speed:Float)
 	{
 		super(x, y, target, LevelState.AttackType.ENEMY, PERFECT, false, src);
 		_speed = speed;

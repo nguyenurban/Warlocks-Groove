@@ -113,5 +113,7 @@ class RoomOne extends LevelState
 
 	override function playBeat() {}
 
+	override function startMusicSub() {}
+
 	// override function updateTicks() {}
 }

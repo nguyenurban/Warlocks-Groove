@@ -114,7 +114,7 @@ class Cat extends Enemy
 		_movetimer = MAX_MOVE_TIME * 1000;
 	}
 
-	private function shieldBreaking():Void
+	public function shieldBreaking():Void
 	{
 		shielded = false;
 		curr_shield_cd = 8.0;

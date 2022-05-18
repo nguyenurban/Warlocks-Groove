@@ -214,6 +214,7 @@ class LevelState extends FlxState
 		fire_e_sound = FlxG.sound.load("assets/sounds/fire_e.mp3");
 		fire_e_sound.volume = 0.2;
 		lvlPopup = false;
+		startMusicSub();
 	}
 
 	override function update(elapsed:Float)
@@ -290,9 +291,10 @@ class LevelState extends FlxState
 
 		if (!_player.exists)
 		{
-			LevelStats.bgm.stop();
+			LevelStats.stopMusic();
 			FlxG.camera.fade(FlxColor.BLACK, 1.5, false, () ->
 			{
+				removeTicks();
 				FlxG.switchState(new EndGame(currLevel));
 			});
 		}
@@ -349,7 +351,7 @@ class LevelState extends FlxState
 		if (FlxG.keys.anyPressed([ESCAPE]))
 		{
 			LevelStats.bgm.pause();
-			openSubState(new PauseMenu(FlxColor.BLACK));
+			openSubState(new PauseMenu(FlxColor.BLACK, removeTicks));
 		}
 	}
 
@@ -498,7 +500,8 @@ class LevelState extends FlxState
 			{
 				src += "unknown";
 			}
-			_projectiles.add(new Projectile(e.getMidpoint().x, e.getMidpoint().y, _player, ENEMY, PERFECT, false, src));
+			_projectiles.add(new EnemyBullet(e.getMidpoint().x, e.getMidpoint().y, _player, null, src));
+			// _projectiles.add(new Projectile(e.getMidpoint().x, e.getMidpoint().y, _player, ENEMY, PERFECT, false, src));
 		}
 		if (e.getDodgeType() != null)
 		{
@@ -787,10 +790,7 @@ class LevelState extends FlxState
 		{
 			if (LevelStats._ticks != null)
 			{
-				for (i in LevelStats._ticks)
-				{
-					remove(i);
-				}
+				removeTicks();
 			}
 			if (nextLevel == null)
 			{
@@ -831,11 +831,25 @@ class LevelState extends FlxState
 		return Type.getClassName(Type.getClass(this));
 	}
 
+	/**
+	 * Must be called at the creation of every room.
+	 */
 	public function addTicks()
 	{
 		for (i in LevelStats._ticks)
 		{
 			add(i);
+		}
+	}
+
+	/**
+	 * Must be called when exiting the room for any reason (e.g. game over, exiting via pause, level complete)
+	 */
+	public function removeTicks()
+	{
+		for (i in LevelStats._ticks)
+		{
+			remove(i);
 		}
 	}
 
@@ -847,6 +861,17 @@ class LevelState extends FlxState
 	public function playBeat()
 	{
 		beat_sound.play();
+	}
+
+	/**
+	 * Necessary for rooms w/o music to override with empty func.
+	 */
+	private function startMusicSub()
+	{
+		if (!LevelStats.started)
+		{
+			LevelStats.startMusic();
+		}
 	}
 }
 
@@ -930,7 +955,7 @@ class EndGame extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
-				Logger.levelEnd("pause exit");
+				Logger.levelEnd("game over exit");
 				FlxG.switchState(new MenuState());
 			});
 		});
@@ -949,6 +974,10 @@ class EndGame extends FlxState
 			{
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
+				if (currLevel != RoomOne)
+				{
+					LevelStats.startMusic();
+				}
 				FlxG.switchState(Type.createInstance(currLevel, []));
 			});
 		});

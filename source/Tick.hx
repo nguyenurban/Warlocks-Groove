@@ -47,6 +47,11 @@ class Tick extends FlxSprite
 		return _type;
 	}
 
+	public function setType(input:LevelState.AttackType)
+	{
+		_type = input;
+	}
+
 	public function getTick():Int
 	{
 		return _tick_no;
