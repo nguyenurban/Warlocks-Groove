@@ -18,11 +18,14 @@ class PauseMenu extends FlxSubState
 	 */
 	public var deleteSignal:FlxSignal;
 
-	public function new(bg_color:FlxColor, signal:() -> Void)
+	public function new(bg_color:FlxColor, ?signal:() -> Void)
 	{
 		super(bg_color);
 		deleteSignal = new FlxSignal();
-		deleteSignal.add(signal);
+		if (signal != null)
+		{
+			deleteSignal.add(signal);
+		}
 	}
 
 	override function create()

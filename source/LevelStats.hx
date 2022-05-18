@@ -181,9 +181,10 @@ class LevelStats extends BaseLevel
 				_ticks[i].revive();
 				_ticks[i].setType(tick_format[i % tick_format.length]);
 				_ticks[i].setTick(i);
+				_ticks[i].setJudge(NONE);
 				_ticks[i].setEnchanted(Math.random() <= enchant_chance);
 				_ticks[i].x = Std.int((i * shortest_note_len - timer) * scroll_mul) + TICK_X_OFFSET;
-				_ticks[i].y = TIMELINE_BOTTOM - TIMELINE_TOP;
+				_ticks[i].y = 0;
 				_ticks[i].scrollFactor.set(0, 0);
 			}
 		}

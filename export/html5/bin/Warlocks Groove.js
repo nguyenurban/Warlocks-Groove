@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "44";
+	app.meta.h["build"] = "45";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -6834,7 +6834,7 @@ EnemyBullet.prototype = $extend(Projectile.prototype,{
 var EnemyBullet_target_point = null;
 var Goblin = function(x,y,target,tilemap) {
 	Enemy.call(this,x,y,target);
-	this.health = 25;
+	this.health = 45;
 	this._speed = 80;
 	this._dps = 20;
 	this._size = 32;
@@ -7941,7 +7941,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				var d1 = d.next();
 				d1.unlock();
 			}
-			if(!this.lvlPopup && this.nextLevel == RoomEight) {
+			if(!this.lvlPopup && this.currLevel == RoomEight) {
 				var lvlCompPop = new LvlCompletePopup();
 				this.openSubState(lvlCompPop);
 				this.lvlPopup = true;
@@ -7976,6 +7976,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 		flixel_FlxG.overlap(this._monsters,this.walls,null,flixel_FlxObject.separate);
 		flixel_FlxG.overlap(this._monsters,this.interactables,null,flixel_FlxObject.separate);
 		flixel_FlxG.overlap(this._projectiles,this.walls,$bind(this,this.handleProjectileWallsCollisions),flixel_FlxObject.separate);
+		flixel_FlxG.overlap(this._projectiles,this._doors,$bind(this,this.handleProjectileWallsCollisions),flixel_FlxObject.separate);
 		flixel_FlxG.overlap(this._player,this._doors,$bind(this,this.levelComplete),flixel_FlxObject.separate);
 		flixel_FlxG.overlap(this._monsters,this._doors,null,flixel_FlxObject.separate);
 		flixel_FlxG.overlap(this._projectiles,this._doors,null,flixel_FlxObject.separate);
@@ -7995,7 +7996,11 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 	,handleKeyboard: function() {
 		if(flixel_FlxG.keys.checkKeyArrayState([27],1)) {
 			LevelStats.bgm.pause();
-			this.openSubState(new PauseMenu(-16777216,$bind(this,this.removeTicks)));
+			if(LevelStats.started) {
+				this.openSubState(new PauseMenu(-16777216,$bind(this,this.removeTicks)));
+			} else {
+				this.openSubState(new PauseMenu(-16777216));
+			}
 		}
 	}
 	,createPlayerBars: function() {
@@ -8139,7 +8144,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				this.hit_sound.play();
 			}
 			projectiles.kill();
-			haxe_Log.trace("projectile kill initiated",{ fileName : "source/LevelState.hx", lineNumber : 481, className : "LevelState", methodName : "handleMonsterProjectileCollisions"});
+			haxe_Log.trace("projectile kill initiated",{ fileName : "source/LevelState.hx", lineNumber : 489, className : "LevelState", methodName : "handleMonsterProjectileCollisions"});
 		}
 	}
 	,handleProjectileWallsCollisions: function(projectiles,walls) {
@@ -8205,8 +8210,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			} else {
 				var timing;
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 565, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 566, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 573, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 574, className : "LevelState", methodName : "shoot"});
 				if(!(closest_tick.getEnchanted() && diff <= this.PERFECT_WINDOW) && !this._player.useEnergy(15)) {
 					this.judge_sprite.loadGraphic("assets/images/judge_sprites/ooe.png");
 					Logger.playerShot("OOE","OOE",diff == null ? "null" : "" + diff);
@@ -8866,9 +8871,10 @@ LevelStats.createTicks = function() {
 			LevelStats._ticks[i].revive();
 			LevelStats._ticks[i].setType(LevelStats.tick_format[i % LevelStats.tick_format.length]);
 			LevelStats._ticks[i].setTick(i);
+			LevelStats._ticks[i].setJudge(JudgeType.NONE);
 			LevelStats._ticks[i].setEnchanted(Math.random() <= LevelStats.enchant_chance);
 			LevelStats._ticks[i].set_x(((i * LevelStats.shortest_note_len - LevelStats.timer) * LevelStats.scroll_mul | 0) + LevelStats.TICK_X_OFFSET);
-			LevelStats._ticks[i].set_y(LevelStats.TIMELINE_BOTTOM - LevelStats.TIMELINE_TOP);
+			LevelStats._ticks[i].set_y(0);
 			LevelStats._ticks[i].scrollFactor.set(0,0);
 		}
 	} else {
@@ -8928,7 +8934,7 @@ LevelStats.debugTickDisplay = function() {
 			output += "#";
 		}
 	}
-	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 250, className : "LevelStats", methodName : "debugTickDisplay"});
+	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 251, className : "LevelStats", methodName : "debugTickDisplay"});
 };
 LevelStats.__super__ = BaseLevel;
 LevelStats.prototype = $extend(BaseLevel.prototype,{
@@ -10297,7 +10303,9 @@ NotOctorok.prototype = $extend(Enemy.prototype,{
 var PauseMenu = function(bg_color,signal) {
 	flixel_FlxSubState.call(this,bg_color);
 	this.deleteSignal = new flixel_util__$FlxSignal_FlxSignal0();
-	this.deleteSignal.add(signal);
+	if(signal != null) {
+		this.deleteSignal.add(signal);
+	}
 };
 $hxClasses["PauseMenu"] = PauseMenu;
 PauseMenu.__name__ = "PauseMenu";

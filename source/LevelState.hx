@@ -281,12 +281,13 @@ class LevelState extends FlxState
 			{
 				d.unlock();
 			}
-			if (!lvlPopup && nextLevel == RoomEight)
-			{
-				final lvlCompPop = new LvlCompletePopup();
-				openSubState(lvlCompPop);
-				lvlPopup = true;
-			}
+			// disabling for now
+			// if (!lvlPopup && currLevel == RoomEight)
+			// {
+			// 	final lvlCompPop = new LvlCompletePopup();
+			// 	openSubState(lvlCompPop);
+			// 	lvlPopup = true;
+			// }
 		}
 
 		if (!_player.exists)
@@ -321,6 +322,7 @@ class LevelState extends FlxState
 		FlxG.collide(_monsters, walls);
 		FlxG.collide(_monsters, interactables);
 		FlxG.collide(_projectiles, walls, handleProjectileWallsCollisions);
+		FlxG.collide(_projectiles, _doors, handleProjectileWallsCollisions);
 		FlxG.collide(_player, _doors, levelComplete);
 		FlxG.collide(_monsters, _doors);
 		FlxG.collide(_projectiles, _doors);
@@ -351,7 +353,14 @@ class LevelState extends FlxState
 		if (FlxG.keys.anyPressed([ESCAPE]))
 		{
 			LevelStats.bgm.pause();
-			openSubState(new PauseMenu(FlxColor.BLACK, removeTicks));
+			if (LevelStats.started)
+			{
+				openSubState(new PauseMenu(FlxColor.BLACK, removeTicks));
+			}
+			else
+			{
+				openSubState(new PauseMenu(FlxColor.BLACK));
+			}
 		}
 	}
 
