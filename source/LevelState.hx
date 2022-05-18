@@ -319,7 +319,7 @@ class LevelState extends FlxState
 			}
 		}
 		FlxG.overlap(_monsters, _player, handleMonsterPlayerOverlap);
-		FlxG.collide(_player, _projectiles, handlePlayerProjectileCollisions);
+		FlxG.overlap(_player, _projectiles, handlePlayerProjectileCollisions);
 		FlxG.overlap(_monsters, _projectiles, handleMonsterProjectileCollisions);
 		FlxG.collide(_monsters, walls);
 		FlxG.collide(_monsters, interactables);
