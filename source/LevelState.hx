@@ -566,15 +566,18 @@ class LevelState extends FlxState
 
 	private function handlePlayerProjectileCollisions(p:Player, proj:Projectile)
 	{
-		if (proj.getType() == ENEMY && p.isInvuln())
+		if (proj.getType() == ENEMY)
 		{
-			p.health -= proj.getDamage();
-			p.damageInvuln();
-			Logger.tookDamage(this, proj.src, proj.getDamage());
-			if (p.health <= 0)
+			if (p.isInvuln())
 			{
-				Logger.playerDeath(this, proj);
-				p.kill();
+				p.health -= proj.getDamage();
+				p.damageInvuln();
+				Logger.tookDamage(this, proj.src, proj.getDamage());
+				if (p.health <= 0)
+				{
+					Logger.playerDeath(this, proj);
+					p.kill();
+				}
 			}
 			proj.kill();
 		}

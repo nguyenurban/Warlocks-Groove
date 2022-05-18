@@ -8,19 +8,22 @@ import flixel.util.FlxTimer;
 class Cat extends Enemy
 {
 	private var _attacktimer:Float;
-	private var ATTACK_TIME_CAP_MIN = 5.0;
-	private var ATTACK_TIME_CAP_MAX = 8.0;
+	private var ATTACK_TIME_CAP_MIN = 1.0;
+	private var ATTACK_TIME_CAP_MAX = 3.0;
 	private var _movetimer:Float;
-	private var MOVE_TIME_CAP_MIN = 1.0;
-	private var MOVE_TIME_CAP_MAX = 3.0;
-	private var MOVE_VARIANCE = 100;
+	private var MOVE_TIME_CAP_MIN = 0.4;
+	private var MOVE_TIME_CAP_MAX = 1.0;
+	private var MOVE_VARIANCE_MIN = 100;
+	private var MOVE_VARIANCE_MAX = 500;
 	// in ms
-	private var MAX_MOVE_TIME = 2000;
+	private var MIN_MOVING_TIME = 1.5;
+	private var MAX_MOVING_TIME = 3.0;
 	private var charging:Bool;
 	private var CHARGE_TIME = 2.0;
 	private var FB_FIRE_RATE = 0.25;
 	private var FB_SHOT_VARIANCE = 10;
 	private var moving:Bool;
+	private var curr_dest:FlxPoint;
 	private var fb_firing:Bool;
 	private var _signal:FlxTypedSignal<Array<Float>->Void>;
 	private var SHIELD_COOLDOWN = 8.0;
@@ -55,6 +58,7 @@ class Cat extends Enemy
 		shield.loadGraphic("assets/images/cat_shield.png");
 		shieldBreak = new FlxSignal();
 		shieldBreak.add(shieldBreaking);
+		_movetimer = FlxG.random.float(MOVE_TIME_CAP_MIN, MOVE_TIME_CAP_MAX);
 	}
 
 	override function update(elapsed:Float)
@@ -62,17 +66,30 @@ class Cat extends Enemy
 		_attacktimer -= elapsed;
 		_movetimer -= elapsed;
 		curr_shield_cd -= elapsed;
+		super.update(elapsed);
+	}
+
+	override function takeAction()
+	{
 		if (_movetimer <= 0 && !charging)
 		{
 			if (moving)
 			{
 				moving = false;
+				velocity = FlxPoint.weak(0, 0);
+				_movetimer = FlxG.random.float(MOVE_TIME_CAP_MIN, MOVE_TIME_CAP_MAX);
 			}
 			else
 			{
 				moving = true;
-				move();
+				_movetimer = FlxG.random.float(MIN_MOVING_TIME, MAX_MOVING_TIME);
+				var curr_move = FlxG.random.float(MOVE_VARIANCE_MIN, MOVE_VARIANCE_MAX);
+				curr_dest = FlxPoint.weak(this.x + (FlxG.random.bool() ? 1 : -1) * curr_move, this.y + (FlxG.random.bool() ? 1 : -1) * curr_move);
 			}
+		}
+		if (moving)
+		{
+			FlxVelocity.moveTowardsPoint(this, curr_dest, _speed);
 		}
 		if (_attacktimer <= 0 && !moving)
 		{
@@ -96,8 +113,6 @@ class Cat extends Enemy
 		}
 	}
 
-	override function takeAction() {}
-
 	private function fiveBullets(timer:FlxTimer):Void {}
 
 	private function chargeAtk(timer:FlxTimer):Void
@@ -106,13 +121,6 @@ class Cat extends Enemy
 	}
 
 	private function waveAtk():Void {}
-
-	private function move():Void
-	{
-		var dest = FlxPoint.weak(this.x + FlxG.random.float(-MOVE_VARIANCE, MOVE_VARIANCE), this.y + FlxG.random.float(-MOVE_VARIANCE, MOVE_VARIANCE));
-		FlxVelocity.moveTowardsPoint(this, dest, _speed, MAX_MOVE_TIME);
-		_movetimer = MAX_MOVE_TIME * 1000;
-	}
 
 	public function shieldBreaking():Void
 	{
