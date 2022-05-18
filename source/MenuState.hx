@@ -35,30 +35,30 @@ class MenuState extends FlxState
 		play.textHighlight.screenCenter(X);
 		add(play);
 
-		test = new FlxButtonPlus(0, 0, () ->
-		{
-			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
-			{
-				Logger.checkTimeout();
-				FlxG.switchState(new TestMenuRoom1());
-			});
-		}, "", 200, 50);
-		test.x = (FlxG.width / 2) - (test.width / 2);
-		test.y = (FlxG.height / 2) - 10;
-		test.textNormal = new FlxText(test.x, test.y + 10, 0, "Test", 25);
-		test.textNormal.screenCenter(X);
-		test.textHighlight = new FlxText(test.x, test.y + 10, 0, "Test", 25);
-		test.textHighlight.screenCenter(X);
-		add(test);
+		// test = new FlxButtonPlus(0, 0, () ->
+		// {
+		// 	FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+		// 	{
+		// 		Logger.checkTimeout();
+		// 		FlxG.switchState(new TestMenuRoom1());
+		// 	});
+		// }, "", 200, 50);
+		// test.x = (FlxG.width / 2) - (test.width / 2);
+		// test.y = (FlxG.height / 2) - 10;
+		// test.textNormal = new FlxText(test.x, test.y + 10, 0, "Test", 25);
+		// test.textNormal.screenCenter(X);
+		// test.textHighlight = new FlxText(test.x, test.y + 10, 0, "Test", 25);
+		// test.textHighlight.screenCenter(X);
+		// add(test);
 
-		exit = new FlxButtonPlus(0, 0, clickExit, "", 200, 50);
-		exit.x = (FlxG.width / 2) - (exit.width / 2);
-		exit.y = (FlxG.height / 2) + 60;
-		exit.textNormal = new FlxText(exit.x, exit.y + 10, 0, "Exit", 25);
-		exit.textNormal.screenCenter(X);
-		exit.textHighlight = new FlxText(exit.x, exit.y + 10, 0, "Exit", 25);
-		exit.textHighlight.screenCenter(X);
-		add(exit);
+		// exit = new FlxButtonPlus(0, 0, clickExit, "", 200, 50);
+		// exit.x = (FlxG.width / 2) - (exit.width / 2);
+		// exit.y = (FlxG.height / 2) + 60;
+		// exit.textNormal = new FlxText(exit.x, exit.y + 10, 0, "Exit", 25);
+		// exit.textNormal.screenCenter(X);
+		// exit.textHighlight = new FlxText(exit.x, exit.y + 10, 0, "Exit", 25);
+		// exit.textHighlight.screenCenter(X);
+		// add(exit);
 
 		super.create();
 	}
