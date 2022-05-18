@@ -101,10 +101,10 @@ class Cat extends Enemy
 						(timer:FlxTimer) -> _signal.dispatch([0, this.x + FlxG.random.int(-FB_SHOT_VARIANCE, FB_SHOT_VARIANCE), this.y]), 5);
 				case 1:
 					charging = true;
-					new FlxTimer().start(CHARGE_TIME, chargeAtk, 1);
+					new FlxTimer().start(CHARGE_TIME, chargeAtk);
 				case 2:
 					charging = true;
-					waveAtk();
+					new FlxTimer().start(CHARGE_TIME / 2, waveAtk);
 			}
 		}
 		if (curr_shield_cd <= 0 && !shielded)
@@ -117,10 +117,15 @@ class Cat extends Enemy
 
 	private function chargeAtk(timer:FlxTimer):Void
 	{
+		_signal.dispatch([1, this.x, this.y]);
 		charging = false;
 	}
 
-	private function waveAtk():Void {}
+	private function waveAtk(timer:FlxTimer):Void
+	{
+		_signal.dispatch([2, this.x, this.y]);
+		charging = false;
+	}
 
 	public function shieldBreaking():Void
 	{
