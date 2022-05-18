@@ -50,6 +50,16 @@ class Tick extends FlxSprite
 	public function setType(input:LevelState.AttackType)
 	{
 		_type = input;
+		switch (_type)
+		{
+			case RED:
+				_sprite_file = "assets/images/ticks/red";
+			case PURPLE:
+				_sprite_file = "assets/images/ticks/purple";
+			case GREEN:
+				_sprite_file = "assets/images/ticks/green";
+			default:
+		}
 	}
 
 	public function getTick():Int

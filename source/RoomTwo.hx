@@ -12,6 +12,7 @@ using flixel.util.FlxSpriteUtil;
 class RoomTwo extends LevelState
 {
 	var metronome:Enemy;
+	var metro_health:FlxBar;
 
 	override public function create()
 	{
@@ -54,7 +55,7 @@ class RoomTwo extends LevelState
 		loadTutorial();
 		metronome = new Metronome(355, 25, _player);
 		_monsters.add(metronome);
-		var metro_health = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, metronome, "health", 0, 15, true);
+		metro_health = new FlxBar(0, 0, LEFT_TO_RIGHT, 100, 10, metronome, "health", 0, 15, true);
 		metro_health.createFilledBar(FlxColor.RED, FlxColor.GREEN, true);
 		metro_health.trackParent(-20, 50);
 		add(metro_health);
@@ -76,6 +77,10 @@ class RoomTwo extends LevelState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+		if (!metronome.alive)
+		{
+			metro_health.kill();
+		}
 		FlxG.collide(_player, metronome);
 	}
 }
@@ -137,27 +142,32 @@ class MagMissileObtained extends FlxSubState
 		final boundingBox = new FlxSprite();
 		boundingBox.makeGraphic(460, 197, 0xff428bbf);
 		boundingBox.screenCenter(XY);
+		boundingBox.x -= 140;
 		add(boundingBox);
 
 		final text = new FlxText(0, (boundingBox.y + 45), 0, "Magic Missile Obtained!", 25);
 		text.screenCenter(X);
+		text.x -= 140;
 		add(text);
 
 		final midTextOne = new FlxText(0, (boundingBox.y + 120), 0, "Attack precisely on beat to fire a powerful homing missile", 10);
 		midTextOne.screenCenter(X);
+		midTextOne.x -= 140;
 		add(midTextOne);
 		final midTextTwo = new FlxText(0, (boundingBox.y + 135), 0, "to destroy enemies and reach the goal door!", 10);
 		midTextTwo.screenCenter(X);
+		midTextTwo.x -= 140;
 		add(midTextTwo);
 		final endText = new FlxText(0, (boundingBox.y + 150), 0, "Press SPACE to continue", 15);
 		endText.screenCenter(X);
+		endText.x -= 140;
 		add(endText);
 
 		final im = new FlxSprite();
 		im.loadGraphic("assets/images/magic_missile.png", false, 80, 64, true);
 		im.setGraphicSize(48, 28);
-		im.x = 260;
-		im.y = 210;
+		im.x = 120;
+		im.y = 200;
 		add(im);
 	}
 

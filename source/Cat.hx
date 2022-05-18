@@ -45,7 +45,7 @@ class Cat extends Enemy
 		_speed = 50;
 		_dps = 20;
 		_target = player;
-		_size = 64;
+		_size = 128;
 		_signal = signal;
 		setSize(_size, _size);
 		_attacktimer = FlxG.random.float(ATTACK_TIME_CAP_MIN, ATTACK_TIME_CAP_MAX);
@@ -60,6 +60,17 @@ class Cat extends Enemy
 		shieldBreak = new FlxSignal();
 		shieldBreak.add(shieldBreaking);
 		_movetimer = FlxG.random.float(MOVE_TIME_CAP_MIN, MOVE_TIME_CAP_MAX);
+		loadGraphic("assets/images/Cat_Sprite_Sheet.png", true, 32, 32);
+		scale.set(_size / 32, _size / 32);
+		updateHitbox();
+		setFacingFlip(LEFT, false, false);
+		setFacingFlip(RIGHT, false, false);
+		setFacingFlip(UP, false, false);
+		setFacingFlip(DOWN, false, false);
+		animation.add("l", [3, 4, 5, 4], 6, false);
+		animation.add("r", [6, 7, 8, 7], 6, false);
+		animation.add("u", [9, 10, 11, 10], 6, false);
+		animation.add("d", [0, 1, 2, 1], 6, false);
 	}
 
 	override function update(elapsed:Float)
@@ -100,8 +111,11 @@ class Cat extends Enemy
 			switch FlxG.random.int(0, 1)
 			{
 				case 0:
-					new FlxTimer().start(FB_FIRE_RATE,
-						(timer:FlxTimer) -> _signal.dispatch([0, this.x + FlxG.random.int(-FB_SHOT_VARIANCE, FB_SHOT_VARIANCE), this.y]), 5);
+					new FlxTimer().start(FB_FIRE_RATE, (timer:FlxTimer) -> _signal.dispatch([
+						0,
+						this.getMidpoint().x + FlxG.random.int(-FB_SHOT_VARIANCE, FB_SHOT_VARIANCE),
+						this.getMidpoint().y
+					]), 5);
 				case 1:
 					charging = true;
 					new FlxTimer().start(CHARGE_TIME, chargeAtk);
@@ -120,19 +134,59 @@ class Cat extends Enemy
 		{
 			shielded = true;
 		}
+		if (velocity.x < 0)
+		{
+			facing = LEFT;
+			if (velocity.y < 0 && velocity.y < velocity.x)
+			{
+				facing = UP;
+			}
+			else if (velocity.y > 0 && velocity.y > -velocity.x)
+			{
+				facing = DOWN;
+			}
+		}
+		else if (velocity.x > 0)
+		{
+			facing = RIGHT;
+			if (velocity.y > 0 && velocity.y > velocity.x)
+			{
+				facing = DOWN;
+			}
+			else if (velocity.y < 0 && velocity.y < -velocity.x)
+			{
+				facing = UP;
+			}
+		}
+		else
+		{
+			facing = DOWN;
+		}
+		switch (facing)
+		{
+			case LEFT:
+				animation.play("l");
+			case RIGHT:
+				animation.play("r");
+			case UP:
+				animation.play("u");
+			case DOWN:
+				animation.play("d");
+			case _:
+		}
 	}
 
 	private function fiveBullets(timer:FlxTimer):Void {}
 
 	private function chargeAtk(timer:FlxTimer):Void
 	{
-		_signal.dispatch([1, this.x, this.y]);
+		_signal.dispatch([1, this.getMidpoint().x, this.getMidpoint().y]);
 		charging = false;
 	}
 
 	private function waveAtk(timer:FlxTimer):Void
 	{
-		_signal.dispatch([2, this.x, this.y]);
+		_signal.dispatch([2, this.getMidpoint().x, this.getMidpoint().y]);
 		charging = false;
 	}
 

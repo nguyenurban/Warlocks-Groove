@@ -81,7 +81,7 @@ class LevelStats extends BaseLevel
 				// bgm_loop = setupSound("assets/music/stg1.mp3", false);
 				intro_beats = 32;
 				looping_beats = 24 * 4;
-			case -1: // Only for testing purposes ...to be removed
+			case 2: // Only for testing purposes ...to be removed
 				bpm = 130;
 				tick_format = [RED, PURPLE, RED, PURPLE];
 				shortest_note = QUARTER;
@@ -112,6 +112,18 @@ class LevelStats extends BaseLevel
 		}
 		initialized = true;
 		started = false;
+	}
+
+	public static function changeTickFormat(level_no:Int)
+	{
+		switch (level_no)
+		{
+			case 1:
+				tick_format = [RED, RED, RED, RED];
+			case 2:
+				tick_format = [RED, PURPLE, RED, PURPLE];
+			default:
+		}
 	}
 
 	public static function setupSound(url:String, isIntro:Bool)
@@ -235,6 +247,9 @@ class LevelStats extends BaseLevel
 				var recycled_tick = _ticks[(shortest_notes_elpsd - Std.int(_ticks.length / 2)) % _ticks.length];
 				// TESTING ONLY; TO BE CHANGED LATER WHEN ENCHANTED MARKUP IS CREATED
 				// (also, enchanted has to be set before judge in order for enchant glow to show up properly)
+				recycled_tick.setType(tick_format[
+					((shortest_notes_elpsd - Std.int(_ticks.length / 2)) % _ticks.length) % tick_format.length
+				]);
 				recycled_tick.setEnchanted(Math.random() <= enchant_chance);
 				recycled_tick.setJudge(NONE);
 				recycled_tick.setTick(shortest_notes_elpsd + Std.int(_ticks.length / 2));

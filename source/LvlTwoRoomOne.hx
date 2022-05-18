@@ -2,6 +2,7 @@ import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.FlxSubState;
 import flixel.addons.display.shapes.*;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader.EntityData;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
@@ -28,6 +29,8 @@ class LvlTwoRoomOne extends LevelState
 	override public function create()
 	{
 		super.create();
+		LevelStats.changeTickFormat(2);
+		LevelStats.bgm.pause();
 		FlxG.fixedTimestep = false;
 
 		bgColor = 0xffcccccc;
@@ -62,22 +65,71 @@ class LvlTwoRoomOne extends LevelState
 		interactables = map.loadTilemap(AssetPaths.tiles__png, "Interactables");
 		add(walls);
 		add(interactables);
-		// loadTutorial();
+		loadTutorial();
 	}
 
 	function loadTutorial()
 	{
-		var mouse = new FlxSprite(70, 200);
-		mouse.loadGraphic("assets/images/mouse.png", false, 80, 64, true);
-		add(mouse);
-		var instr = new FlxText(50, 360, 0, "FIRE ON BEAT", 10);
-		instr.setFormat("assets/font.ttf", 20, FlxColor.RED, LEFT);
-		instr.setBorderStyle(OUTLINE, FlxColor.BLACK, 1);
-		add(instr);
+		final iceLaserPopup = new IceLaserObtained();
+		openSubState(iceLaserPopup);
 	}
 
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+	}
+}
+
+class IceLaserObtained extends FlxSubState
+{
+	public function new()
+	{
+		super(0x61000000);
+	}
+
+	override public function create()
+	{
+		super.create();
+		final boundingBox = new FlxSprite();
+		boundingBox.makeGraphic(460, 197, 0xff428bbf);
+		boundingBox.screenCenter(XY);
+		boundingBox.x -= 140;
+		add(boundingBox);
+
+		final text = new FlxText(0, (boundingBox.y + 45), 0, "Ice Laser Obtained!", 25);
+		text.screenCenter(X);
+		text.x -= 140;
+		add(text);
+
+		final midTextOne = new FlxText(0, (boundingBox.y + 120), 0, "Attack precisely on the PURPLE beats to fire this long-ranged laser", 10);
+		midTextOne.screenCenter(X);
+		midTextOne.x -= 140;
+		add(midTextOne);
+		final midTextTwo = new FlxText(0, (boundingBox.y + 135), 0, "to destroy enemies and reach the goal door!", 10);
+		midTextTwo.screenCenter(X);
+		midTextTwo.x -= 140;
+		add(midTextTwo);
+		final endText = new FlxText(0, (boundingBox.y + 150), 0, "Press SPACE to continue", 15);
+		endText.screenCenter(X);
+		endText.x -= 140;
+		add(endText);
+
+		final im = new FlxSprite();
+		im.loadGraphic("assets/images/laser.png", false, 80, 64, true);
+		im.setGraphicSize(48, 28);
+		im.x = 400;
+		im.y = 360;
+		add(im);
+	}
+
+	override function update(elapsed:Float)
+	{
+		super.update(elapsed);
+		if (FlxG.keys.justPressed.SPACE)
+		{
+			// LevelStats.startMusic();
+			close();
+			LevelStats.bgm.resume();
+		}
 	}
 }
