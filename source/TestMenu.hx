@@ -212,7 +212,7 @@ class TestMenuRoom2 extends FlxState
 			{
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				FlxG.switchState(new RoomTwo());
+				FlxG.switchState(new LvlTwoRoomTwo());
 			});
 		}, "Room 2", 100, 30);
 		room2.x = (FlxG.width / 2) - (room2.width / 2) - 150;
@@ -225,7 +225,7 @@ class TestMenuRoom2 extends FlxState
 			{
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				FlxG.switchState(new RoomThree());
+				FlxG.switchState(new LvlTwoRoomThree());
 			});
 		}, "Room 3", 100, 30);
 		room3.x = (FlxG.width / 2) - (room3.width / 2) - 150;
@@ -238,7 +238,7 @@ class TestMenuRoom2 extends FlxState
 			{
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				FlxG.switchState(new RoomFour());
+				FlxG.switchState(new LvlTwoRoomFour());
 			});
 		}, "Room 4", 100, 30);
 		room4.x = (FlxG.width / 2) - (room4.width / 2) - 150;
@@ -251,7 +251,7 @@ class TestMenuRoom2 extends FlxState
 			{
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				FlxG.switchState(new RoomFive());
+				FlxG.switchState(new LvlTwoRoomFive());
 			});
 		}, "Room 5", 100, 30);
 		room5.x = (FlxG.width / 2) - (room5.width / 2) + 150;
@@ -264,7 +264,7 @@ class TestMenuRoom2 extends FlxState
 			{
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				FlxG.switchState(new RoomSix());
+				FlxG.switchState(new LvlTwoRoomSix());
 			});
 		}, "Room 6", 100, 30);
 		room6.x = (FlxG.width / 2) - (room6.width / 2) + 150;
@@ -277,7 +277,7 @@ class TestMenuRoom2 extends FlxState
 			{
 				Logger.startLevel(1);
 				LevelStats.initialize(1);
-				FlxG.switchState(new RoomSeven());
+				FlxG.switchState(new LvlTwoRoomSeven());
 			});
 		}, "Room 7", 100, 30);
 		room7.x = (FlxG.width / 2) - (room7.width / 2) + 150;

@@ -10,6 +10,7 @@ import flixel.addons.display.shapes.*;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxRect;
+import flixel.math.FlxVelocity;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
@@ -422,6 +423,8 @@ class LevelState extends FlxState
 				_monsters.add(new Cat(entity.x, entity.y, _player, _actionSignal));
 			case "goblin":
 				_monsters.add(new Goblin(entity.x, entity.y, _player, walls));
+			case "water_strider":
+				_monsters.add(new WaterStrider(entity.x, entity.y, _player, walls));
 			default:
 		}
 	}
@@ -518,11 +521,26 @@ class LevelState extends FlxState
 			{
 				src += "NotOctorok";
 			}
+			else if (Std.isOfType(e, WaterStrider))
+			{
+				src += "WaterStrider";
+			}
 			else
 			{
 				src += "unknown";
 			}
-			_projectiles.add(new EnemyBullet(e.getMidpoint().x, e.getMidpoint().y, _player, null, src));
+			switch (src)
+			{
+				case "From WaterStrider":
+					for (angle in 1...24)
+					{
+						var dir = FlxVelocity.velocityFromAngle(angle * 15, 50);
+						var tar = e.getMidpoint().add(dir.x, dir.y);
+						_projectiles.add(new StriderShockwave(e.getMidpoint().x, e.getMidpoint().y, _player, tar, src, 100));
+					}
+				default:
+					_projectiles.add(new EnemyBullet(e.getMidpoint().x, e.getMidpoint().y, _player, null, src));
+			}
 			// _projectiles.add(new Projectile(e.getMidpoint().x, e.getMidpoint().y, _player, ENEMY, PERFECT, false, src));
 		}
 		if (e.getDodgeType() != null)
