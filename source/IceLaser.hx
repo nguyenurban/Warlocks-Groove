@@ -23,13 +23,13 @@ class IceLaser extends Projectile
 		{
 			case PERFECT:
 				_speed = MOVEMENT_SPEED * 1.2;
-				_damage = 7;
+				_damage = 3;
 			case GREAT:
 				_speed = MOVEMENT_SPEED;
-				_damage = 5;
+				_damage = 2;
 			case OK:
 				_speed = MOVEMENT_SPEED * 0.8;
-				_damage = 3;
+				_damage = 1;
 			default:
 		}
 

@@ -487,8 +487,10 @@ class LevelState extends FlxState
 				FlxSpriteUtil.flicker(m, m.DMG_FLICKER);
 				hit_sound.play();
 			}
-			projectiles.kill();
-			trace("projectile kill initiated");
+			if (!(projectiles.getType() == PURPLE && projectiles._enchanted))
+			{
+				projectiles.kill();
+			}
 		}
 	}
 
