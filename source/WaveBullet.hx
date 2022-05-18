@@ -17,7 +17,7 @@ class WaveBullet extends EnemyBullet
 	{
 		super(x, y, target, targetPoint, src, speed);
 
-		loadGraphic("assets/images/cat_wave.png", true, 32, 32);
+		loadGraphic("assets/images/cat_wave.png", true, 32, 32, true);
 		animation.add("n", [0, 1, 2, 3, 4, 5], 5);
 		animation.play("n");
 		setGraphicSize(32 * 2, 32 * 3);

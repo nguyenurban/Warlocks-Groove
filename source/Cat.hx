@@ -94,7 +94,7 @@ class Cat extends Enemy
 		if (_attacktimer <= 0 && !moving)
 		{
 			_attacktimer = FlxG.random.float(ATTACK_TIME_CAP_MIN, ATTACK_TIME_CAP_MAX);
-			switch FlxG.random.int(0, 2)
+			switch FlxG.random.int(0, 1)
 			{
 				case 0:
 					new FlxTimer().start(FB_FIRE_RATE,
@@ -102,9 +102,14 @@ class Cat extends Enemy
 				case 1:
 					charging = true;
 					new FlxTimer().start(CHARGE_TIME, chargeAtk);
-				case 2:
-					charging = true;
-					new FlxTimer().start(CHARGE_TIME / 2, waveAtk);
+
+				/**
+				 * DISABLING WAVE ATTACK TEMPORARILY
+				 */
+				// case 2:
+				// 	charging = true;
+				// 	new FlxTimer().start(CHARGE_TIME / 2, waveAtk);
+				default:
 			}
 		}
 		if (curr_shield_cd <= 0 && !shielded)
