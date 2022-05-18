@@ -22,6 +22,10 @@ class EnemyBullet extends Projectile
 		{
 			FlxVelocity.moveTowardsPoint(this, FlxPoint.weak(x, y), _speed);
 		}
+		if (target_point != null)
+		{
+			FlxVelocity.moveTowardsPoint(this, target_point, _speed);
+		}
 	}
 
 	override function update(elapsed:Float)
