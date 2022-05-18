@@ -9,6 +9,7 @@ class StriderShockwave extends EnemyBullet
 		loadGraphic("assets/images/StriderShockwave.png", true, 100, 100);
 		animation.add("anim", [0, 1, 2], 6, false);
 		acceleration.set(velocity.x, velocity.y);
+		_damage = 20;
 		scale.set(0.5, 0.5);
 		updateHitbox();
 	}
