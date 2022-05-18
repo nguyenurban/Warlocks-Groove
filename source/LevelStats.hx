@@ -18,7 +18,12 @@ class LevelStats extends BaseLevel
 	public static var ticks_len:Int;
 	public static var _ticks:Array<Tick>;
 	public static var scroll_mul:Int;
+
+	/**
+	 * If music (and timer) has started already
+	 */
 	public static var started:Bool;
+
 	// PURELY FOR TESTING
 	public static var enchant_chance:Float;
 
@@ -144,19 +149,22 @@ class LevelStats extends BaseLevel
 	// }
 
 	/**
-	 * Stops music, resets timer, and kills ticks.
+	 * Stops music, resets timer, and kills ticks (if `started == true`).
 	 */
 	public static function stopMusic()
 	{
-		bgm.stop();
-		timer = 0;
-		started = false;
-		loop_timer = 0;
-		inIntro = true;
-		// stoppedOnce = true;
-		for (tick in _ticks)
+		if (started)
 		{
-			tick.kill();
+			bgm.stop();
+			timer = 0;
+			started = false;
+			loop_timer = 0;
+			inIntro = true;
+			// stoppedOnce = true;
+			for (tick in _ticks)
+			{
+				tick.kill();
+			}
 		}
 	}
 

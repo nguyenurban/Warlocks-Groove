@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "45";
+	app.meta.h["build"] = "49";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -6273,6 +6273,12 @@ Enemy.prototype = $extend(flixel_FlxSprite.prototype,{
 	,getDamage: function() {
 		return this._dps;
 	}
+	,setSpeed: function(spd) {
+		this._speed = spd;
+	}
+	,getSpeed: function() {
+		return this._speed;
+	}
 	,dodge: function(p) {
 		this._dodgeTarget = p;
 	}
@@ -6524,7 +6530,7 @@ var Cat = function(x,y,player,signal) {
 	this.FB_SHOT_VARIANCE = 10;
 	this.FB_FIRE_RATE = 0.25;
 	this.CHARGE_TIME = 2.0;
-	this.MAX_MOVE_TIME = 2000;
+	this.MAX_MOVE_TIME = 2.0;
 	this.MOVE_VARIANCE = 100;
 	this.MOVE_TIME_CAP_MAX = 3.0;
 	this.MOVE_TIME_CAP_MIN = 1.0;
@@ -6548,21 +6554,48 @@ var Cat = function(x,y,player,signal) {
 	this.shield.loadGraphic("assets/images/cat_shield.png");
 	this.shieldBreak = new flixel_util__$FlxSignal_FlxSignal0();
 	this.shieldBreak.add($bind(this,this.shieldBreaking));
+	this._movetimer = flixel_FlxG.random.float(this.MOVE_TIME_CAP_MIN,this.MOVE_TIME_CAP_MAX);
 };
 $hxClasses["Cat"] = Cat;
 Cat.__name__ = "Cat";
 Cat.__super__ = Enemy;
 Cat.prototype = $extend(Enemy.prototype,{
 	update: function(elapsed) {
-		var _gthis = this;
 		this._attacktimer -= elapsed;
 		this._movetimer -= elapsed;
 		this.curr_shield_cd -= elapsed;
+		Enemy.prototype.update.call(this,elapsed);
+	}
+	,takeAction: function() {
+		var _gthis = this;
 		if(this._movetimer <= 0 && !this.charging) {
 			if(this.moving) {
 				this.moving = false;
+				var X = 0;
+				var Y = 0;
+				if(Y == null) {
+					Y = 0;
+				}
+				if(X == null) {
+					X = 0;
+				}
+				var X1 = X;
+				var Y1 = Y;
+				if(Y1 == null) {
+					Y1 = 0;
+				}
+				if(X1 == null) {
+					X1 = 0;
+				}
+				var point = flixel_math_FlxPoint._pool.get().set(X1,Y1);
+				point._inPool = false;
+				var point1 = point;
+				point1._weak = true;
+				this.velocity = point1;
+				this._movetimer = flixel_FlxG.random.float(this.MOVE_TIME_CAP_MIN,this.MOVE_TIME_CAP_MAX);
 			} else {
 				this.moving = true;
+				this._movetimer = this.MAX_MOVE_TIME - flixel_FlxG.random.float();
 				this.move();
 			}
 		}
@@ -6587,8 +6620,6 @@ Cat.prototype = $extend(Enemy.prototype,{
 		if(this.curr_shield_cd <= 0 && !this.shielded) {
 			this.shielded = true;
 		}
-	}
-	,takeAction: function() {
 	}
 	,fiveBullets: function(timer) {
 	}
@@ -6619,8 +6650,7 @@ Cat.prototype = $extend(Enemy.prototype,{
 		var point1 = point;
 		point1._weak = true;
 		var dest = point1;
-		flixel_math_FlxVelocity.moveTowardsPoint(this,dest,this._speed,this.MAX_MOVE_TIME);
-		this._movetimer = this.MAX_MOVE_TIME * 1000;
+		flixel_math_FlxVelocity.moveTowardsPoint(this,dest,this._speed);
 	}
 	,shieldBreaking: function() {
 		this.shielded = false;
@@ -6834,7 +6864,7 @@ EnemyBullet.prototype = $extend(Projectile.prototype,{
 var EnemyBullet_target_point = null;
 var Goblin = function(x,y,target,tilemap) {
 	Enemy.call(this,x,y,target);
-	this.health = 45;
+	this.health = 35;
 	this._speed = 80;
 	this._dps = 20;
 	this._size = 32;
@@ -7613,20 +7643,23 @@ HxOverrides.now = function() {
 };
 var IceLaser = function(x,y,target,timing,enchanted) {
 	Projectile.call(this,x,y,target,AttackType.PURPLE,timing,enchanted);
-	this.MOVEMENT_SPEED = 600;
-	this.makeGraphic(5,5,-8388480);
+	this.MOVEMENT_SPEED = 400;
+	this.makeGraphic(5,5,0);
 	switch(timing._hx_index) {
 	case 1:
 		this._speed = this.MOVEMENT_SPEED * 1.2;
-		this._damage = 7;
+		this._damage = 3;
+		this.slowed = 0.8;
 		break;
 	case 2:
 		this._speed = this.MOVEMENT_SPEED;
-		this._damage = 5;
+		this._damage = 2;
+		this.slowed = 0.5;
 		break;
 	case 3:
 		this._speed = this.MOVEMENT_SPEED * 0.8;
-		this._damage = 3;
+		this._damage = 1;
+		this.slowed = 0.2;
 		break;
 	default:
 	}
@@ -7635,7 +7668,29 @@ var IceLaser = function(x,y,target,timing,enchanted) {
 		this._speed *= 1.2;
 	}
 	this._heading = flixel_FlxG.mouse.getPosition();
-	flixel_math_FlxVelocity.moveTowardsPoint(this,this._heading,this._speed);
+	this.velocity.set(this.MOVEMENT_SPEED,0);
+	var tmp = this.velocity;
+	var X = 0;
+	var Y = 0;
+	if(Y == null) {
+		Y = 0;
+	}
+	if(X == null) {
+		X = 0;
+	}
+	var X1 = X;
+	var Y1 = Y;
+	if(Y1 == null) {
+		Y1 = 0;
+	}
+	if(X1 == null) {
+		X1 = 0;
+	}
+	var point = flixel_math_FlxPoint._pool.get().set(X1,Y1);
+	point._inPool = false;
+	var point1 = point;
+	point1._weak = true;
+	tmp.rotate(point1,flixel_math_FlxAngle.angleBetweenPoint(this,this._heading,true));
 };
 $hxClasses["IceLaser"] = IceLaser;
 IceLaser.__name__ = "IceLaser";
@@ -7646,15 +7701,29 @@ IceLaser.prototype = $extend(Projectile.prototype,{
 		this.AI();
 	}
 	,kill: function() {
-		if(this.canvas != null) {
-			this.canvas.kill();
-		}
 		Projectile.prototype.kill.call(this);
 	}
 	,AI: function() {
-		var ray = 0;
 	}
 	,__class__: IceLaser
+});
+var LaserBeam = function(x,y,Length,Rotation) {
+	var _gthis = this;
+	flixel_FlxSprite.call(this,x,y);
+	this.makeGraphic(5,5,-8388480);
+	this.loadGraphic("assets/images/laser.png");
+	this.set_angle(Rotation);
+	this.scale.set(Length / this.get_pixels().width,1);
+	this.origin.set(0,this.get_pixels().height / 2);
+	flixel_tweens_FlxTween.tween(this,{ alpha : 0},0.4,{ onComplete : function(t) {
+		_gthis.kill();
+	}, ease : flixel_tweens_FlxEase.quadOut});
+};
+$hxClasses["LaserBeam"] = LaserBeam;
+LaserBeam.__name__ = "LaserBeam";
+LaserBeam.__super__ = flixel_FlxSprite;
+LaserBeam.prototype = $extend(flixel_FlxSprite.prototype,{
+	__class__: LaserBeam
 });
 var Lambda = function() { };
 $hxClasses["Lambda"] = Lambda;
@@ -7941,11 +8010,6 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				var d1 = d.next();
 				d1.unlock();
 			}
-			if(!this.lvlPopup && this.currLevel == RoomEight) {
-				var lvlCompPop = new LvlCompletePopup();
-				this.openSubState(lvlCompPop);
-				this.lvlPopup = true;
-			}
 		}
 		if(!this._player.exists) {
 			LevelStats.stopMusic();
@@ -7965,9 +8029,6 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			if(proj1.getType() != AttackType.ENEMY) {
 				var closest_mons = this.get_closest_monster(proj1.x,proj1.y,this._monsters);
 				proj1.update_target(closest_mons);
-				if(proj1.getType() == AttackType.PURPLE) {
-					this.handleProjectileRaycasts(js_Boot.__cast(proj1 , IceLaser));
-				}
 			}
 		}
 		flixel_FlxG.overlap(this._monsters,this._player,$bind(this,this.handleMonsterPlayerOverlap));
@@ -8143,8 +8204,17 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				flixel_effects_FlxFlicker.flicker(m,Duration,0.04,true,true,null,null);
 				this.hit_sound.play();
 			}
-			projectiles.kill();
-			haxe_Log.trace("projectile kill initiated",{ fileName : "source/LevelState.hx", lineNumber : 489, className : "LevelState", methodName : "handleMonsterProjectileCollisions"});
+			if(projectiles.getType() == AttackType.PURPLE) {
+				var mons_speed = (js_Boot.__cast(monsters , Enemy)).getSpeed();
+				(js_Boot.__cast(monsters , Enemy)).setSpeed(mons_speed * (js_Boot.__cast(projectiles , IceLaser)).slowed);
+				var slowTimer = new flixel_util_FlxTimer();
+				slowTimer.start(0.25,function(Timer) {
+					(js_Boot.__cast(monsters , Enemy)).setSpeed(mons_speed);
+				},1);
+			}
+			if(!(projectiles.getType() == AttackType.PURPLE && projectiles._enchanted)) {
+				projectiles.kill();
+			}
 		}
 	}
 	,handleProjectileWallsCollisions: function(projectiles,walls) {
@@ -8210,8 +8280,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			} else {
 				var timing;
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 573, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 574, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 587, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 588, className : "LevelState", methodName : "shoot"});
 				if(!(closest_tick.getEnchanted() && diff <= this.PERFECT_WINDOW) && !this._player.useEnergy(15)) {
 					this.judge_sprite.loadGraphic("assets/images/judge_sprites/ooe.png");
 					Logger.playerShot("OOE","OOE",diff == null ? "null" : "" + diff);
@@ -8237,13 +8307,13 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 					var proj;
 					if(closest_tick.getType() == AttackType.RED) {
 						proj = new MagMissile(this._player.x,this._player.y,this._monsters.getFirstAlive(),timing,closest_tick.getEnchanted() && timing == JudgeType.PERFECT);
-					} else {
-						proj = new IceLaser(this._player.x,this._player.y,this._monsters.getFirstAlive(),timing,closest_tick.getEnchanted() && timing == JudgeType.PERFECT);
+						proj.timer.start(2.0,function(Timer) {
+							proj.kill();
+						},1);
+						this._projectiles.add(proj);
+					} else if(closest_tick.getType() == AttackType.PURPLE) {
+						this.shootLaser(this._monsters.getFirstAlive(),timing,closest_tick.getEnchanted() && timing == JudgeType.PERFECT);
 					}
-					proj.timer.start(2.0,function(Timer) {
-						proj.kill();
-					},1);
-					this._projectiles.add(proj);
 					this.fire_sound.play();
 					if(closest_tick.getEnchanted() && judge == "Perfect") {
 						this.fire_e_sound.play();
@@ -8291,16 +8361,15 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			return later_beat;
 		}
 	}
-	,handleProjectileRaycasts: function(p) {
-		js_Boot.__cast(p , IceLaser);
-		if(p.canvas == null) {
-			p.canvas = new flixel_FlxSprite();
-			p.canvas.makeGraphic(4096,4096,0,true);
-			this.add(p.canvas);
-		}
-		var line_style_2 = { color : -16776961, thickness : 3.0};
-		var drawStyle = { smoothing : true};
-		flixel_util_FlxSpriteUtil.drawLine(p.canvas,p.origin_point.x,p.origin_point.y,p.x + 2,p.y + 2,line_style_2,drawStyle);
+	,shootLaser: function(target,timing,enchanted) {
+		var source = this._player.getMidpoint();
+		var mouse = flixel_FlxG.mouse.getPosition();
+		var deg = source.angleBetween(mouse) - 90;
+		var length = 1000;
+		var laser = new IceLaser(source.x,source.y,target,timing,enchanted);
+		this._projectiles.add(laser);
+		var laserGraphic = new LaserBeam(source.x,source.y,length,deg);
+		this.add(laserGraphic);
 	}
 	,createTexts: function() {
 		this.timer_text = new flixel_text_FlxText(-300,0,500);
@@ -8794,6 +8863,10 @@ LevelStats.initialize = function(level_no) {
 		LevelStats.scroll_mul = 350;
 		LevelStats.enchant_chance = 0.25;
 		LevelStats.ticks_len = 16;
+		LevelStats.bgm = flixel_FlxG.sound.load("assets/music/stg1.wav",0.5);
+		LevelStats.bgm.persist = true;
+		LevelStats.intro_beats = 32;
+		LevelStats.looping_beats = 96;
 		break;
 	case 1:
 		LevelStats.bpm = 130;
@@ -8834,18 +8907,20 @@ LevelStats.startMusic = function() {
 	LevelStats.bgm.play();
 };
 LevelStats.stopMusic = function() {
-	var _this = LevelStats.bgm;
-	_this.cleanup(_this.autoDestroy,true);
-	LevelStats.timer = 0;
-	LevelStats.started = false;
-	LevelStats.loop_timer = 0;
-	LevelStats.inIntro = true;
-	var _g = 0;
-	var _g1 = LevelStats._ticks;
-	while(_g < _g1.length) {
-		var tick = _g1[_g];
-		++_g;
-		tick.kill();
+	if(LevelStats.started) {
+		var _this = LevelStats.bgm;
+		_this.cleanup(_this.autoDestroy,true);
+		LevelStats.timer = 0;
+		LevelStats.started = false;
+		LevelStats.loop_timer = 0;
+		LevelStats.inIntro = true;
+		var _g = 0;
+		var _g1 = LevelStats._ticks;
+		while(_g < _g1.length) {
+			var tick = _g1[_g];
+			++_g;
+			tick.kill();
+		}
 	}
 };
 LevelStats.update = function(elapsed) {
@@ -8934,7 +9009,7 @@ LevelStats.debugTickDisplay = function() {
 			output += "#";
 		}
 	}
-	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 251, className : "LevelStats", methodName : "debugTickDisplay"});
+	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 265, className : "LevelStats", methodName : "debugTickDisplay"});
 };
 LevelStats.__super__ = BaseLevel;
 LevelStats.prototype = $extend(BaseLevel.prototype,{
@@ -9531,7 +9606,7 @@ ManifestResources.init = function(config) {
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf);
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf);
 	var bundle;
-	var data = "{\"name\":null,\"assets\":\"aoy4:pathy30:assets%2Fcredits%2Fcredits.txty4:sizei552y4:typey4:TEXTy2:idR1y7:preloadtgoR0y25:assets%2Fdata%2Flvl1.jsonR2i47799R3R4R5R7R6tgoR0y30:assets%2Fdata%2Flvl2room1.jsonR2i15749R3R4R5R8R6tgoR0y30:assets%2Fdata%2Flvl2room2.jsonR2i23262R3R4R5R9R6tgoR0y30:assets%2Fdata%2Flvl2room3.jsonR2i25548R3R4R5R10R6tgoR0y30:assets%2Fdata%2Flvl2room4.jsonR2i21547R3R4R5R11R6tgoR0y30:assets%2Fdata%2Flvl2room5.jsonR2i19348R3R4R5R12R6tgoR0y30:assets%2Fdata%2Flvl2room6.jsonR2i20117R3R4R5R13R6tgoR0y30:assets%2Fdata%2Flvl2room7.jsonR2i21192R3R4R5R14R6tgoR0y30:assets%2Fdata%2Flvl2room8.jsonR2i25154R3R4R5R15R6tgoR0y25:assets%2Fdata%2Fmap1.ogmoR2i56747R3R4R5R16R6tgoR0y23:assets%2Fdata%2Fr1.jsonR2i1706970R3R4R5R17R6tgoR0y26:assets%2Fdata%2Froom1.jsonR2i15512R3R4R5R18R6tgoR0y26:assets%2Fdata%2Froom2.jsonR2i15523R3R4R5R19R6tgoR0y26:assets%2Fdata%2Froom3.jsonR2i25334R3R4R5R20R6tgoR0y26:assets%2Fdata%2Froom4.jsonR2i15718R3R4R5R21R6tgoR0y26:assets%2Fdata%2Froom5.jsonR2i15728R3R4R5R22R6tgoR0y26:assets%2Fdata%2Froom6.jsonR2i20160R3R4R5R23R6tgoR0y26:assets%2Fdata%2Froom7.jsonR2i15941R3R4R5R24R6tgoR0y26:assets%2Fdata%2Froom8.jsonR2i21789R3R4R5R25R6tgoR0y25:assets%2Fdata%2Ftiles.pngR2i35688R3y5:IMAGER5R26R6tgoR2i28952R3y4:FONTy9:classNamey24:__ASSET__assets_font_ttfR5y17:assets%2Ffont.ttfR6tgoR0y38:assets%2Fimages%2FBat_Sprite_Sheet.pngR2i2628R3R27R5R32R6tgoR0y32:assets%2Fimages%2Fcat_shield.pngR2i511218R3R27R5R33R6tgoR0y45:assets%2Fimages%2FCharacters_Sprite_Sheet.pngR2i46262R3R27R5R34R6tgoR0y31:assets%2Fimages%2Fcrosshair.pngR2i208R3R27R5R35R6tgoR0y26:assets%2Fimages%2FDoor.pngR2i648R3R27R5R36R6tgoR0y34:assets%2Fimages%2Fenemy_bullet.pngR2i154R3R27R5R37R6tgoR0y28:assets%2Fimages%2Fenergy.pngR2i235R3R27R5R38R6tgoR0y41:assets%2Fimages%2FGoblin_Sprite_Sheet.pngR2i39977R3R27R5R39R6tgoR0y28:assets%2Fimages%2Fhealth.pngR2i625R3R27R5R40R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R41R6tgoR0y43:assets%2Fimages%2Fjudge_sprites%2Fgreat.pngR2i1361R3R27R5R42R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fmisfire.pngR2i1602R3R27R5R43R6tgoR0y40:assets%2Fimages%2Fjudge_sprites%2Fok.pngR2i833R3R27R5R44R6tgoR0y41:assets%2Fimages%2Fjudge_sprites%2Fooe.pngR2i1685R3R27R5R45R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fperfect.pngR2i1300R3R27R5R46R6tgoR0y35:assets%2Fimages%2Fmagic_missile.pngR2i12870R3R27R5R47R6tgoR0y31:assets%2Fimages%2Fmetronome.pngR2i30800R3R27R5R48R6tgoR0y27:assets%2Fimages%2Fmouse.pngR2i5211R3R27R5R49R6tgoR0y45:assets%2Fimages%2FNotOctorok_Sprite_Sheet.pngR2i1601R3R27R5R50R6tgoR0y28:assets%2Fimages%2Fplayer.pngR2i1886R3R27R5R51R6tgoR0y29:assets%2Fimages%2Fshooter.pngR2i47783R3R27R5R52R6tgoR0y35:assets%2Fimages%2Fticks%2Fgreen.pngR2i228R3R27R5R53R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_e.pngR2i233R3R27R5R54R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_g.pngR2i225R3R27R5R55R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_o.pngR2i212R3R27R5R56R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_p.pngR2i223R3R27R5R57R6tgoR0y39:assets%2Fimages%2Fticks%2Fgreen_p_e.pngR2i245R3R27R5R58R6tgoR0y36:assets%2Fimages%2Fticks%2Fpurple.pngR2i212R3R27R5R59R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_e.pngR2i233R3R27R5R60R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_g.pngR2i224R3R27R5R61R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_o.pngR2i222R3R27R5R62R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_p.pngR2i221R3R27R5R63R6tgoR0y40:assets%2Fimages%2Fticks%2Fpurple_p_e.pngR2i231R3R27R5R64R6tgoR0y33:assets%2Fimages%2Fticks%2Fred.pngR2i230R3R27R5R65R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_e.pngR2i234R3R27R5R66R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_g.pngR2i225R3R27R5R67R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_o.pngR2i242R3R27R5R68R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_p.pngR2i223R3R27R5R69R6tgoR0y37:assets%2Fimages%2Fticks%2Fred_p_e.pngR2i233R3R27R5R70R6tgoR0y26:assets%2Fimages%2FWASD.pngR2i2719R3R27R5R71R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R72R6tgoR2i10421314R3y5:SOUNDR5y25:assets%2Fmusic%2Fstg1.wavy9:pathGroupaR74hR6tgoR2i10188R3R73R5y26:assets%2Fsounds%2Fbeat.wavR75aR76hR6tgoR2i3336R3y5:MUSICR5y26:assets%2Fsounds%2Ffire.mp3R75aR78hR6tgoR2i5856R3R77R5y28:assets%2Fsounds%2Ffire_e.mp3R75aR79hR6tgoR2i6720R3R77R5y25:assets%2Fsounds%2Fhit.mp3R75aR80hR6tgoR2i8064R3R77R5y26:assets%2Fsounds%2Fkill.mp3R75aR81hR6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R82R6tgoR0y43:assets%2Funused%2FM484BulletCollection1.pngR2i22490R3R27R5R83R6tgoR2i2114R3R77R5y26:flixel%2Fsounds%2Fbeep.mp3R75aR84y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R77R5y28:flixel%2Fsounds%2Fflixel.mp3R75aR86y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3R73R5R85R75aR84R85hgoR2i33629R3R73R5R87R75aR86R87hgoR2i15744R3R28R29y35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R28R29y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R27R5R92R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R27R5R93R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
+	var data = "{\"name\":null,\"assets\":\"aoy4:pathy30:assets%2Fcredits%2Fcredits.txty4:sizei552y4:typey4:TEXTy2:idR1y7:preloadtgoR0y25:assets%2Fdata%2Flvl1.jsonR2i47799R3R4R5R7R6tgoR0y30:assets%2Fdata%2Flvl2room1.jsonR2i15749R3R4R5R8R6tgoR0y30:assets%2Fdata%2Flvl2room2.jsonR2i23262R3R4R5R9R6tgoR0y30:assets%2Fdata%2Flvl2room3.jsonR2i25548R3R4R5R10R6tgoR0y30:assets%2Fdata%2Flvl2room4.jsonR2i21547R3R4R5R11R6tgoR0y30:assets%2Fdata%2Flvl2room5.jsonR2i19348R3R4R5R12R6tgoR0y30:assets%2Fdata%2Flvl2room6.jsonR2i20117R3R4R5R13R6tgoR0y30:assets%2Fdata%2Flvl2room7.jsonR2i21192R3R4R5R14R6tgoR0y30:assets%2Fdata%2Flvl2room8.jsonR2i25154R3R4R5R15R6tgoR0y25:assets%2Fdata%2Fmap1.ogmoR2i56747R3R4R5R16R6tgoR0y23:assets%2Fdata%2Fr1.jsonR2i1706970R3R4R5R17R6tgoR0y26:assets%2Fdata%2Froom1.jsonR2i15512R3R4R5R18R6tgoR0y26:assets%2Fdata%2Froom2.jsonR2i15523R3R4R5R19R6tgoR0y26:assets%2Fdata%2Froom3.jsonR2i25334R3R4R5R20R6tgoR0y26:assets%2Fdata%2Froom4.jsonR2i15718R3R4R5R21R6tgoR0y26:assets%2Fdata%2Froom5.jsonR2i15728R3R4R5R22R6tgoR0y26:assets%2Fdata%2Froom6.jsonR2i20160R3R4R5R23R6tgoR0y26:assets%2Fdata%2Froom7.jsonR2i15941R3R4R5R24R6tgoR0y26:assets%2Fdata%2Froom8.jsonR2i21789R3R4R5R25R6tgoR0y25:assets%2Fdata%2Ftiles.pngR2i35688R3y5:IMAGER5R26R6tgoR2i28952R3y4:FONTy9:classNamey24:__ASSET__assets_font_ttfR5y17:assets%2Ffont.ttfR6tgoR0y38:assets%2Fimages%2FBat_Sprite_Sheet.pngR2i2628R3R27R5R32R6tgoR0y32:assets%2Fimages%2Fcat_shield.pngR2i511218R3R27R5R33R6tgoR0y45:assets%2Fimages%2FCharacters_Sprite_Sheet.pngR2i46262R3R27R5R34R6tgoR0y31:assets%2Fimages%2Fcrosshair.pngR2i208R3R27R5R35R6tgoR0y26:assets%2Fimages%2FDoor.pngR2i648R3R27R5R36R6tgoR0y34:assets%2Fimages%2Fenemy_bullet.pngR2i154R3R27R5R37R6tgoR0y28:assets%2Fimages%2Fenergy.pngR2i235R3R27R5R38R6tgoR0y41:assets%2Fimages%2FGoblin_Sprite_Sheet.pngR2i39977R3R27R5R39R6tgoR0y28:assets%2Fimages%2Fhealth.pngR2i625R3R27R5R40R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R41R6tgoR0y43:assets%2Fimages%2Fjudge_sprites%2Fgreat.pngR2i1361R3R27R5R42R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fmisfire.pngR2i1602R3R27R5R43R6tgoR0y40:assets%2Fimages%2Fjudge_sprites%2Fok.pngR2i833R3R27R5R44R6tgoR0y41:assets%2Fimages%2Fjudge_sprites%2Fooe.pngR2i1685R3R27R5R45R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fperfect.pngR2i1300R3R27R5R46R6tgoR0y27:assets%2Fimages%2Flaser.pngR2i165R3R27R5R47R6tgoR0y35:assets%2Fimages%2Fmagic_missile.pngR2i12870R3R27R5R48R6tgoR0y31:assets%2Fimages%2Fmetronome.pngR2i30800R3R27R5R49R6tgoR0y27:assets%2Fimages%2Fmouse.pngR2i5211R3R27R5R50R6tgoR0y45:assets%2Fimages%2FNotOctorok_Sprite_Sheet.pngR2i1601R3R27R5R51R6tgoR0y28:assets%2Fimages%2Fplayer.pngR2i1886R3R27R5R52R6tgoR0y29:assets%2Fimages%2Fshooter.pngR2i47783R3R27R5R53R6tgoR0y35:assets%2Fimages%2Fticks%2Fgreen.pngR2i228R3R27R5R54R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_e.pngR2i233R3R27R5R55R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_g.pngR2i225R3R27R5R56R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_o.pngR2i212R3R27R5R57R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_p.pngR2i223R3R27R5R58R6tgoR0y39:assets%2Fimages%2Fticks%2Fgreen_p_e.pngR2i245R3R27R5R59R6tgoR0y36:assets%2Fimages%2Fticks%2Fpurple.pngR2i212R3R27R5R60R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_e.pngR2i233R3R27R5R61R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_g.pngR2i224R3R27R5R62R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_o.pngR2i222R3R27R5R63R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_p.pngR2i221R3R27R5R64R6tgoR0y40:assets%2Fimages%2Fticks%2Fpurple_p_e.pngR2i231R3R27R5R65R6tgoR0y33:assets%2Fimages%2Fticks%2Fred.pngR2i230R3R27R5R66R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_e.pngR2i234R3R27R5R67R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_g.pngR2i225R3R27R5R68R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_o.pngR2i242R3R27R5R69R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_p.pngR2i223R3R27R5R70R6tgoR0y37:assets%2Fimages%2Fticks%2Fred_p_e.pngR2i233R3R27R5R71R6tgoR0y26:assets%2Fimages%2FWASD.pngR2i2719R3R27R5R72R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R73R6tgoR2i10421314R3y5:SOUNDR5y25:assets%2Fmusic%2Fstg1.wavy9:pathGroupaR75hR6tgoR2i10188R3R74R5y26:assets%2Fsounds%2Fbeat.wavR76aR77hR6tgoR2i3336R3y5:MUSICR5y26:assets%2Fsounds%2Ffire.mp3R76aR79hR6tgoR2i5856R3R78R5y28:assets%2Fsounds%2Ffire_e.mp3R76aR80hR6tgoR2i6720R3R78R5y25:assets%2Fsounds%2Fhit.mp3R76aR81hR6tgoR2i8064R3R78R5y26:assets%2Fsounds%2Fkill.mp3R76aR82hR6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R83R6tgoR0y43:assets%2Funused%2FM484BulletCollection1.pngR2i22490R3R27R5R84R6tgoR2i2114R3R78R5y26:flixel%2Fsounds%2Fbeep.mp3R76aR85y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R78R5y28:flixel%2Fsounds%2Fflixel.mp3R76aR87y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3R74R5R86R76aR85R86hgoR2i33629R3R74R5R88R76aR87R88hgoR2i15744R3R28R29y35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R28R29y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R27R5R93R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R27R5R94R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
 	var manifest = lime_utils_AssetManifest.parse(data,ManifestResources.rootPath);
 	var library = lime_utils_AssetLibrary.fromManifest(manifest);
 	lime_utils_Assets.registerLibrary("default",library);
@@ -11031,17 +11106,6 @@ RoomOne.prototype = $extend(LevelState.prototype,{
 			this._energybar.set_visible(true);
 		}
 		this.shoot();
-		var proj = new flixel_group_FlxTypedGroupIterator(this._projectiles.members,null);
-		while(proj.hasNext()) {
-			var proj1 = proj.next();
-			if(proj1.getType() != AttackType.ENEMY) {
-				var closest_mons = this.get_closest_monster(proj1.x,proj1.y,this._monsters);
-				proj1.update_target(closest_mons);
-				if(proj1.getType() == AttackType.PURPLE) {
-					this.handleProjectileRaycasts(js_Boot.__cast(proj1 , IceLaser));
-				}
-			}
-		}
 		this._monsters.forEach($bind(this,this.handleMonsterActions));
 		flixel_FlxG.overlap(this._monsters,this._player,$bind(this,this.handleMonsterPlayerOverlap));
 		flixel_FlxG.overlap(this._player,this._projectiles,$bind(this,this.handlePlayerProjectileCollisions),flixel_FlxObject.separate);
@@ -11989,7 +12053,7 @@ TestMenuRoom2.prototype = $extend(flixel_FlxState.prototype,{
 			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
 				Logger.startLevel(1);
 				LevelStats.initialize(-1);
-				var nextState = new LvlTwoRoomOne();
+				var nextState = new RoomThree();
 				if(flixel_FlxG.game._state.switchTo(nextState)) {
 					flixel_FlxG.game._requestedState = nextState;
 				}
