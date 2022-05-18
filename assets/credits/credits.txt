@@ -9,3 +9,4 @@ Hit, fire, kill sound: Muncheybobo (opengameart.org)
 Enemy bullet: Master484 (http://m484games.ucoz.com)
 Water Strider: https://opengameart.org/content/flying-dragon-rework
 StriderShockwave: https://opengameart.org/content/energy-ball
+Cat wave sprite: pimen (itch.io)

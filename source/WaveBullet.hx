@@ -2,6 +2,7 @@ import LevelState;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxAngle;
 import flixel.math.FlxPoint;
 import flixel.math.FlxVector;
 import flixel.math.FlxVelocity;
@@ -10,15 +11,23 @@ import flixel.util.FlxTimer;
 
 private var target_point:FlxPoint;
 
-class EnemyBullet extends Projectile
+class WaveBullet extends EnemyBullet
 {
 	public function new(x:Float, y:Float, target:FlxObject, targetPoint:FlxPoint, src:String, ?speed:Float)
 	{
-		super(x, y, target, LevelState.AttackType.ENEMY, PERFECT, false, src);
-		_speed = speed;
-		target_point = targetPoint;
-		loadGraphic("assets/images/enemy_bullet.png", false, 24, 24);
-		FlxVelocity.moveTowardsPoint(this, (target == null ? targetPoint : target.getMidpoint()), _speed);
+		super(x, y, target, targetPoint, src, speed);
+
+		loadGraphic("assets/images/cat_wave.png", true, 32, 32);
+		animation.add("n", [0, 1, 2, 3, 4, 5], 5);
+		animation.play("n");
+		setGraphicSize(64, 106);
+		updateHitbox();
+		height = 23;
+		width = 7;
+		offset = FlxPoint.weak(13, 5);
+		var point = (target == null ? targetPoint : target.getMidpoint());
+		var diff = FlxAngle.angleBetweenPoint(this, point, true);
+		angle = diff;
 	}
 
 	override function update(elapsed:Float)

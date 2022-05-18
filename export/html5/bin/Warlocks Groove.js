@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "50";
+	app.meta.h["build"] = "51";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -6635,11 +6635,11 @@ Cat.prototype = $extend(Enemy.prototype,{
 				break;
 			case 1:
 				this.charging = true;
-				new flixel_util_FlxTimer().start(this.CHARGE_TIME,$bind(this,this.chargeAtk),1);
+				new flixel_util_FlxTimer().start(this.CHARGE_TIME,$bind(this,this.chargeAtk));
 				break;
 			case 2:
 				this.charging = true;
-				this.waveAtk();
+				new flixel_util_FlxTimer().start(this.CHARGE_TIME / 2,$bind(this,this.waveAtk));
 				break;
 			}
 		}
@@ -6650,9 +6650,12 @@ Cat.prototype = $extend(Enemy.prototype,{
 	,fiveBullets: function(timer) {
 	}
 	,chargeAtk: function(timer) {
+		this._signal.dispatch([1,this.x,this.y]);
 		this.charging = false;
 	}
-	,waveAtk: function() {
+	,waveAtk: function(timer) {
+		this._signal.dispatch([2,this.x,this.y]);
+		this.charging = false;
 	}
 	,shieldBreaking: function() {
 		this.shielded = false;
@@ -6823,29 +6826,7 @@ var EnemyBullet = function(x,y,target,targetPoint,src,speed) {
 	this._speed = speed;
 	EnemyBullet_target_point = targetPoint;
 	this.loadGraphic("assets/images/enemy_bullet.png",false,24,24);
-	if(target == null) {
-		var X = x;
-		var Y = y;
-		if(Y == null) {
-			Y = 0;
-		}
-		if(X == null) {
-			X = 0;
-		}
-		var X1 = X;
-		var Y1 = Y;
-		if(Y1 == null) {
-			Y1 = 0;
-		}
-		if(X1 == null) {
-			X1 = 0;
-		}
-		var point = flixel_math_FlxPoint._pool.get().set(X1,Y1);
-		point._inPool = false;
-		var point1 = point;
-		point1._weak = true;
-		flixel_math_FlxVelocity.moveTowardsPoint(this,point1,this._speed);
-	}
+	flixel_math_FlxVelocity.moveTowardsPoint(this,target == null ? targetPoint : target.getMidpoint(),this._speed);
 };
 $hxClasses["EnemyBullet"] = EnemyBullet;
 EnemyBullet.__name__ = "EnemyBullet";
@@ -7749,6 +7730,30 @@ Lambda.exists = function(it,f) {
 	}
 	return false;
 };
+var LargeBullet = function(x,y,target,targetPoint,src,speed) {
+	EnemyBullet.call(this,x,y,target,targetPoint,src,speed);
+	this.loadGraphic("assets/images/large_bullet.png",false,18,18);
+	this.setGraphicSize(64,64);
+	this.updateHitbox();
+	this._damage = 25;
+};
+$hxClasses["LargeBullet"] = LargeBullet;
+LargeBullet.__name__ = "LargeBullet";
+LargeBullet.__super__ = EnemyBullet;
+LargeBullet.prototype = $extend(EnemyBullet.prototype,{
+	update: function(elapsed) {
+		EnemyBullet.prototype.update.call(this,elapsed);
+	}
+	,kill: function() {
+		EnemyBullet.prototype.kill.call(this);
+	}
+	,toString: function() {
+		var c = js_Boot.getClass(this);
+		return c.__name__;
+	}
+	,__class__: LargeBullet
+});
+var LargeBullet_target_point = null;
 var AttackType = $hxEnums["AttackType"] = { __ename__:"AttackType",__constructs__:null
 	,RED: {_hx_name:"RED",_hx_index:0,__enum__:"AttackType",toString:$estr}
 	,PURPLE: {_hx_name:"PURPLE",_hx_index:1,__enum__:"AttackType",toString:$estr}
@@ -8248,13 +8253,15 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 		}
 	}
 	,handlePlayerProjectileCollisions: function(p,proj) {
-		if(proj.getType() == AttackType.ENEMY && p.isInvuln()) {
-			p.health -= proj.getDamage();
-			p.damageInvuln();
-			Logger.tookDamage(this,proj.src,proj.getDamage());
-			if(p.health <= 0) {
-				Logger.playerDeath(this,proj);
-				p.kill();
+		if(proj.getType() == AttackType.ENEMY) {
+			if(p.isInvuln()) {
+				p.health -= proj.getDamage();
+				p.damageInvuln();
+				Logger.tookDamage(this,proj.src,proj.getDamage());
+				if(p.health <= 0) {
+					Logger.playerDeath(this,proj);
+					p.kill();
+				}
 			}
 			proj.kill();
 		}
@@ -8282,8 +8289,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			} else {
 				var timing;
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 587, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 588, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 590, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 591, className : "LevelState", methodName : "shoot"});
 				if(!(closest_tick.getEnchanted() && diff <= this.PERFECT_WINDOW) && !this._player.useEnergy(15)) {
 					this.judge_sprite.loadGraphic("assets/images/judge_sprites/ooe.png");
 					Logger.playerShot("OOE","OOE",diff == null ? "null" : "" + diff);
@@ -9608,7 +9615,7 @@ ManifestResources.init = function(config) {
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf);
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf);
 	var bundle;
-	var data = "{\"name\":null,\"assets\":\"aoy4:pathy30:assets%2Fcredits%2Fcredits.txty4:sizei552y4:typey4:TEXTy2:idR1y7:preloadtgoR0y25:assets%2Fdata%2Flvl1.jsonR2i47799R3R4R5R7R6tgoR0y30:assets%2Fdata%2Flvl2room1.jsonR2i15749R3R4R5R8R6tgoR0y30:assets%2Fdata%2Flvl2room2.jsonR2i23262R3R4R5R9R6tgoR0y30:assets%2Fdata%2Flvl2room3.jsonR2i25548R3R4R5R10R6tgoR0y30:assets%2Fdata%2Flvl2room4.jsonR2i21547R3R4R5R11R6tgoR0y30:assets%2Fdata%2Flvl2room5.jsonR2i19348R3R4R5R12R6tgoR0y30:assets%2Fdata%2Flvl2room6.jsonR2i20117R3R4R5R13R6tgoR0y30:assets%2Fdata%2Flvl2room7.jsonR2i21192R3R4R5R14R6tgoR0y30:assets%2Fdata%2Flvl2room8.jsonR2i25154R3R4R5R15R6tgoR0y25:assets%2Fdata%2Fmap1.ogmoR2i56747R3R4R5R16R6tgoR0y23:assets%2Fdata%2Fr1.jsonR2i1706970R3R4R5R17R6tgoR0y26:assets%2Fdata%2Froom1.jsonR2i15512R3R4R5R18R6tgoR0y26:assets%2Fdata%2Froom2.jsonR2i15523R3R4R5R19R6tgoR0y26:assets%2Fdata%2Froom3.jsonR2i25334R3R4R5R20R6tgoR0y26:assets%2Fdata%2Froom4.jsonR2i15718R3R4R5R21R6tgoR0y26:assets%2Fdata%2Froom5.jsonR2i15728R3R4R5R22R6tgoR0y26:assets%2Fdata%2Froom6.jsonR2i20160R3R4R5R23R6tgoR0y26:assets%2Fdata%2Froom7.jsonR2i15941R3R4R5R24R6tgoR0y26:assets%2Fdata%2Froom8.jsonR2i21789R3R4R5R25R6tgoR0y25:assets%2Fdata%2Ftiles.pngR2i35688R3y5:IMAGER5R26R6tgoR2i28952R3y4:FONTy9:classNamey24:__ASSET__assets_font_ttfR5y17:assets%2Ffont.ttfR6tgoR0y38:assets%2Fimages%2FBat_Sprite_Sheet.pngR2i2628R3R27R5R32R6tgoR0y32:assets%2Fimages%2Fcat_shield.pngR2i511218R3R27R5R33R6tgoR0y45:assets%2Fimages%2FCharacters_Sprite_Sheet.pngR2i46262R3R27R5R34R6tgoR0y31:assets%2Fimages%2Fcrosshair.pngR2i208R3R27R5R35R6tgoR0y26:assets%2Fimages%2FDoor.pngR2i648R3R27R5R36R6tgoR0y34:assets%2Fimages%2Fenemy_bullet.pngR2i154R3R27R5R37R6tgoR0y28:assets%2Fimages%2Fenergy.pngR2i235R3R27R5R38R6tgoR0y41:assets%2Fimages%2FGoblin_Sprite_Sheet.pngR2i39977R3R27R5R39R6tgoR0y28:assets%2Fimages%2Fhealth.pngR2i625R3R27R5R40R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R41R6tgoR0y43:assets%2Fimages%2Fjudge_sprites%2Fgreat.pngR2i1361R3R27R5R42R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fmisfire.pngR2i1602R3R27R5R43R6tgoR0y40:assets%2Fimages%2Fjudge_sprites%2Fok.pngR2i833R3R27R5R44R6tgoR0y41:assets%2Fimages%2Fjudge_sprites%2Fooe.pngR2i1685R3R27R5R45R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fperfect.pngR2i1300R3R27R5R46R6tgoR0y27:assets%2Fimages%2Flaser.pngR2i165R3R27R5R47R6tgoR0y35:assets%2Fimages%2Fmagic_missile.pngR2i12870R3R27R5R48R6tgoR0y31:assets%2Fimages%2Fmetronome.pngR2i30800R3R27R5R49R6tgoR0y27:assets%2Fimages%2Fmouse.pngR2i5211R3R27R5R50R6tgoR0y45:assets%2Fimages%2FNotOctorok_Sprite_Sheet.pngR2i1601R3R27R5R51R6tgoR0y28:assets%2Fimages%2Fplayer.pngR2i1886R3R27R5R52R6tgoR0y29:assets%2Fimages%2Fshooter.pngR2i47783R3R27R5R53R6tgoR0y35:assets%2Fimages%2Fticks%2Fgreen.pngR2i228R3R27R5R54R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_e.pngR2i233R3R27R5R55R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_g.pngR2i225R3R27R5R56R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_o.pngR2i212R3R27R5R57R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_p.pngR2i223R3R27R5R58R6tgoR0y39:assets%2Fimages%2Fticks%2Fgreen_p_e.pngR2i245R3R27R5R59R6tgoR0y36:assets%2Fimages%2Fticks%2Fpurple.pngR2i212R3R27R5R60R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_e.pngR2i233R3R27R5R61R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_g.pngR2i224R3R27R5R62R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_o.pngR2i222R3R27R5R63R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_p.pngR2i221R3R27R5R64R6tgoR0y40:assets%2Fimages%2Fticks%2Fpurple_p_e.pngR2i231R3R27R5R65R6tgoR0y33:assets%2Fimages%2Fticks%2Fred.pngR2i230R3R27R5R66R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_e.pngR2i234R3R27R5R67R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_g.pngR2i225R3R27R5R68R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_o.pngR2i242R3R27R5R69R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_p.pngR2i223R3R27R5R70R6tgoR0y37:assets%2Fimages%2Fticks%2Fred_p_e.pngR2i233R3R27R5R71R6tgoR0y26:assets%2Fimages%2FWASD.pngR2i2719R3R27R5R72R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R73R6tgoR2i10421314R3y5:SOUNDR5y25:assets%2Fmusic%2Fstg1.wavy9:pathGroupaR75hR6tgoR2i10188R3R74R5y26:assets%2Fsounds%2Fbeat.wavR76aR77hR6tgoR2i3336R3y5:MUSICR5y26:assets%2Fsounds%2Ffire.mp3R76aR79hR6tgoR2i5856R3R78R5y28:assets%2Fsounds%2Ffire_e.mp3R76aR80hR6tgoR2i6720R3R78R5y25:assets%2Fsounds%2Fhit.mp3R76aR81hR6tgoR2i8064R3R78R5y26:assets%2Fsounds%2Fkill.mp3R76aR82hR6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R83R6tgoR0y43:assets%2Funused%2FM484BulletCollection1.pngR2i22490R3R27R5R84R6tgoR2i2114R3R78R5y26:flixel%2Fsounds%2Fbeep.mp3R76aR85y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R78R5y28:flixel%2Fsounds%2Fflixel.mp3R76aR87y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3R74R5R86R76aR85R86hgoR2i33629R3R74R5R88R76aR87R88hgoR2i15744R3R28R29y35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R28R29y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R27R5R93R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R27R5R94R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
+	var data = "{\"name\":null,\"assets\":\"aoy4:pathy30:assets%2Fcredits%2Fcredits.txty4:sizei586y4:typey4:TEXTy2:idR1y7:preloadtgoR0y25:assets%2Fdata%2Flvl1.jsonR2i47799R3R4R5R7R6tgoR0y30:assets%2Fdata%2Flvl2room1.jsonR2i15749R3R4R5R8R6tgoR0y30:assets%2Fdata%2Flvl2room2.jsonR2i23262R3R4R5R9R6tgoR0y30:assets%2Fdata%2Flvl2room3.jsonR2i25548R3R4R5R10R6tgoR0y30:assets%2Fdata%2Flvl2room4.jsonR2i21547R3R4R5R11R6tgoR0y30:assets%2Fdata%2Flvl2room5.jsonR2i19348R3R4R5R12R6tgoR0y30:assets%2Fdata%2Flvl2room6.jsonR2i20117R3R4R5R13R6tgoR0y30:assets%2Fdata%2Flvl2room7.jsonR2i21192R3R4R5R14R6tgoR0y30:assets%2Fdata%2Flvl2room8.jsonR2i25154R3R4R5R15R6tgoR0y25:assets%2Fdata%2Fmap1.ogmoR2i56747R3R4R5R16R6tgoR0y23:assets%2Fdata%2Fr1.jsonR2i1706970R3R4R5R17R6tgoR0y26:assets%2Fdata%2Froom1.jsonR2i15512R3R4R5R18R6tgoR0y26:assets%2Fdata%2Froom2.jsonR2i15523R3R4R5R19R6tgoR0y26:assets%2Fdata%2Froom3.jsonR2i25334R3R4R5R20R6tgoR0y26:assets%2Fdata%2Froom4.jsonR2i15718R3R4R5R21R6tgoR0y26:assets%2Fdata%2Froom5.jsonR2i15728R3R4R5R22R6tgoR0y26:assets%2Fdata%2Froom6.jsonR2i20160R3R4R5R23R6tgoR0y26:assets%2Fdata%2Froom7.jsonR2i15941R3R4R5R24R6tgoR0y26:assets%2Fdata%2Froom8.jsonR2i21789R3R4R5R25R6tgoR0y25:assets%2Fdata%2Ftiles.pngR2i35688R3y5:IMAGER5R26R6tgoR2i28952R3y4:FONTy9:classNamey24:__ASSET__assets_font_ttfR5y17:assets%2Ffont.ttfR6tgoR0y38:assets%2Fimages%2FBat_Sprite_Sheet.pngR2i2628R3R27R5R32R6tgoR0y32:assets%2Fimages%2Fcat_shield.pngR2i511218R3R27R5R33R6tgoR0y30:assets%2Fimages%2Fcat_wave.pngR2i909R3R27R5R34R6tgoR0y45:assets%2Fimages%2FCharacters_Sprite_Sheet.pngR2i46262R3R27R5R35R6tgoR0y31:assets%2Fimages%2Fcrosshair.pngR2i208R3R27R5R36R6tgoR0y26:assets%2Fimages%2FDoor.pngR2i648R3R27R5R37R6tgoR0y34:assets%2Fimages%2Fenemy_bullet.pngR2i154R3R27R5R38R6tgoR0y28:assets%2Fimages%2Fenergy.pngR2i235R3R27R5R39R6tgoR0y41:assets%2Fimages%2FGoblin_Sprite_Sheet.pngR2i39977R3R27R5R40R6tgoR0y28:assets%2Fimages%2Fhealth.pngR2i625R3R27R5R41R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R42R6tgoR0y43:assets%2Fimages%2Fjudge_sprites%2Fgreat.pngR2i1361R3R27R5R43R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fmisfire.pngR2i1602R3R27R5R44R6tgoR0y40:assets%2Fimages%2Fjudge_sprites%2Fok.pngR2i833R3R27R5R45R6tgoR0y41:assets%2Fimages%2Fjudge_sprites%2Fooe.pngR2i1685R3R27R5R46R6tgoR0y45:assets%2Fimages%2Fjudge_sprites%2Fperfect.pngR2i1300R3R27R5R47R6tgoR0y27:assets%2Fimages%2Flaser.pngR2i165R3R27R5R48R6tgoR0y35:assets%2Fimages%2Fmagic_missile.pngR2i12870R3R27R5R49R6tgoR0y31:assets%2Fimages%2Fmetronome.pngR2i30800R3R27R5R50R6tgoR0y27:assets%2Fimages%2Fmouse.pngR2i5211R3R27R5R51R6tgoR0y45:assets%2Fimages%2FNotOctorok_Sprite_Sheet.pngR2i1601R3R27R5R52R6tgoR0y28:assets%2Fimages%2Fplayer.pngR2i1886R3R27R5R53R6tgoR0y29:assets%2Fimages%2Fshooter.pngR2i47783R3R27R5R54R6tgoR0y35:assets%2Fimages%2Fticks%2Fgreen.pngR2i228R3R27R5R55R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_e.pngR2i233R3R27R5R56R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_g.pngR2i225R3R27R5R57R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_o.pngR2i212R3R27R5R58R6tgoR0y37:assets%2Fimages%2Fticks%2Fgreen_p.pngR2i223R3R27R5R59R6tgoR0y39:assets%2Fimages%2Fticks%2Fgreen_p_e.pngR2i245R3R27R5R60R6tgoR0y36:assets%2Fimages%2Fticks%2Fpurple.pngR2i212R3R27R5R61R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_e.pngR2i233R3R27R5R62R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_g.pngR2i224R3R27R5R63R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_o.pngR2i222R3R27R5R64R6tgoR0y38:assets%2Fimages%2Fticks%2Fpurple_p.pngR2i221R3R27R5R65R6tgoR0y40:assets%2Fimages%2Fticks%2Fpurple_p_e.pngR2i231R3R27R5R66R6tgoR0y33:assets%2Fimages%2Fticks%2Fred.pngR2i230R3R27R5R67R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_e.pngR2i234R3R27R5R68R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_g.pngR2i225R3R27R5R69R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_o.pngR2i242R3R27R5R70R6tgoR0y35:assets%2Fimages%2Fticks%2Fred_p.pngR2i223R3R27R5R71R6tgoR0y37:assets%2Fimages%2Fticks%2Fred_p_e.pngR2i233R3R27R5R72R6tgoR0y26:assets%2Fimages%2FWASD.pngR2i2719R3R27R5R73R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R74R6tgoR2i10421314R3y5:SOUNDR5y25:assets%2Fmusic%2Fstg1.wavy9:pathGroupaR76hR6tgoR2i10188R3R75R5y26:assets%2Fsounds%2Fbeat.wavR77aR78hR6tgoR2i3336R3y5:MUSICR5y26:assets%2Fsounds%2Ffire.mp3R77aR80hR6tgoR2i5856R3R79R5y28:assets%2Fsounds%2Ffire_e.mp3R77aR81hR6tgoR2i6720R3R79R5y25:assets%2Fsounds%2Fhit.mp3R77aR82hR6tgoR2i8064R3R79R5y26:assets%2Fsounds%2Fkill.mp3R77aR83hR6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R84R6tgoR0y43:assets%2Funused%2FM484BulletCollection1.pngR2i22490R3R27R5R85R6tgoR2i2114R3R79R5y26:flixel%2Fsounds%2Fbeep.mp3R77aR86y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R79R5y28:flixel%2Fsounds%2Fflixel.mp3R77aR88y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3R75R5R87R77aR86R87hgoR2i33629R3R75R5R89R77aR88R89hgoR2i15744R3R28R29y35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R28R29y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R27R5R94R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R27R5R95R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
 	var manifest = lime_utils_AssetManifest.parse(data,ManifestResources.rootPath);
 	var library = lime_utils_AssetLibrary.fromManifest(manifest);
 	lime_utils_Assets.registerLibrary("default",library);
@@ -10909,8 +10916,17 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 		LevelState.prototype.update.call(this,elapsed);
 	}
 	,handleCall: function(input) {
-		if(input[0] == 0) {
-			this._projectiles.add(new Projectile(input[1],input[2],this._player,AttackType.ENEMY,JudgeType.PERFECT,false));
+		switch(input[0]) {
+		case 0:
+			this._projectiles.add(new EnemyBullet(input[1],input[2],this._player,this._player.getMidpoint(),"FB from Cat",120.0));
+			break;
+		case 1:
+			this._projectiles.add(new WaveBullet(input[1],input[2],this._player,this._player.getMidpoint(),"Wave from Cat",155.0));
+			break;
+		case 2:
+			this._projectiles.add(new LargeBullet(input[1],input[2],this._player,this._player.getMidpoint(),"Large from Cat",200.0));
+			break;
+		default:
 		}
 	}
 	,handleMonsterProjectileCollisions: function(monsters,projectiles) {
@@ -10931,7 +10947,7 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 						monsters.kill();
 					}
 					projectiles.kill();
-					haxe_Log.trace("projectile kill initiated",{ fileName : "source/RoomEight.hx", lineNumber : 128, className : "RoomEight", methodName : "handleMonsterProjectileCollisions"});
+					haxe_Log.trace("projectile kill initiated",{ fileName : "source/RoomEight.hx", lineNumber : 132, className : "RoomEight", methodName : "handleMonsterProjectileCollisions"});
 				}
 			}
 			monsters.health -= projectiles.getDamage();
@@ -10940,7 +10956,7 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 				monsters.kill();
 			}
 			projectiles.kill();
-			haxe_Log.trace("projectile kill initiated",{ fileName : "source/RoomEight.hx", lineNumber : 138, className : "RoomEight", methodName : "handleMonsterProjectileCollisions"});
+			haxe_Log.trace("projectile kill initiated",{ fileName : "source/RoomEight.hx", lineNumber : 142, className : "RoomEight", methodName : "handleMonsterProjectileCollisions"});
 		}
 	}
 	,__class__: RoomEight
@@ -12370,6 +12386,34 @@ UnicodeString.get_length = function(this1) {
 	}
 	return l;
 };
+var WaveBullet = function(x,y,target,targetPoint,src,speed) {
+	EnemyBullet.call(this,x,y,target,targetPoint,src,speed);
+	this.loadGraphic("assets/images/cat_wave.png",true,32,32);
+	this.animation.add("n",[0,1,2,3,4,5],5);
+	this.animation.play("n");
+	this.setGraphicSize(64,106);
+	this.updateHitbox();
+	var point = target == null ? targetPoint : target.getMidpoint();
+	var diff = flixel_math_FlxAngle.angleBetweenPoint(this,point,true);
+	this.set_angle(diff);
+};
+$hxClasses["WaveBullet"] = WaveBullet;
+WaveBullet.__name__ = "WaveBullet";
+WaveBullet.__super__ = EnemyBullet;
+WaveBullet.prototype = $extend(EnemyBullet.prototype,{
+	update: function(elapsed) {
+		EnemyBullet.prototype.update.call(this,elapsed);
+	}
+	,kill: function() {
+		EnemyBullet.prototype.kill.call(this);
+	}
+	,toString: function() {
+		var c = js_Boot.getClass(this);
+		return c.__name__;
+	}
+	,__class__: WaveBullet
+});
+var WaveBullet_target_point = null;
 var XmlType = {};
 XmlType.toString = function(this1) {
 	switch(this1) {

@@ -88,7 +88,11 @@ class RoomEight extends LevelState
 		{
 			case 0:
 				// TODO: replace this with proper own projectile
-				_projectiles.add(new Projectile(input[1], input[2], _player, ENEMY, PERFECT, false));
+				_projectiles.add(new EnemyBullet(input[1], input[2], _player, _player.getMidpoint(), "FB from Cat", 120.0));
+			case 1:
+				_projectiles.add(new WaveBullet(input[1], input[2], _player, _player.getMidpoint(), "Wave from Cat", 155.0));
+			case 2:
+				_projectiles.add(new LargeBullet(input[1], input[2], _player, _player.getMidpoint(), "Large from Cat", 200.0));
 			default:
 		}
 	}
