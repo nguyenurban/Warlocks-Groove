@@ -536,7 +536,7 @@ class LevelState extends FlxState
 					{
 						var dir = FlxVelocity.velocityFromAngle(angle * 15, 50);
 						var tar = e.getMidpoint().add(dir.x, dir.y);
-						_projectiles.add(new StriderShockwave(e.getMidpoint().x, e.getMidpoint().y, _player, tar, src, 100));
+						_projectiles.add(new StriderShockwave(e.getMidpoint().x, e.getMidpoint().y, null, tar, src, 100));
 					}
 				default:
 					_projectiles.add(new EnemyBullet(e.getMidpoint().x, e.getMidpoint().y, _player, null, src));
