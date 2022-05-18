@@ -11,7 +11,7 @@ import flixel.util.FlxColor;
 
 class IceLaser extends Projectile
 {
-	public var canvas:FlxSprite;
+	public var slowed:Float;
 
 	public function new(x:Float, y:Float, target:FlxObject, timing:JudgeType, enchanted:Bool)
 	{
@@ -24,12 +24,15 @@ class IceLaser extends Projectile
 			case PERFECT:
 				_speed = MOVEMENT_SPEED * 1.2;
 				_damage = 3;
+				slowed = 0.8;
 			case GREAT:
 				_speed = MOVEMENT_SPEED;
 				_damage = 2;
+				slowed = 0.5;
 			case OK:
 				_speed = MOVEMENT_SPEED * 0.8;
 				_damage = 1;
+				slowed = 0.2;
 			default:
 		}
 
@@ -52,10 +55,6 @@ class IceLaser extends Projectile
 
 	override function kill()
 	{
-		if (canvas != null)
-		{
-			canvas.kill();
-		}
 		super.kill();
 	}
 

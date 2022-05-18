@@ -487,6 +487,16 @@ class LevelState extends FlxState
 				FlxSpriteUtil.flicker(m, m.DMG_FLICKER);
 				hit_sound.play();
 			}
+			if (projectiles.getType() == PURPLE)
+			{
+				var mons_speed:Float = cast(monsters, Enemy).getSpeed();
+				cast(monsters, Enemy).setSpeed(mons_speed * cast(projectiles, IceLaser).slowed);
+				var slowTimer:FlxTimer = new FlxTimer();
+				slowTimer.start(0.25, function(Timer:FlxTimer)
+				{
+					cast(monsters, Enemy).setSpeed(mons_speed);
+				}, 1);
+			}
 			if (!(projectiles.getType() == PURPLE && projectiles._enchanted))
 			{
 				projectiles.kill();

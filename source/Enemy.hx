@@ -52,6 +52,16 @@ class Enemy extends FlxSprite
 		return _dps;
 	}
 
+	public function setSpeed(spd:Float)
+	{
+		_speed = spd;
+	}
+
+	public function getSpeed()
+	{
+		return _speed;
+	}
+
 	public function dodge(p:Projectile)
 	{
 		_dodgeTarget = p;
