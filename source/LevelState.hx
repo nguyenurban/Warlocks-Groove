@@ -532,7 +532,7 @@ class LevelState extends FlxState
 			switch (src)
 			{
 				case "From WaterStrider":
-					for (angle in 1...24)
+					for (angle in 0...24)
 					{
 						var dir = FlxVelocity.velocityFromAngle(angle * 15, 50);
 						var tar = e.getMidpoint().add(dir.x, dir.y);
