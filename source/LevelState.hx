@@ -134,6 +134,16 @@ class LevelState extends FlxState
 	// PURELY FOR TESTING
 	private var ENCHANT_CHANCE:Float = 0.25;
 
+	/**
+	 * Level that this room belongs to. Default is 0; to be set by room files that extend this.
+	 */
+	public var level_no = 0;
+
+	/**
+	 * Room number, mainly for logging purposes. Default is 0; to be set by room files that extend this.
+	 */
+	public var room_no = 0;
+
 	/* ------------------------------------------------------------------------------------------------------------------------
 		In the final build, each level will have its
 		own set format for which ticks will be enchanted
@@ -217,6 +227,9 @@ class LevelState extends FlxState
 		fire_e_sound.volume = 0.2;
 		lvlPopup = false;
 		startMusicSub();
+		Logger.startLevel(room_no);
+		LevelStats.curr_level = Std.int(room_no / 100);
+		LevelStats.curr_room = room_no % 100;
 	}
 
 	override function update(elapsed:Float)
@@ -298,7 +311,7 @@ class LevelState extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 1.5, false, () ->
 			{
 				removeTicks();
-				FlxG.switchState(new EndGame(currLevel));
+				FlxG.switchState(new EndGame(currLevel, room_no));
 			});
 		}
 
@@ -352,6 +365,7 @@ class LevelState extends FlxState
 
 	private function handleKeyboard()
 	{
+		Logger.checkTimeout();
 		if (FlxG.keys.anyPressed([ESCAPE]))
 		{
 			LevelStats.bgm.pause();
@@ -364,7 +378,6 @@ class LevelState extends FlxState
 				openSubState(new PauseMenu(FlxColor.BLACK));
 			}
 		}
-		Logger.checkTimeout();
 	}
 
 	private function createPlayerBars()
@@ -559,7 +572,7 @@ class LevelState extends FlxState
 			Logger.tookDamage(this, e, e.getDamage());
 			if (p.health <= 0)
 			{
-				Logger.playerDeath(this, e);
+				Logger.playerDeath(e);
 				p.kill();
 			}
 		}
@@ -576,7 +589,7 @@ class LevelState extends FlxState
 				Logger.tookDamage(this, proj.src, proj.getDamage());
 				if (p.health <= 0)
 				{
-					Logger.playerDeath(this, proj);
+					Logger.playerDeath(proj);
 					p.kill();
 				}
 			}
@@ -847,7 +860,8 @@ class LevelState extends FlxState
 			}
 			else
 			{
-				Logger.nextRoom(nextLevel);
+				Logger.levelEnd("to next level");
+				// Logger.nextRoom(nextLevel);
 				FlxG.switchState(Type.createInstance(nextLevel, []));
 			}
 		}
@@ -982,10 +996,17 @@ class EndGame extends FlxState
 	private var _tryAgainBtn:FlxButton;
 	private var _menuBtn:FlxButton;
 	private var currLevel:Class<LevelState>;
+	private var room_no:Int;
 
-	override public function new(thisLevel:Class<LevelState>)
+	/**
+	 * Yeah
+	 * @param thisLevel 
+	 * @param r_no Have to include the room number cause apparently `Class<LevelState> has no field room_no` :/ 
+	 */
+	override public function new(thisLevel:Class<LevelState>, r_no:Int)
 	{
 		currLevel = thisLevel;
+		room_no = r_no;
 		super();
 	}
 
@@ -1022,8 +1043,8 @@ class EndGame extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 1.00, false, () ->
 			{
 				Logger.checkTimeout();
-				Logger.startLevel(1);
-				LevelStats.initialize(1);
+				Logger.startLevel(room_no, "retry");
+				LevelStats.initialize(Std.int(room_no / 100));
 				if (currLevel != RoomOne)
 				{
 					LevelStats.startMusic();

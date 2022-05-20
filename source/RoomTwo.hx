@@ -17,6 +17,7 @@ class RoomTwo extends LevelState
 	override public function create()
 	{
 		super.create();
+		room_no = RoomNo.L1R2;
 		LevelStats.bgm.pause();
 		FlxG.fixedTimestep = false;
 

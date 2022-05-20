@@ -98,7 +98,7 @@ class LevelStats extends BaseLevel
 				// bgm_loop = setupSound("assets/music/stg1.mp3", false);
 				intro_beats = 32;
 				looping_beats = 24 * 4;
-			case 2: // Only for testing purposes ...to be removed
+			case 2:
 				bpm = 130;
 				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
 				shortest_note = EIGHTH;

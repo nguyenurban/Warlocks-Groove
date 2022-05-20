@@ -14,6 +14,7 @@ class RoomOne extends LevelState
 	override public function create()
 	{
 		super.create();
+		room_no = RoomNo.L1R1;
 		FlxG.fixedTimestep = false;
 		// createLogger();
 		bgColor = 0xffcccccc;

@@ -20,18 +20,6 @@ class Logger
 	public static function createLogger()
 	{
 		_logger = new CapstoneLogger(GAME_ID, GAME_NAME, GAME_KEY, TEST_CATEGORY);
-		var uid = _logger.getSavedUserId();
-		if (uid == null)
-		{
-			uid = _logger.generateUuid();
-			_logger.setSavedUserId(uid);
-		}
-		user_id = uid;
-
-		/**
-		 * Code to be changed when levels are added
-		 */
-
 		newSession();
 
 		last_player_action = Timer.stamp();
@@ -45,17 +33,14 @@ class Logger
 		var now = Timer.stamp();
 		if (now - SESSION_TIMEOUT > last_player_action)
 		{
-			levelEnd("timed out " + SESSION_TIMEOUT + " seconds ago");
 			newSession();
 			if (LevelStats.initialized)
 			{
-				startLevel(LevelStats.curr_level);
+				levelEnd("timed out at least " + SESSION_TIMEOUT + " seconds ago");
+				startLevel(LevelStats.curr_level, "resume from timeout");
 			}
 		}
-		else
-		{
-			last_player_action = now;
-		}
+		last_player_action = now;
 	}
 
 	// if unable to start new session in logger, disable it
@@ -75,14 +60,29 @@ class Logger
 
 	public static function newSession()
 	{
+		var uid = _logger.getSavedUserId();
+		if (uid == null)
+		{
+			uid = _logger.generateUuid();
+			_logger.setSavedUserId(uid);
+		}
+		user_id = uid;
+
 		_logger.startNewSession(user_id, disable); // should callback be something different?
 	}
 
-	public static function startLevel(level:Int)
+	public static function startLevel(level:Int, ?details:String)
 	{
 		if (_logger != null)
 		{
-			Logger._logger.logLevelStart(level);
+			if (details != null)
+			{
+				Logger._logger.logLevelStart(level, details);
+			}
+			else
+			{
+				Logger._logger.logLevelStart(level);
+			}
 		}
 	}
 
@@ -94,11 +94,14 @@ class Logger
 		}
 	}
 
-	public static function playerDeath(curr_room:LevelState, cause:Dynamic)
+	// public static function playerDeath(curr_room:LevelState, cause:Dynamic)
+
+	public static function playerDeath(cause:Dynamic)
 	{
 		if (_logger != null)
 		{
-			Logger._logger.logLevelAction(LoggingActions.PLAYER_DEATH, Std.string(curr_room) + ", " + Std.string(cause));
+			// Logger._logger.logLevelAction(LoggingActions.PLAYER_DEATH, Std.string(curr_room) + ", " + Std.string(cause));
+			Logger._logger.logLevelAction(LoggingActions.PLAYER_DEATH, Std.string(cause));
 		}
 	}
 

@@ -28,6 +28,7 @@ class RoomSeven extends LevelState
 	override public function create()
 	{
 		super.create();
+		room_no = RoomNo.L1R7;
 		FlxG.fixedTimestep = false;
 
 		bgColor = 0xffcccccc;
