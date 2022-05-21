@@ -495,6 +495,7 @@ class LevelState extends FlxState
 		{
 			monsters.health -= projectiles.getDamage();
 			LevelStats.score += Std.int(10 * (1 + 0.1 * Math.min(50, ++LevelStats.combo)));
+			LevelStats.max_combo = Std.int(Math.max(LevelStats.max_combo, LevelStats.combo));
 			if (monsters.health <= 0)
 			{
 				_monsters.remove(cast(monsters, Enemy));

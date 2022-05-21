@@ -34,7 +34,7 @@ class LevelStats extends BaseLevel
 	public static var chkpt_score = 0;
 
 	public static var combo = 0;
-
+	public static var max_combo = 0;
 	public static var num_deaths = 0;
 
 	/**
@@ -169,6 +169,7 @@ class LevelStats extends BaseLevel
 			cumul_timer = 0;
 		}
 		combo = 0;
+		max_combo = 0;
 	}
 
 	public static function changeTickFormat(level_no:Int)

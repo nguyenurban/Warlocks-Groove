@@ -89,7 +89,18 @@ class Player extends FlxSprite
 	// energy regeneration at the end of every measure / bar
 	public function barRegen():Void
 	{
-		_energy = Math.min(_energy + BASE_ENERGY_REGEN, MAX_ENERGY); // TODO: regen can be multiplied by freshness
+		if (!LevelStats.initialized)
+		{
+			_energy = Math.min(_energy + BASE_ENERGY_REGEN, MAX_ENERGY); // TODO: regen can be multiplied by freshness and combo meter
+		}
+		else
+		{
+			_energy = Math.min(_energy
+				+ BASE_ENERGY_REGEN
+				+ 20 * (Math.min(100, LevelStats.max_combo) / 100)
+				+ 30 * (Math.min(100, LevelStats.combo) / 100),
+				MAX_ENERGY); // TODO: regen can be multiplied by freshness and combo meter
+		}
 	}
 
 	public function useEnergy(cost:Float):Bool
