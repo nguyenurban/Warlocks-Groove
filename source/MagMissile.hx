@@ -95,7 +95,7 @@ class MagMissile extends Projectile
 		{
 			this.setGraphicSize(64, 64);
 		}
-		updateHitbox();
+		// updateHitbox();
 		this.alpha = 0.5;
 		animation.play("blow");
 		if (!blow)

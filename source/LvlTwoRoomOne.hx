@@ -103,11 +103,11 @@ class IceLaserObtained extends FlxSubState
 		text.x -= 140;
 		add(text);
 
-		final midTextOne = new FlxText(0, (boundingBox.y + 120), 0, "Attack precisely on the PURPLE beats to fire this long-ranged laser", 10);
+		final midTextOne = new FlxText(0, (boundingBox.y + 120), 0, "Attack precisely on the PURPLE beats to fire a long-ranged instaneous laser!", 10);
 		midTextOne.screenCenter(X);
 		midTextOne.x -= 140;
 		add(midTextOne);
-		final midTextTwo = new FlxText(0, (boundingBox.y + 135), 0, "to destroy enemies and reach the goal door!", 10);
+		final midTextTwo = new FlxText(0, (boundingBox.y + 135), 0, "Best used for particularly slippery enemies.", 10);
 		midTextTwo.screenCenter(X);
 		midTextTwo.x -= 140;
 		add(midTextTwo);

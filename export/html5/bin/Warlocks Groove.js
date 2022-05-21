@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "75";
+	app.meta.h["build"] = "76";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -9982,7 +9982,6 @@ MagMissile.prototype = $extend(Projectile.prototype,{
 		} else {
 			this.setGraphicSize(64,64);
 		}
-		this.updateHitbox();
 		this.set_alpha(0.5);
 		this.animation.play("blow");
 		if(!this.blow) {
@@ -10841,8 +10840,8 @@ PauseMenu.prototype = $extend(flixel_FlxSubState.prototype,{
 		this._menuBtn = new flixel_ui_FlxButton(0,0,"Exit to Main Menu",function() {
 			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
 				Logger.levelEnd("pause exit");
-				_gthis.deleteSignal.dispatch();
 				LevelStats.stopMusic();
+				_gthis.deleteSignal.dispatch();
 				var nextState = new MenuState();
 				if(flixel_FlxG.game._state.switchTo(nextState)) {
 					flixel_FlxG.game._requestedState = nextState;
