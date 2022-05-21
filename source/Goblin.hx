@@ -26,6 +26,7 @@ class Goblin extends Enemy
 		_dps = 20;
 		_size = 32;
 		_tilemap = tilemap;
+		value = 100;
 		setSize(_size, _size);
 		scale.set(_size / 64, _size / 64);
 		chasing = false;

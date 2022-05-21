@@ -48,6 +48,7 @@ class LvlTwoRoomEight extends LevelState
 
 		// level_bounds = FlxCollision.createCameraWall(FlxG.camera, true, 1);
 		createHUDandTicks();
+		levelUpdate();
 		_hud.spawnBossBar(_monsters.getFirstAlive());
 
 		// timer = 0;

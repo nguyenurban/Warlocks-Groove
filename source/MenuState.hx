@@ -68,7 +68,7 @@ class MenuState extends FlxState
 		FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 		{
 			Logger.startLevel(1);
-			LevelStats.initialize(1);
+			LevelStats.initialize(1, false);
 			FlxG.switchState(new RoomOne());
 		});
 	}

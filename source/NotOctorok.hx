@@ -16,6 +16,7 @@ class NotOctorok extends Enemy
 		_speed = 40;
 		_dps = 20;
 		_size = 32;
+		value = 75;
 		_tilemap = tilemap;
 		loadGraphic("assets/images/NotOctorok_Sprite_Sheet.png", true, 16, 16);
 		setSize(_size, _size);

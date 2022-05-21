@@ -30,6 +30,7 @@ class RoomTwo extends LevelState
 		beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		beat_sound.volume = 0.3;
 		createHUDandTicks();
+		levelUpdate();
 		// setShortestNote();
 
 		// var line_style_2 = {color: FlxColor.BLACK, thickness: 3.0};

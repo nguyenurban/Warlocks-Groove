@@ -17,6 +17,11 @@ class Enemy extends FlxSprite
 
 	public var DMG_FLICKER = 0.75;
 
+	/**
+	 * How many points this enemy awards upon kill (default 50).
+	 */
+	public var value = 50;
+
 	public function new(x:Float, y:Float, target:Player)
 	{
 		super(x, y);

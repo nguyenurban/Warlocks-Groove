@@ -47,6 +47,7 @@ class RoomThree extends LevelState
 
 		// level_bounds = FlxCollision.createCameraWall(FlxG.camera, true, 1);
 		createHUDandTicks();
+		levelUpdate();
 
 		// timer = 0;
 		// beat = 0;

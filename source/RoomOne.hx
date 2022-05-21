@@ -22,6 +22,7 @@ class RoomOne extends LevelState
 		nextLevel = RoomTwo;
 		currLevel = RoomOne;
 		createHUDandTicks();
+		levelUpdate();
 	}
 
 	function createLevel()

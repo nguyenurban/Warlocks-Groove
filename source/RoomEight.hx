@@ -48,6 +48,7 @@ class RoomEight extends LevelState
 
 		// level_bounds = FlxCollision.createCameraWall(FlxG.camera, true, 1);
 		createHUDandTicks();
+		levelUpdate();
 		var boss = null;
 		for (m in _monsters)
 		{

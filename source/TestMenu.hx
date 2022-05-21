@@ -40,7 +40,7 @@ class TestMenuRoom1 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(1);
-				LevelStats.initialize(1);
+				LevelStats.initialize(1, false);
 				FlxG.switchState(new RoomOne());
 			});
 		}, "Room 1", 100, 30);
@@ -53,7 +53,7 @@ class TestMenuRoom1 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(1);
-				LevelStats.initialize(1);
+				LevelStats.initialize(1, false);
 				FlxG.switchState(new RoomTwo());
 			});
 		}, "Room 2", 100, 30);
@@ -66,7 +66,7 @@ class TestMenuRoom1 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(1);
-				LevelStats.initialize(1);
+				LevelStats.initialize(1, false);
 				FlxG.switchState(new RoomThree());
 			});
 		}, "Room 3", 100, 30);
@@ -79,7 +79,7 @@ class TestMenuRoom1 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(1);
-				LevelStats.initialize(1);
+				LevelStats.initialize(1, false);
 				FlxG.switchState(new RoomFour());
 			});
 		}, "Room 4", 100, 30);
@@ -92,7 +92,7 @@ class TestMenuRoom1 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(1);
-				LevelStats.initialize(1);
+				LevelStats.initialize(1, false);
 				FlxG.switchState(new RoomFive());
 			});
 		}, "Room 5", 100, 30);
@@ -105,7 +105,7 @@ class TestMenuRoom1 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(1);
-				LevelStats.initialize(1);
+				LevelStats.initialize(1, false);
 				FlxG.switchState(new RoomSix());
 			});
 		}, "Room 6", 100, 30);
@@ -118,7 +118,7 @@ class TestMenuRoom1 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(1);
-				LevelStats.initialize(1);
+				LevelStats.initialize(1, false);
 				FlxG.switchState(new RoomSeven());
 			});
 		}, "Room 7", 100, 30);
@@ -131,7 +131,7 @@ class TestMenuRoom1 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(1);
-				LevelStats.initialize(1);
+				LevelStats.initialize(1, false);
 				FlxG.switchState(new RoomEight());
 			});
 		}, "Room 8", 100, 30);
@@ -198,7 +198,7 @@ class TestMenuRoom2 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(RoomNo.L2R1);
-				LevelStats.initialize(2);
+				LevelStats.initialize(2, false);
 				FlxG.switchState(new LvlTwoRoomOne());
 			});
 		}, "Room 1", 100, 30);
@@ -211,7 +211,7 @@ class TestMenuRoom2 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(RoomNo.L2R2);
-				LevelStats.initialize(2);
+				LevelStats.initialize(2, false);
 				FlxG.switchState(new LvlTwoRoomTwo());
 			});
 		}, "Room 2", 100, 30);
@@ -224,7 +224,7 @@ class TestMenuRoom2 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(RoomNo.L2R3);
-				LevelStats.initialize(2);
+				LevelStats.initialize(2, false);
 				FlxG.switchState(new LvlTwoRoomThree());
 			});
 		}, "Room 3", 100, 30);
@@ -237,7 +237,7 @@ class TestMenuRoom2 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(RoomNo.L2R4);
-				LevelStats.initialize(2);
+				LevelStats.initialize(2, false);
 				FlxG.switchState(new LvlTwoRoomFour());
 			});
 		}, "Room 4", 100, 30);
@@ -250,7 +250,7 @@ class TestMenuRoom2 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(RoomNo.L2R5);
-				LevelStats.initialize(2);
+				LevelStats.initialize(2, false);
 				FlxG.switchState(new LvlTwoRoomFive());
 			});
 		}, "Room 5", 100, 30);
@@ -263,7 +263,7 @@ class TestMenuRoom2 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(RoomNo.L2R6);
-				LevelStats.initialize(2);
+				LevelStats.initialize(2, false);
 				FlxG.switchState(new LvlTwoRoomSix());
 			});
 		}, "Room 6", 100, 30);
@@ -276,7 +276,7 @@ class TestMenuRoom2 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(RoomNo.L2R7);
-				LevelStats.initialize(2);
+				LevelStats.initialize(2, false);
 				FlxG.switchState(new LvlTwoRoomSeven());
 			});
 		}, "Room 7", 100, 30);
@@ -289,7 +289,7 @@ class TestMenuRoom2 extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
 				Logger.startLevel(RoomNo.L2R8);
-				LevelStats.initialize(2);
+				LevelStats.initialize(2, false);
 				FlxG.switchState(new LvlTwoRoomEight());
 			});
 		}, "Room 8", 100, 30);

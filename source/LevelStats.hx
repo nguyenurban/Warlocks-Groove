@@ -20,6 +20,29 @@ class LevelStats extends BaseLevel
 	public static var scroll_mul:Int;
 
 	/**
+	 * Current checkpoint. Because I'm lazy, the default is level one, room one. Make sure to set checkpoints
+	 * on the first room of each level.
+	 */
+	public static var chkpt:Class<LevelState> = RoomOne;
+
+	public static var chkpt_no = 101;
+	public static var score = 0;
+
+	/**
+	 * Score attained at last checkpoint.
+	 */
+	public static var chkpt_score = 0;
+
+	public static var combo = 0;
+
+	public static var num_deaths = 0;
+
+	/**
+	 * Timer that doesn't reset on death.
+	 */
+	public static var cumul_timer = 0.0;
+
+	/**
 	 * Whether or note `LevelStats.initialize()` has been called yet. Resets
 	 * upon calling `stopMusic()`.
 	 */
@@ -72,7 +95,12 @@ class LevelStats extends BaseLevel
 	 */
 	// public static var stoppedOnce = false;
 
-	public static function initialize(level_no:Int)
+	/**
+	 * Starts keeping track of stats for current level (but doesn't start music).
+	 * @param level_no 
+	 * @param retry Whether or not this initialization is from retrying from a death (i.e. resets score to score at checkpoint, still keeps track of time).
+	 */
+	public static function initialize(level_no:Int, retry:Bool)
 	{
 		curr_level = level_no;
 		curr_room = 0;
@@ -129,6 +157,18 @@ class LevelStats extends BaseLevel
 		}
 		initialized = true;
 		started = false;
+		if (retry)
+		{
+			score = chkpt_score;
+		}
+		else
+		{
+			score = 0;
+			chkpt_score = 0;
+			num_deaths = 0;
+			cumul_timer = 0;
+		}
+		combo = 0;
 	}
 
 	public static function changeTickFormat(level_no:Int)
@@ -206,6 +246,7 @@ class LevelStats extends BaseLevel
 		if (started)
 		{
 			timer += elapsed;
+			cumul_timer += elapsed;
 			loop_timer += elapsed;
 			beat = timer / qtr_note;
 			shortest_notes_elpsd = Math.floor(timer / shortest_note_len);

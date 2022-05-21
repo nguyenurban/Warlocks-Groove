@@ -135,14 +135,19 @@ class LevelState extends FlxState
 	private var ENCHANT_CHANCE:Float = 0.25;
 
 	/**
-	 * Level that this room belongs to. Default is 0; to be set by room files that extend this.
+	 * Level that this room belongs to. Default is 1; to be set by room files that extend this.
 	 */
-	public var level_no = 0;
+	public var level_no = 1;
 
 	/**
-	 * Room number, mainly for logging purposes. Default is 0; to be set by room files that extend this.
+	 * Room number, mainly for logging purposes. Default is 101 (first level, first room); to be set by room files that extend this.
 	 */
-	public var room_no = 0;
+	public var room_no = 101;
+
+	/**
+	 * Whether or not the player will spawn in this room after dying past this point (default is no).
+	 */
+	public var checkpoint = false;
 
 	/* ------------------------------------------------------------------------------------------------------------------------
 		In the final build, each level will have its
@@ -227,9 +232,6 @@ class LevelState extends FlxState
 		fire_e_sound.volume = 0.2;
 		lvlPopup = false;
 		startMusicSub();
-		Logger.startLevel(room_no);
-		LevelStats.curr_level = Std.int(room_no / 100);
-		LevelStats.curr_room = room_no % 100;
 	}
 
 	override function update(elapsed:Float)
@@ -492,11 +494,13 @@ class LevelState extends FlxState
 		if (projectiles.getType() != ENEMY)
 		{
 			monsters.health -= projectiles.getDamage();
+			LevelStats.score += Std.int(10 * (1 + 0.1 * Math.min(50, ++LevelStats.combo)));
 			if (monsters.health <= 0)
 			{
 				_monsters.remove(cast(monsters, Enemy));
 				monsters.kill();
 				kill_sound.play();
+				LevelStats.score += cast(monsters, Enemy).value;
 			}
 			else
 			{
@@ -565,8 +569,9 @@ class LevelState extends FlxState
 
 	private function handleMonsterPlayerOverlap(e:Enemy, p:Player)
 	{
-		if (p.isInvuln())
+		if (p.isVuln())
 		{
+			LevelStats.combo = 0;
 			p.health -= e.getDamage();
 			p.damageInvuln();
 			Logger.tookDamage(this, e, e.getDamage());
@@ -582,8 +587,9 @@ class LevelState extends FlxState
 	{
 		if (proj.getType() == ENEMY)
 		{
-			if (p.isInvuln())
+			if (p.isVuln())
 			{
+				LevelStats.combo = 0;
 				p.health -= proj.getDamage();
 				p.damageInvuln();
 				Logger.tookDamage(this, proj.src, proj.getDamage());
@@ -598,6 +604,23 @@ class LevelState extends FlxState
 	}
 
 	private function startMusic() {}
+
+	/**
+	 * Function updating values pertaining to level values (i.e. can't be called on this create(); has to be called after setting up)
+	 */
+	private function levelUpdate()
+	{
+		Logger.startLevel(room_no);
+		LevelStats.curr_level = Std.int(room_no / 100);
+		LevelStats.curr_room = room_no % 100;
+
+		if (RoomNo.CHKPTS[Std.int(room_no / 100)].contains(room_no))
+		{
+			LevelStats.chkpt = Type.getClass(this);
+			LevelStats.chkpt_no = room_no;
+			LevelStats.chkpt_score = LevelStats.score;
+		}
+	}
 
 	private function shoot()
 	{
@@ -1061,13 +1084,24 @@ class EndGame extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, 1.00, false, () ->
 			{
 				Logger.checkTimeout();
-				Logger.startLevel(room_no, "retry");
-				LevelStats.initialize(Std.int(room_no / 100));
-				if (currLevel != RoomOne)
+				// // by default, respawn at beginning of current level
+				// var respawn = (Std.int(room_no / 100) * 100) + 1;
+				// for (r in respawn...room_no)
+				// {
+				// 	if (RoomNo.CHKPTS[Std.int(room_no / 100)].contains(r))
+				// 	{
+				// 		respawn = Std.int(Math.max(respawn, r));
+				// 	}
+				// }
+				var respawn = LevelStats.chkpt;
+				Logger.startLevel(LevelStats.chkpt_no, "retry");
+				LevelStats.initialize(LevelStats.chkpt_no, true);
+				// LevelStats.initialize(Std.int(chkpt_no / 100), true);
+				if (respawn != RoomOne)
 				{
 					LevelStats.startMusic();
 				}
-				FlxG.switchState(Type.createInstance(currLevel, []));
+				FlxG.switchState(Type.createInstance(respawn, []));
 			});
 		});
 		_tryAgainBtn.scale.set(3, 3);

@@ -81,7 +81,7 @@ class Player extends FlxSprite
 		}
 	}
 
-	public function isInvuln():Bool
+	public function isVuln():Bool
 	{
 		return invuln_buffer >= INVULN_WINDOW;
 	}
