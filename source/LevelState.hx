@@ -96,6 +96,7 @@ class LevelState extends FlxState
 
 	private var judge_sprite:FlxSprite;
 	private var judge_timer:Float;
+	private var combo_text:FlxText;
 	// supposed boundaries of timeline display
 	// private var TIMELINE_LEFT = 100;
 	// private var TIMELINE_RIGHT = 1060;
@@ -220,6 +221,12 @@ class LevelState extends FlxState
 		add(judge_sprite);
 		judge_sprite.visible = false;
 		judge_timer = 0;
+		combo_text = new FlxText(0, 0, 0, "Combo: 0");
+		combo_text.font = "assets/PRESSSTART2P.TTF";
+		combo_text.addFormat(new FlxTextFormat(FlxColor.WHITE, false, true, FlxColor.BLACK));
+		combo_text.setBorderStyle(SHADOW, FlxColor.BLACK, 2);
+		combo_text.visible = false;
+		add(combo_text);
 		beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		beat_sound.volume = 0.3;
 		hit_sound = FlxG.sound.load("assets/sounds/hit.mp3");
@@ -239,13 +246,14 @@ class LevelState extends FlxState
 		super.update(elapsed);
 		handleKeyboard();
 		judge_timer -= elapsed;
-		if (judge_timer <= 0)
-		{
-			judge_sprite.visible = false;
-		}
+		judge_sprite.visible = judge_timer >= 0;
 		judge_sprite.x = _player.x - 100;
 		judge_sprite.y = _player.y + 50;
 		judge_sprite.setGraphicSize(0, 10);
+		combo_text.text = "Combo: " + LevelStats.combo;
+		combo_text.visible = LevelStats.combo >= 5;
+		combo_text.x = _player.x - 100;
+		combo_text.y = _player.y + 70;
 		_healthbar.value = _player.health;
 		_energybar.value = _player.getEnergy();
 		_healthico.x = _player.x - 130;
@@ -493,9 +501,11 @@ class LevelState extends FlxState
 	{
 		if (projectiles.getType() != ENEMY)
 		{
+			if (projectiles.getType() == RED && !cast(projectiles, MagMissile).blow)
+			{
+				LevelStats.hitOnce();
+			}
 			monsters.health -= projectiles.getDamage();
-			LevelStats.score += Std.int(10 * (1 + 0.1 * Math.min(50, ++LevelStats.combo)));
-			LevelStats.max_combo = Std.int(Math.max(LevelStats.max_combo, LevelStats.combo));
 			if (monsters.health <= 0)
 			{
 				_monsters.remove(cast(monsters, Enemy));
@@ -518,6 +528,7 @@ class LevelState extends FlxState
 				{
 					cast(monsters, Enemy).setSpeed(mons_speed);
 				}, 1);
+				LevelStats.hitOnce();
 			}
 			if (!(projectiles.getType() == PURPLE && projectiles._enchanted))
 			{
@@ -639,6 +650,7 @@ class LevelState extends FlxState
 					MISFIRE LOGIC GOES HERE
 					---------------------- */
 				Logger.playerShot("Misfire", "Misfire", "x");
+				LevelStats.combo = 0;
 			}
 			else
 			{

@@ -10,7 +10,8 @@ using flixel.math.FlxPoint;
 
 class MagMissile extends Projectile
 {
-	private var blow:Bool;
+	public var blow:Bool;
+
 	private var travel_angle:Float;
 	// in degrees per second
 	private var BASE_TURN_SPEED = 190;
@@ -94,6 +95,7 @@ class MagMissile extends Projectile
 		{
 			this.setGraphicSize(64, 64);
 		}
+		updateHitbox();
 		this.alpha = 0.5;
 		animation.play("blow");
 		if (!blow)

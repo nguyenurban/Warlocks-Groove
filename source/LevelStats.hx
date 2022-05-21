@@ -256,6 +256,15 @@ class LevelStats extends BaseLevel
 		}
 	}
 
+	/**
+	 * Call this whenever a player attack hits an enemy to update combo and score.
+	 */
+	public static function hitOnce()
+	{
+		score += Std.int(10 * (1 + 0.1 * Math.min(50, ++combo)));
+		max_combo = Std.int(Math.max(max_combo, combo));
+	}
+
 	private static function createTicks()
 	{
 		if (_ticks != null)
