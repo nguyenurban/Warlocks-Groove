@@ -19,6 +19,8 @@ class HUD extends FlxTypedGroup<FlxSprite>
 	private var _timeline_arw:FlxShapeBox; // FlxShapeArrow;
 	private var _ticks:Array<Tick>;
 	private var _boss_hp:FlxBar;
+	private var score_text:FlxText;
+	private var m_combo_text:FlxText;
 
 	// supposed boundaries of timeline display
 	private var TIMELINE_LEFT = 100;
@@ -55,6 +57,13 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		_timeline_arw = new FlxShapeBox(FlxG.width / 2, 0, 10, TIMELINE_BOTTOM - TIMELINE_TOP, line_style_2, FlxColor.BLACK);
 		add(_timeline_arw);
 
+		score_text = new FlxText(TIMELINE_LEFT, TIMELINE_BOTTOM - 20, 0, "Score ", 12);
+		score_text.setBorderStyle(SHADOW, FlxColor.BLACK, 2);
+		add(score_text);
+
+		m_combo_text = new FlxText(TIMELINE_LEFT + 150, TIMELINE_BOTTOM - 20, 0, "Max Combo ", 12);
+		m_combo_text.setBorderStyle(SHADOW, FlxColor.BLACK, 2);
+		add(m_combo_text);
 		forEach((sprite:FlxSprite) -> sprite.scrollFactor.set(0, 0));
 	}
 
@@ -62,15 +71,16 @@ class HUD extends FlxTypedGroup<FlxSprite>
 	{
 		if (health > 0)
 		{
-			_health.text = 'Health: ${health}';
+			_health.text = 'Health: ${Std.int(health)}';
 		}
 		else
 		{
 			_health.text = 'Health: DEAD';
 		}
 
-		_energy.text = 'Energy: ${energy}';
-
+		_energy.text = 'Energy: ${Std.int(energy)}';
+		score_text.text = "Score " + (LevelStats.initialized ? LevelStats.score : 0);
+		m_combo_text.text = "Max Combo " + (LevelStats.initialized ? LevelStats.max_combo : 0);
 		if (_boss_hp != null) {}
 	}
 

@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "77";
+	app.meta.h["build"] = "78";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -7598,6 +7598,36 @@ var HUD = function(player,tick_format,shortest_note_len) {
 	var line_style_2 = { color : -16777216, thickness : 1.0};
 	this._timeline_arw = new flixel_addons_display_shapes_FlxShapeBox(flixel_FlxG.width / 2,0,10,this.TIMELINE_BOTTOM - this.TIMELINE_TOP,line_style_2,-16777216);
 	this.add(this._timeline_arw);
+	this.score_text = new flixel_text_FlxText(this.TIMELINE_LEFT,this.TIMELINE_BOTTOM - 40,0,"Score ",12);
+	var _this = this.score_text;
+	var Color = -16777216;
+	var Size = 2;
+	if(Size == null) {
+		Size = 1;
+	}
+	if(Color == null) {
+		Color = 0;
+	}
+	_this.set_borderStyle(flixel_text_FlxTextBorderStyle.SHADOW);
+	_this.set_borderColor(Color);
+	_this.set_borderSize(Size);
+	_this.set_borderQuality(1);
+	this.add(this.score_text);
+	this.m_combo_text = new flixel_text_FlxText(this.TIMELINE_LEFT + 150,this.TIMELINE_BOTTOM - 40,0,"Max Combo ",12);
+	var _this = this.m_combo_text;
+	var Color = -16777216;
+	var Size = 2;
+	if(Size == null) {
+		Size = 1;
+	}
+	if(Color == null) {
+		Color = 0;
+	}
+	_this.set_borderStyle(flixel_text_FlxTextBorderStyle.SHADOW);
+	_this.set_borderColor(Color);
+	_this.set_borderSize(Size);
+	_this.set_borderQuality(1);
+	this.add(this.m_combo_text);
 	this.forEach(function(sprite) {
 		sprite.scrollFactor.set(0,0);
 	});
@@ -7608,11 +7638,13 @@ HUD.__super__ = flixel_group_FlxTypedGroup;
 HUD.prototype = $extend(flixel_group_FlxTypedGroup.prototype,{
 	updateHUD: function(health,energy) {
 		if(health > 0) {
-			this._health.set_text("Health: " + health);
+			this._health.set_text("Health: " + (health | 0));
 		} else {
 			this._health.set_text("Health: DEAD");
 		}
-		this._energy.set_text("Energy: " + energy);
+		this._energy.set_text("Energy: " + (energy | 0));
+		this.score_text.set_text("Score " + (LevelStats.initialized ? LevelStats.score : 0));
+		this.m_combo_text.set_text("Max Combo " + (LevelStats.initialized ? LevelStats.max_combo : 0));
 		var tmp = this._boss_hp != null;
 	}
 	,spawnBossBar: function(boss) {
