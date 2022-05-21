@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "76";
+	app.meta.h["build"] = "77";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -9212,30 +9212,14 @@ LevelStats.hitOnce = function() {
 	LevelStats.max_combo = Math.max(LevelStats.max_combo,LevelStats.combo) | 0;
 };
 LevelStats.createTicks = function() {
-	if(LevelStats._ticks != null) {
-		var _g = 0;
-		var _g1 = LevelStats.tick_format.length * 4;
-		while(_g < _g1) {
-			var i = _g++;
-			LevelStats._ticks[i].revive();
-			LevelStats._ticks[i].setType(LevelStats.tick_format[i % LevelStats.tick_format.length]);
-			LevelStats._ticks[i].setTick(i);
-			LevelStats._ticks[i].setJudge(JudgeType.NONE);
-			LevelStats._ticks[i].setEnchanted(Math.random() <= LevelStats.enchant_chance);
-			LevelStats._ticks[i].set_x(((i * LevelStats.shortest_note_len - LevelStats.timer) * LevelStats.scroll_mul | 0) + LevelStats.TICK_X_OFFSET);
-			LevelStats._ticks[i].set_y(0);
-			LevelStats._ticks[i].scrollFactor.set(0,0);
-		}
-	} else {
-		LevelStats._ticks = [];
-		var _g = 0;
-		var _g1 = LevelStats.tick_format.length * 4;
-		while(_g < _g1) {
-			var i = _g++;
-			var tick = new Tick(LevelStats.tick_format[i % LevelStats.tick_format.length],i,Math.random() <= LevelStats.enchant_chance,((i * LevelStats.shortest_note_len - LevelStats.timer) * LevelStats.scroll_mul | 0) + LevelStats.TICK_X_OFFSET,LevelStats.TIMELINE_BOTTOM - LevelStats.TIMELINE_TOP);
-			LevelStats._ticks[i] = tick;
-			tick.scrollFactor.set(0,0);
-		}
+	LevelStats._ticks = [];
+	var _g = 0;
+	var _g1 = LevelStats.tick_format.length * 4;
+	while(_g < _g1) {
+		var i = _g++;
+		var tick = new Tick(LevelStats.tick_format[i % LevelStats.tick_format.length],i,Math.random() <= LevelStats.enchant_chance,((i * LevelStats.shortest_note_len - LevelStats.timer) * LevelStats.scroll_mul | 0) + LevelStats.TICK_X_OFFSET,LevelStats.TIMELINE_BOTTOM - LevelStats.TIMELINE_TOP);
+		LevelStats._ticks[i] = tick;
+		tick.scrollFactor.set(0,0);
 	}
 };
 LevelStats.updateTicks = function() {
@@ -9284,7 +9268,7 @@ LevelStats.debugTickDisplay = function() {
 			output += "#";
 		}
 	}
-	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 347, className : "LevelStats", methodName : "debugTickDisplay"});
+	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 358, className : "LevelStats", methodName : "debugTickDisplay"});
 };
 LevelStats.__super__ = BaseLevel;
 LevelStats.prototype = $extend(BaseLevel.prototype,{
@@ -9620,7 +9604,7 @@ IceLaserObtained.prototype = $extend(flixel_FlxSubState.prototype,{
 		}
 		text.set_x(text.x - 140);
 		this.add(text);
-		var midTextOne = new flixel_text_FlxText(0,boundingBox.y + 120,0,"Attack precisely on the PURPLE beats to fire this long-ranged laser",10);
+		var midTextOne = new flixel_text_FlxText(0,boundingBox.y + 120,0,"Attack precisely on the PURPLE beats to fire a long-ranged instaneous laser!",10);
 		var axes = flixel_util_FlxAxes.X;
 		if(axes == null) {
 			axes = flixel_util_FlxAxes.XY;
@@ -9649,7 +9633,7 @@ IceLaserObtained.prototype = $extend(flixel_FlxSubState.prototype,{
 		}
 		midTextOne.set_x(midTextOne.x - 140);
 		this.add(midTextOne);
-		var midTextTwo = new flixel_text_FlxText(0,boundingBox.y + 135,0,"to destroy enemies and reach the goal door!",10);
+		var midTextTwo = new flixel_text_FlxText(0,boundingBox.y + 135,0,"Best used for particularly slippery enemies.",10);
 		var axes = flixel_util_FlxAxes.X;
 		if(axes == null) {
 			axes = flixel_util_FlxAxes.XY;
