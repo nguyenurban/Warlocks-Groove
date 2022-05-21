@@ -71,17 +71,22 @@ class Logger
 		_logger.startNewSession(user_id, disable); // should callback be something different?
 	}
 
-	public static function startLevel(level:Int, ?details:String)
+	/**
+	 * Calls the logger to start a level.
+	 * @param room Room number, as specified in `RoomNo.hx`.
+	 * @param details Details to include, including if it's a retry 
+	 */
+	public static function startLevel(room:Int, ?details:String)
 	{
 		if (_logger != null)
 		{
 			if (details != null)
 			{
-				Logger._logger.logLevelStart(level, details);
+				Logger._logger.logLevelStart(room, details);
 			}
 			else
 			{
-				Logger._logger.logLevelStart(level);
+				Logger._logger.logLevelStart(room);
 			}
 		}
 	}

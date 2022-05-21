@@ -1094,9 +1094,10 @@ class EndGame extends FlxState
 				// 		respawn = Std.int(Math.max(respawn, r));
 				// 	}
 				// }
-				var respawn = LevelStats.chkpt;
-				Logger.startLevel(LevelStats.chkpt_no, "retry");
-				LevelStats.initialize(LevelStats.chkpt_no, true);
+				var respawn = (Debug.RESPAWN_AT_SAME_ROOM ? currLevel : LevelStats.chkpt);
+				var respawn_no = (Debug.RESPAWN_AT_SAME_ROOM ? room_no : LevelStats.chkpt_no);
+				Logger.startLevel(respawn_no, "retry");
+				LevelStats.initialize(Std.int(respawn_no / 100), true);
 				// LevelStats.initialize(Std.int(chkpt_no / 100), true);
 				if (respawn != RoomOne)
 				{
