@@ -20,6 +20,7 @@ class Projectile extends FlxSprite
 	public var _enchanted:Bool;
 
 	private var _damage:Float;
+	private var _energy:Float;
 	private var _speed:Float;
 	private var _heading:FlxPoint;
 
@@ -65,6 +66,11 @@ class Projectile extends FlxSprite
 	public function getDamage():Float
 	{
 		return _damage;
+	}
+
+	public function getEnergy():Float
+	{
+		return _energy;
 	}
 
 	override function kill()

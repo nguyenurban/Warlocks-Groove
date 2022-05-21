@@ -30,6 +30,9 @@ class MagMissile extends Projectile
 		animation.add("blow", [256, 257, 258, 259], 5, false);
 		animation.add("idle", [6, 7, 8, 9], 5);
 		TURN_SPEED = BASE_TURN_SPEED;
+
+		_energy = 15;
+
 		switch (timing)
 		{
 			case PERFECT:

@@ -16,8 +16,11 @@ class IceLaser extends Projectile
 	public function new(x:Float, y:Float, target:FlxObject, timing:JudgeType, enchanted:Bool)
 	{
 		super(x, y, target, LevelState.AttackType.PURPLE, timing, enchanted);
-		MOVEMENT_SPEED = 400;
-		makeGraphic(5, 5, FlxColor.TRANSPARENT);
+		MOVEMENT_SPEED = 1000;
+		makeGraphic(24, 24, FlxColor.RED);
+		origin.set(0, pixels.height / 2);
+
+		_energy = 15;
 
 		switch (timing)
 		{
@@ -66,10 +69,10 @@ class LaserBeam extends FlxSprite
 	public function new(x:Float, y:Float, Length:Float, Rotation:Float)
 	{
 		super(x, y);
-		makeGraphic(5, 5, FlxColor.PURPLE);
+		// makeGraphic(5, 5, FlxColor.PURPLE);
 		loadGraphic("assets/images/laser.png");
 		angle = Rotation;
-		scale.set(Length / pixels.width, 1);
+		scale.set((Length / pixels.width), 4);
 		origin.set(0, pixels.height / 2);
 
 		FlxTween.tween(this, {alpha: 0}, 0.4, {

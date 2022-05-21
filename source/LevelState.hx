@@ -618,12 +618,30 @@ class LevelState extends FlxState
 			}
 			else
 			{
-				var timing;
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - DELAY;
 				trace(diff);
 				trace(closest_tick.getTick());
+				var timing = getTiming(diff);
+
+				var proj:Projectile;
+				if (closest_tick.getType() == LevelState.AttackType.RED)
+				{
+					proj = new MagMissile(_player.x, _player.y, _monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
+					proj.timer.start(2.0, function(Timer:FlxTimer)
+					{
+						proj.kill();
+					}, 1);
+					_projectiles.add(proj);
+				}
+				else // if (closest_tick.getType() == LevelState.AttackType.PURPLE)
+				{
+					proj = shootLaser(_monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
+				}
+
+				var energy_used = proj.getEnergy();
+
 				if (!(closest_tick.getEnchanted() && diff <= PERFECT_WINDOW)
-					&& !_player.useEnergy(15)) // TODO: cost is only for red attack; implement logic
+					&& !_player.useEnergy(energy_used)) // TODO: cost is only for red attack; implement logic
 				{
 					// judge_text.text = "Out of energy!";
 					judge_sprite.loadGraphic("assets/images/judge_sprites/ooe.png");
@@ -637,7 +655,7 @@ class LevelState extends FlxState
 						// judge_text.text = "Perfect!!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/perfect.png");
 						judge = "Perfect";
-						timing = LevelState.JudgeType.PERFECT;
+						// timing = LevelState.JudgeType.PERFECT;
 						closest_tick.setJudge(LevelState.JudgeType.PERFECT);
 						if (closest_tick.getEnchanted())
 						{
@@ -649,7 +667,7 @@ class LevelState extends FlxState
 						// judge_text.text = "Great!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/great.png");
 						judge = "Great";
-						timing = LevelState.JudgeType.GREAT;
+						// timing = LevelState.JudgeType.GREAT;
 						closest_tick.setJudge(LevelState.JudgeType.GREAT);
 					}
 					else
@@ -657,26 +675,8 @@ class LevelState extends FlxState
 						// judge_text.text = "OK";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/ok.png");
 						judge = "OK";
-						timing = LevelState.JudgeType.OK;
+						// timing = LevelState.JudgeType.OK;
 						closest_tick.setJudge(LevelState.JudgeType.OK);
-					}
-
-					// var mousePos = FlxG.mouse.getPosition();
-					var proj:Projectile;
-					if (closest_tick.getType() == LevelState.AttackType.RED)
-					{
-						proj = new MagMissile(_player.x, _player.y, _monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
-						proj.timer.start(2.0, function(Timer:FlxTimer)
-						{
-							// proj.canvas.exists = false;
-							proj.kill();
-						}, 1);
-						_projectiles.add(proj);
-					}
-					else if (closest_tick.getType() == LevelState.AttackType.PURPLE)
-					{
-						// proj = new IceLaser(_player.x, _player.y, _monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
-						shootLaser(_monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
 					}
 
 					fire_sound.play();
@@ -689,6 +689,22 @@ class LevelState extends FlxState
 			}
 			judge_sprite.visible = true;
 			judge_timer = 2.0;
+		}
+	}
+
+	private function getTiming(diff:Float)
+	{
+		if (diff <= PERFECT_WINDOW)
+		{
+			return LevelState.JudgeType.PERFECT;
+		}
+		else if (diff <= GREAT_WINDOW)
+		{
+			return LevelState.JudgeType.GREAT;
+		}
+		else
+		{
+			return LevelState.JudgeType.OK;
 		}
 	}
 
@@ -751,6 +767,8 @@ class LevelState extends FlxState
 		_projectiles.add(laser);
 		var laserGraphic:FlxSprite = new LaserBeam(source.x, source.y, length, deg);
 		add(laserGraphic);
+
+		return laser;
 	}
 
 	// private function debugTickDisplay()
