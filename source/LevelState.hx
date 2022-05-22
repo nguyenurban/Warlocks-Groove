@@ -677,7 +677,7 @@ class LevelState extends FlxState
 				}
 				else // if (closest_tick.getType() == LevelState.AttackType.PURPLE)
 				{
-					proj = shootLaser(_monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
+					proj = shootLaser(_monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT, _player.getMidpoint());
 				}
 
 				var energy_used = proj.getEnergy();
@@ -796,20 +796,35 @@ class LevelState extends FlxState
 			- earlier_beat.getTick() * LevelStats.shortest_note_len <= later_beat.getTick() * LevelStats.shortest_note_len - LevelStats.timer ? earlier_beat : later_beat;
 	}
 
-	private function shootLaser(target:FlxObject, timing:JudgeType, enchanted:Bool)
+	private function shootLaser(target:FlxObject, timing:JudgeType, enchanted:Bool, source:FlxPoint)
 	{
 		// var ground:Float = FlxG.height - 100;
-		var source:FlxPoint = _player.getMidpoint();
+		// var source:FlxPoint = _player.getMidpoint();
 		var mouse:FlxPoint = FlxG.mouse.getPosition();
 		var deg:Float = source.angleBetween(mouse) - 90;
 		// var groundPoint = FlxPoint.get(source.x + (ground - source.y) / Math.tan(deg * FlxAngle.TO_RAD), ground); // Work on this
-		var length:Float = 1000; // source.distanceTo(groundPoint);
+		// source.distanceTo(groundPoint);
 
-		var laser:IceLaser = new IceLaser(source.x, source.y, target, timing, enchanted);
+		var laserTimer:FlxTimer = new FlxTimer();
+		var eighthNote = 60 / (2 * LevelStats.bpm);
+
+		var laser:IceLaser = makeLaser(source, target, timing, enchanted, deg);
+
+		laserTimer.start(eighthNote / 3, function(Timer:FlxTimer)
+		{
+			makeLaser(source, target, timing, enchanted, deg);
+		}, 2);
+
+		return laser;
+	}
+
+	private function makeLaser(source:FlxPoint, target:FlxObject, timing:JudgeType, enchanted:Bool, deg:Float)
+	{
+		var length:Float = 1000;
+		var laser:IceLaser = new IceLaser(source.x, source.y, target, timing, enchanted, deg);
 		_projectiles.add(laser);
 		var laserGraphic:FlxSprite = new LaserBeam(source.x, source.y, length, deg);
 		add(laserGraphic);
-
 		return laser;
 	}
 
@@ -971,7 +986,6 @@ class LevelState extends FlxState
 	// 		}
 	// 	}
 	// }
-
 	public override function toString():String
 	{
 		return Type.getClassName(Type.getClass(this));
