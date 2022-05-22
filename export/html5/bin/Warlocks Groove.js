@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "80";
+	app.meta.h["build"] = "82";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -6842,6 +6842,7 @@ var Projectile = function(x,y,target,type,timing,enchanted,source) {
 		flixel_math_FlxVelocity.moveTowardsPoint(this,this._target.getMidpoint(),this._speed);
 		this._damage = 15;
 	}
+	this.hit_enemies = [];
 };
 $hxClasses["Projectile"] = Projectile;
 Projectile.__name__ = "Projectile";
@@ -7709,10 +7710,10 @@ HxOverrides.remove = function(a,obj) {
 HxOverrides.now = function() {
 	return Date.now();
 };
-var IceLaser = function(x,y,target,timing,enchanted) {
+var IceLaser = function(x,y,target,timing,enchanted,rotation) {
 	Projectile.call(this,x,y,target,AttackType.PURPLE,timing,enchanted);
-	this.MOVEMENT_SPEED = 1000;
-	this.makeGraphic(24,24,-65536);
+	this.MOVEMENT_SPEED = 2000;
+	this.makeGraphic(16,16,0);
 	this.origin.set(0,this.get_pixels().height / 2);
 	this._energy = 15;
 	switch(timing._hx_index) {
@@ -7760,7 +7761,7 @@ var IceLaser = function(x,y,target,timing,enchanted) {
 	point._inPool = false;
 	var point1 = point;
 	point1._weak = true;
-	tmp.rotate(point1,flixel_math_FlxAngle.angleBetweenPoint(this,this._heading,true));
+	tmp.rotate(point1,rotation);
 };
 $hxClasses["IceLaser"] = IceLaser;
 IceLaser.__name__ = "IceLaser";
@@ -8310,7 +8311,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 		return projectile;
 	}
 	,handleMonsterProjectileCollisions: function(monsters,projectiles) {
-		if(projectiles.getType() != AttackType.ENEMY) {
+		if(projectiles.getType() != AttackType.ENEMY && projectiles.hit_enemies.indexOf(monsters) == -1) {
+			projectiles.hit_enemies.push(monsters);
 			if(projectiles.getType() == AttackType.RED && !(js_Boot.__cast(projectiles , MagMissile)).blow) {
 				LevelStats.hitOnce();
 			}
@@ -8455,8 +8457,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				LevelStats.combo = 0;
 			} else {
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 664, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 665, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 665, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 666, className : "LevelState", methodName : "shoot"});
 				var timing = this.getTiming(diff);
 				var proj;
 				if(closest_tick.getType() == AttackType.RED) {
@@ -8466,7 +8468,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 					},1);
 					this._projectiles.add(proj);
 				} else {
-					proj = this.shootLaser(this._monsters.getFirstAlive(),timing,closest_tick.getEnchanted() && timing == JudgeType.PERFECT);
+					proj = this.shootLaser(this._monsters.getFirstAlive(),timing,closest_tick.getEnchanted() && timing == JudgeType.PERFECT,this._player.getMidpoint());
 				}
 				var energy_used = proj.getEnergy();
 				if(!(closest_tick.getEnchanted() && diff <= this.PERFECT_WINDOW) && !this._player.useEnergy(energy_used)) {
@@ -8544,12 +8546,21 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			return later_beat;
 		}
 	}
-	,shootLaser: function(target,timing,enchanted) {
-		var source = this._player.getMidpoint();
+	,shootLaser: function(target,timing,enchanted,source) {
+		var _gthis = this;
 		var mouse = flixel_FlxG.mouse.getPosition();
 		var deg = source.angleBetween(mouse) - 90;
+		var laserTimer = new flixel_util_FlxTimer();
+		var eighthNote = 60 / (2 * LevelStats.bpm);
+		var laser = this.makeLaser(source,target,timing,enchanted,deg);
+		laserTimer.start(eighthNote / 3,function(Timer) {
+			_gthis.makeLaser(source,target,timing,enchanted,deg);
+		},2);
+		return laser;
+	}
+	,makeLaser: function(source,target,timing,enchanted,deg) {
 		var length = 1000;
-		var laser = new IceLaser(source.x,source.y,target,timing,enchanted);
+		var laser = new IceLaser(source.x,source.y,target,timing,enchanted,deg);
 		this._projectiles.add(laser);
 		var laserGraphic = new LaserBeam(source.x,source.y,length,deg);
 		this.add(laserGraphic);
@@ -8796,7 +8807,7 @@ LvlCompletePopup.prototype = $extend(flixel_FlxSubState.prototype,{
 		}
 		boundingBox.scrollFactor.set(0,0);
 		this.add(boundingBox);
-		var text = new flixel_text_FlxText(0,boundingBox.y + 45,0,"Level Complete",25);
+		var text = new flixel_text_FlxText(0,boundingBox.y + 45,0,"Level Complete!",35);
 		var axes = flixel_util_FlxAxes.X;
 		if(axes == null) {
 			axes = flixel_util_FlxAxes.XY;
@@ -8826,10 +8837,10 @@ LvlCompletePopup.prototype = $extend(flixel_FlxSubState.prototype,{
 		text.scrollFactor.set(0,0);
 		this.add(text);
 		var res = LevelStats.calculateFinalScore();
-		var level_score = new flixel_text_FlxText(boundingBox.x + 10,boundingBox.y + 70,0,"Level Score ",25);
+		var level_score = new flixel_text_FlxText(boundingBox.x + 10,boundingBox.y + 90,0,"Level Score ",25);
 		level_score.scrollFactor.set(0,0);
 		this.add(level_score);
-		var level_score_val = new flixel_text_FlxText(boundingBox.x + 10,boundingBox.y + 70,580,Std.string(res[0]),25);
+		var level_score_val = new flixel_text_FlxText(boundingBox.x + 10,boundingBox.y + 90,580,Std.string(res[0]),25);
 		level_score_val.set_alignment("right");
 		level_score_val.scrollFactor.set(0,0);
 		this.add(level_score_val);
@@ -8861,7 +8872,7 @@ LvlCompletePopup.prototype = $extend(flixel_FlxSubState.prototype,{
 		final_score_val.set_alignment("right");
 		final_score_val.scrollFactor.set(0,0);
 		this.add(final_score_val);
-		var endText = new flixel_text_FlxText(0,final_score.y + 30,0,"Press SPACE to continue.",15);
+		var endText = new flixel_text_FlxText(0,final_score.y + 50,0,"Press SPACE to continue.",15);
 		var axes = flixel_util_FlxAxes.X;
 		if(axes == null) {
 			axes = flixel_util_FlxAxes.XY;
@@ -9416,6 +9427,7 @@ LvlTwoRoomEight.prototype = $extend(LevelState.prototype,{
 		LevelState.prototype.create.call(this);
 		this.room_no = RoomNo.L2R8;
 		flixel_FlxG.fixedTimestep = false;
+		this.end_of_level = true;
 		this.set_bgColor(-3355444);
 		this.createLevel();
 		this.nextLevel = null;

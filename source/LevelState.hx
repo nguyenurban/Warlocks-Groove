@@ -505,8 +505,9 @@ class LevelState extends FlxState
 
 	private function handleMonsterProjectileCollisions(monsters:FlxObject, projectiles:Projectile)
 	{
-		if (projectiles.getType() != ENEMY)
+		if (projectiles.getType() != ENEMY && !projectiles.hit_enemies.contains(monsters))
 		{
+			projectiles.hit_enemies.push(monsters);
 			if (projectiles.getType() == RED && !cast(projectiles, MagMissile).blow)
 			{
 				LevelStats.hitOnce();

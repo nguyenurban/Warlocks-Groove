@@ -29,6 +29,7 @@ class Projectile extends FlxSprite
 	public var origin_point:FlxPoint;
 
 	public var timer:FlxTimer;
+	public var hit_enemies:Array<Dynamic>;
 
 	public function new(x:Float, y:Float, target:FlxObject /**monsters:FlxTypedGroup<Enemy>**/, type:LevelState.AttackType, timing:LevelState.JudgeType,
 			enchanted:Bool, ?source:String)
@@ -46,6 +47,7 @@ class Projectile extends FlxSprite
 			FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
 			_damage = 15;
 		}
+		hit_enemies = new Array();
 	}
 
 	override function update(elapsed:Float)

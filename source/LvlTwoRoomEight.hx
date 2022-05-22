@@ -31,6 +31,7 @@ class LvlTwoRoomEight extends LevelState
 		room_no = RoomNo.L2R8;
 		FlxG.fixedTimestep = false;
 
+		end_of_level = true;
 		bgColor = 0xffcccccc;
 		createLevel();
 		nextLevel = null;
