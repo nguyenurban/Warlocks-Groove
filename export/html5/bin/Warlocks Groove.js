@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "78";
+	app.meta.h["build"] = "79";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -7598,7 +7598,7 @@ var HUD = function(player,tick_format,shortest_note_len) {
 	var line_style_2 = { color : -16777216, thickness : 1.0};
 	this._timeline_arw = new flixel_addons_display_shapes_FlxShapeBox(flixel_FlxG.width / 2,0,10,this.TIMELINE_BOTTOM - this.TIMELINE_TOP,line_style_2,-16777216);
 	this.add(this._timeline_arw);
-	this.score_text = new flixel_text_FlxText(this.TIMELINE_LEFT,this.TIMELINE_BOTTOM - 40,0,"Score ",12);
+	this.score_text = new flixel_text_FlxText(this.TIMELINE_LEFT,this.TIMELINE_BOTTOM - 20,0,"Score ",12);
 	var _this = this.score_text;
 	var Color = -16777216;
 	var Size = 2;
@@ -7613,7 +7613,7 @@ var HUD = function(player,tick_format,shortest_note_len) {
 	_this.set_borderSize(Size);
 	_this.set_borderQuality(1);
 	this.add(this.score_text);
-	this.m_combo_text = new flixel_text_FlxText(this.TIMELINE_LEFT + 150,this.TIMELINE_BOTTOM - 40,0,"Max Combo ",12);
+	this.m_combo_text = new flixel_text_FlxText(this.TIMELINE_LEFT + 150,this.TIMELINE_BOTTOM - 20,0,"Max Combo ",12);
 	var _this = this.m_combo_text;
 	var Color = -16777216;
 	var Size = 2;
@@ -7975,6 +7975,7 @@ flixel_FlxState.prototype = $extend(flixel_group_FlxTypedGroup.prototype,{
 	,__properties__: $extend(flixel_group_FlxTypedGroup.prototype.__properties__,{get_subStateClosed:"get_subStateClosed",get_subStateOpened:"get_subStateOpened",set_bgColor:"set_bgColor",get_bgColor:"get_bgColor"})
 });
 var LevelState = function(MaxSize) {
+	this.end_of_level = false;
 	this.checkpoint = false;
 	this.room_no = 101;
 	this.level_no = 1;
@@ -8454,8 +8455,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				LevelStats.combo = 0;
 			} else {
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 658, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 659, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 663, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 664, className : "LevelState", methodName : "shoot"});
 				var timing = this.getTiming(diff);
 				var proj;
 				if(closest_tick.getType() == AttackType.RED) {
@@ -8638,14 +8639,22 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			if(LevelStats._ticks != null) {
 				this.removeTicks();
 			}
+			if(this.end_of_level) {
+				this.lvlPopup = true;
+				this.openSubState(new LvlCompletePopup());
+				LevelStats.stopMusic();
+			}
 			if(this.nextLevel == null) {
-				Logger.levelEnd("completion exit");
+				Logger.levelEnd("game completion exit");
 				var nextState = new MenuState();
 				if(flixel_FlxG.game._state.switchTo(nextState)) {
 					flixel_FlxG.game._requestedState = nextState;
 				}
 			} else {
 				Logger.levelEnd("to next level");
+				if(this.end_of_level) {
+					LevelStats.initialize((this.room_no / 100 | 0) + 1,false);
+				}
 				var nextState = Type.createInstance(this.nextLevel,[]);
 				if(flixel_FlxG.game._state.switchTo(nextState)) {
 					flixel_FlxG.game._requestedState = nextState;
@@ -8750,7 +8759,6 @@ LvlCompletePopup.__name__ = "LvlCompletePopup";
 LvlCompletePopup.__super__ = flixel_FlxSubState;
 LvlCompletePopup.prototype = $extend(flixel_FlxSubState.prototype,{
 	create: function() {
-		var _gthis = this;
 		flixel_FlxSubState.prototype.create.call(this);
 		var boundingBox = new flixel_FlxSprite();
 		boundingBox.makeGraphic(460,197,-12416065);
@@ -8811,7 +8819,43 @@ LvlCompletePopup.prototype = $extend(flixel_FlxSubState.prototype,{
 		}
 		text.scrollFactor.set(0,0);
 		this.add(text);
-		var endText = new flixel_text_FlxText(0,boundingBox.y + 135,0,"Go through the door to continue.",15);
+		var res = LevelStats.calculateFinalScore();
+		var level_score = new flixel_text_FlxText(boundingBox.x + 10,boundingBox.y + 60,0,"Level Score ",25);
+		level_score.scrollFactor.set(0,0);
+		this.add(level_score);
+		var level_score_val = new flixel_text_FlxText(boundingBox.x + 10,boundingBox.y + 60,440,Std.string(res[0]),25);
+		level_score_val.set_alignment("right");
+		level_score_val.scrollFactor.set(0,0);
+		this.add(level_score_val);
+		var time_bonus = new flixel_text_FlxText(boundingBox.x + 10,level_score.y + 5,0,"Time bonus ",25);
+		time_bonus.scrollFactor.set(0,0);
+		this.add(time_bonus);
+		var time_bonus_val = new flixel_text_FlxText(boundingBox.x + 10,level_score_val.y + 5,440,Std.string(res[1]),25);
+		time_bonus_val.set_alignment("right");
+		time_bonus_val.scrollFactor.set(0,0);
+		this.add(time_bonus_val);
+		var acc_bonus = new flixel_text_FlxText(boundingBox.x + 10,time_bonus.y + 5,0,"Accuracy bonus ",25);
+		acc_bonus.scrollFactor.set(0,0);
+		this.add(acc_bonus);
+		var acc_bonus_val = new flixel_text_FlxText(boundingBox.x + 10,time_bonus_val.y + 5,440,Std.string(res[2]),25);
+		acc_bonus_val.set_alignment("right");
+		acc_bonus_val.scrollFactor.set(0,0);
+		this.add(acc_bonus_val);
+		var combo_bonus = new flixel_text_FlxText(boundingBox.x + 10,acc_bonus.y + 5,0,"Combo bonus ",25);
+		combo_bonus.scrollFactor.set(0,0);
+		this.add(combo_bonus);
+		var combo_bonus_val = new flixel_text_FlxText(boundingBox.x + 10,acc_bonus_val.y + 5,440,Std.string(res[3]),25);
+		combo_bonus_val.set_alignment("right");
+		combo_bonus_val.scrollFactor.set(0,0);
+		this.add(combo_bonus_val);
+		var final_score = new flixel_text_FlxText(boundingBox.x + 10,combo_bonus.y + 15,0,"Total score ",35);
+		final_score.scrollFactor.set(0,0);
+		this.add(final_score);
+		var final_score_val = new flixel_text_FlxText(boundingBox.x + 10,combo_bonus_val.y + 15,440,Std.string(res[0] + res[1] + res[2] + res[3]),35);
+		final_score_val.set_alignment("right");
+		final_score_val.scrollFactor.set(0,0);
+		this.add(final_score_val);
+		var endText = new flixel_text_FlxText(0,boundingBox.y + 135,0,"Press SPACE to continue.",15);
 		var axes = flixel_util_FlxAxes.X;
 		if(axes == null) {
 			axes = flixel_util_FlxAxes.XY;
@@ -8840,50 +8884,12 @@ LvlCompletePopup.prototype = $extend(flixel_FlxSubState.prototype,{
 		}
 		endText.scrollFactor.set(0,0);
 		this.add(endText);
-		this._timebar = new flixel_ui_FlxBar(350,430,flixel_ui_FlxBarFillDirection.HORIZONTAL_INSIDE_OUT,400,10,null,"time",0,300,true);
-		var _this = this._timebar;
-		var axes = flixel_util_FlxAxes.X;
-		if(axes == null) {
-			axes = flixel_util_FlxAxes.XY;
-		}
-		var tmp;
-		switch(axes._hx_index) {
-		case 0:case 2:
-			tmp = true;
-			break;
-		default:
-			tmp = false;
-		}
-		if(tmp) {
-			_this.set_x((flixel_FlxG.width - _this.get_width()) / 2);
-		}
-		var tmp;
-		switch(axes._hx_index) {
-		case 1:case 2:
-			tmp = true;
-			break;
-		default:
-			tmp = false;
-		}
-		if(tmp) {
-			_this.set_y((flixel_FlxG.height - _this.get_height()) / 2);
-		}
-		this._timebar.createFilledBar(-12416065,-1,true);
-		this._timebar.scrollFactor.set(0,0);
-		this.add(this._timebar);
-		this.timer = new flixel_util_FlxTimer();
-		this.timer.start(3,function(Timer) {
-			_gthis.close();
-		},1);
 	}
 	,update: function(elapsed) {
-		flixel_FlxSubState.prototype.update.call(this,elapsed);
 		var _this = flixel_FlxG.keys.justPressed;
 		if(_this.keyManager.checkStatusUnsafe(32,_this.status)) {
 			this.close();
 		}
-		var _this = this.timer;
-		this._timebar.set_value((_this.time - _this._timeCounter) * 100);
 	}
 	,__class__: LvlCompletePopup
 });
@@ -9178,15 +9184,19 @@ LevelStats.initialize = function(level_no,retry) {
 	LevelStats.initialized = true;
 	LevelStats.started = false;
 	if(retry) {
-		LevelStats.score = LevelStats.chkpt_score;
+		if(!Debug.KEEP_SCORE) {
+			LevelStats.score = LevelStats.chkpt_score;
+		}
 	} else {
 		LevelStats.score = 0;
 		LevelStats.chkpt_score = 0;
 		LevelStats.num_deaths = 0;
 		LevelStats.cumul_timer = 0;
+		LevelStats.max_combo = 0;
+		LevelStats.ex_score = 0;
+		LevelStats.shots_landed = 0;
 	}
 	LevelStats.combo = 0;
-	LevelStats.max_combo = 0;
 };
 LevelStats.changeTickFormat = function(level_no) {
 	switch(level_no) {
@@ -9200,6 +9210,13 @@ LevelStats.changeTickFormat = function(level_no) {
 	}
 };
 LevelStats.setupSound = function(url,isIntro) {
+};
+LevelStats.calculateFinalScore = function() {
+	var time_bonus = Math.max(LevelStats.quickest_time_bonus_val - (Math.max(LevelStats.cumul_timer - LevelStats.quickest_time_bonus,0) | 0) * LevelStats.time_bonus_penalty,0) | 0;
+	var acc = LevelStats.ex_score / 5 / LevelStats.shots_landed;
+	var acc_bonus = LevelStats.score * acc * 0.5 | 0;
+	var combo_bonus = Math.min(LevelStats.max_combo_bonus,LevelStats.max_combo) * (LevelStats.max_combo_bonus_value / LevelStats.max_combo_bonus) | 0;
+	return [LevelStats.score,time_bonus,acc_bonus,combo_bonus];
 };
 LevelStats.startMusic = function() {
 	LevelStats.createTicks();
@@ -9300,7 +9317,7 @@ LevelStats.debugTickDisplay = function() {
 			output += "#";
 		}
 	}
-	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 358, className : "LevelStats", methodName : "debugTickDisplay"});
+	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 409, className : "LevelStats", methodName : "debugTickDisplay"});
 };
 LevelStats.__super__ = BaseLevel;
 LevelStats.prototype = $extend(BaseLevel.prototype,{
@@ -10900,7 +10917,9 @@ PauseMenu.prototype = $extend(flixel_FlxSubState.prototype,{
 		this._menuBtn.set_y(350);
 		this.add(this._menuBtn);
 		this._backBtn = new flixel_ui_FlxButton(0,0,"Continue",function() {
-			LevelStats.bgm.play();
+			if(LevelStats.curr_level != 1 || LevelStats.curr_room != 1) {
+				LevelStats.bgm.play();
+			}
 			_gthis.close();
 		});
 		this._backBtn.scale.set(3,3);
@@ -11315,6 +11334,7 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 		this.createLevel();
 		this.nextLevel = LvlTwoRoomOne;
 		this.currLevel = RoomEight;
+		this.end_of_level = true;
 		this.createHUDandTicks();
 		this.levelUpdate();
 		var boss = null;
@@ -11374,6 +11394,9 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 	}
 	,handleMonsterProjectileCollisions: function(monsters,projectiles) {
 		if(projectiles.getType() != AttackType.ENEMY) {
+			if(projectiles.getType() == AttackType.RED && !(js_Boot.__cast(projectiles , MagMissile)).blow) {
+				LevelStats.hitOnce();
+			}
 			if(((monsters) instanceof Cat)) {
 				var cat = js_Boot.__cast(monsters , Cat);
 				if(cat.shielded) {
@@ -11390,7 +11413,7 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 						monsters.kill();
 					}
 					projectiles.kill();
-					haxe_Log.trace("projectile kill initiated",{ fileName : "source/RoomEight.hx", lineNumber : 142, className : "RoomEight", methodName : "handleMonsterProjectileCollisions"});
+					haxe_Log.trace("projectile kill initiated",{ fileName : "source/RoomEight.hx", lineNumber : 147, className : "RoomEight", methodName : "handleMonsterProjectileCollisions"});
 				}
 			}
 			monsters.health -= projectiles.getDamage();
@@ -11399,7 +11422,7 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 				monsters.kill();
 			}
 			projectiles.kill();
-			haxe_Log.trace("projectile kill initiated",{ fileName : "source/RoomEight.hx", lineNumber : 152, className : "RoomEight", methodName : "handleMonsterProjectileCollisions"});
+			haxe_Log.trace("projectile kill initiated",{ fileName : "source/RoomEight.hx", lineNumber : 157, className : "RoomEight", methodName : "handleMonsterProjectileCollisions"});
 		}
 	}
 	,__class__: RoomEight
@@ -119634,6 +119657,7 @@ Bat.DETECT_RAD = 700;
 CapstoneLogger.prdUrl = "https://integration.centerforgamescience.org/cgs/apps/games/v2/index.php/";
 Debug.ROOM_SELECT = true;
 Debug.RESPAWN_AT_SAME_ROOM = true;
+Debug.KEEP_SCORE = true;
 Goblin.DETECT_RAD = 700;
 Goblin.DODGE_RAD = 300;
 LevelStats.chkpt = RoomOne;
@@ -119643,7 +119667,14 @@ LevelStats.chkpt_score = 0;
 LevelStats.combo = 0;
 LevelStats.max_combo = 0;
 LevelStats.num_deaths = 0;
+LevelStats.ex_score = 0;
+LevelStats.shots_landed = 0;
 LevelStats.cumul_timer = 0.0;
+LevelStats.max_combo_bonus = 100;
+LevelStats.max_combo_bonus_value = 50000;
+LevelStats.quickest_time_bonus = 60;
+LevelStats.quickest_time_bonus_val = 10000;
+LevelStats.time_bonus_penalty = 10;
 LevelStats.TIMELINE_LEFT = 100;
 LevelStats.TIMELINE_RIGHT = 1060;
 LevelStats.TIMELINE_TOP = 0;

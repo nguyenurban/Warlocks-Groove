@@ -38,9 +38,46 @@ class LevelStats extends BaseLevel
 	public static var num_deaths = 0;
 
 	/**
-	 * Timer that doesn't reset on death.
+	 * EX Score:
+	 * Perfect = +3
+	 * Great = +2
+	 * O.K. = 0
+	 * Misfire = -1 (EX score cannot drop below 0)
+	 * Used to keep track of accuracy bonus in conjunction with `shots_landed`.
+	 */
+	public static var ex_score = 0;
+
+	/**
+	 * How many times the player hits an enemy (not how many times they fired,
+	 * though misfires will increment this by one).
+	 */
+	public static var shots_landed = 0;
+
+	/**
+	 * Timer that doesn't reset on death; only on starting a new level.
 	 */
 	public static var cumul_timer = 0.0;
+
+	/**
+	 * How much max combo needs to be in order to get the highest combo bonus
+	 * (default is 100).
+	 */
+	public static var max_combo_bonus = 100;
+
+	public static var max_combo_bonus_value = 50000;
+
+	/**
+	 * How long the user needs to take in seconds to complete a level in order to get the highest
+	 * time bonus (default is 60).
+	 */
+	public static var quickest_time_bonus = 60;
+
+	public static var quickest_time_bonus_val = 10000;
+
+	/**
+	 * How many points are deducted from the time bonus per second (default is 10 / sec).
+	 */
+	public static var time_bonus_penalty = 10;
 
 	/**
 	 * Whether or note `LevelStats.initialize()` has been called yet. Resets
@@ -154,7 +191,10 @@ class LevelStats extends BaseLevel
 		started = false;
 		if (retry)
 		{
-			score = chkpt_score;
+			if (!Debug.KEEP_SCORE)
+			{
+				score = chkpt_score;
+			}
 		}
 		else
 		{
@@ -162,9 +202,11 @@ class LevelStats extends BaseLevel
 			chkpt_score = 0;
 			num_deaths = 0;
 			cumul_timer = 0;
+			max_combo = 0;
+			ex_score = 0;
+			shots_landed = 0;
 		}
 		combo = 0;
-		max_combo = 0;
 	}
 
 	public static function changeTickFormat(level_no:Int)
@@ -197,6 +239,15 @@ class LevelStats extends BaseLevel
 		// }
 		// out = new Howl(options);
 		// return out;
+	}
+
+	public static function calculateFinalScore():Array<Int>
+	{
+		var time_bonus = Std.int(Math.max(quickest_time_bonus_val - Std.int(Math.max(cumul_timer - quickest_time_bonus, 0)) * time_bonus_penalty, 0));
+		var acc = ex_score / 5 / shots_landed;
+		var acc_bonus = Std.int(score * acc * 0.5);
+		var combo_bonus = Std.int(Math.min(max_combo_bonus, max_combo) * (max_combo_bonus_value / max_combo_bonus));
+		return [score, time_bonus, acc_bonus, combo_bonus];
 	}
 
 	/**

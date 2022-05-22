@@ -58,7 +58,10 @@ class PauseMenu extends FlxSubState
 
 		_backBtn = new FlxButton(0, 0, "Continue", () ->
 		{
-			LevelStats.bgm.play();
+			if (LevelStats.curr_level != 1 || LevelStats.curr_room != 1)
+			{
+				LevelStats.bgm.play();
+			}
 			close();
 		});
 		_backBtn.scale.set(3, 3);

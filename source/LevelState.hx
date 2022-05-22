@@ -150,6 +150,11 @@ class LevelState extends FlxState
 	 */
 	public var checkpoint = false;
 
+	/**
+	 * Whether or not this is the last room in the level (i.e. call the level complete window upon exiting if so).
+	 */
+	public var end_of_level = false;
+
 	/* ------------------------------------------------------------------------------------------------------------------------
 		In the final build, each level will have its
 		own set format for which ticks will be enchanted
@@ -899,6 +904,12 @@ class LevelState extends FlxState
 		energy_text.text = "Energy: " + _player.getEnergy();
 	}
 
+	/**
+	 * Call this whenever the current ROOM (not level) is completed with the player
+	 * touching the door.
+	 * @param p 
+	 * @param d 
+	 */
 	function levelComplete(p:Player, d:Door)
 	{
 		if (d.isUnlocked())
@@ -907,15 +918,25 @@ class LevelState extends FlxState
 			{
 				removeTicks();
 			}
+			if (end_of_level)
+			{
+				lvlPopup = true;
+				openSubState(new LvlCompletePopup());
+				LevelStats.stopMusic();
+			}
 			if (nextLevel == null)
 			{
-				Logger.levelEnd("completion exit");
+				Logger.levelEnd("game completion exit");
 				FlxG.switchState(new MenuState());
 			}
 			else
 			{
 				Logger.levelEnd("to next level");
 				// Logger.nextRoom(nextLevel);
+				if (end_of_level)
+				{
+					LevelStats.initialize(Std.int(room_no / 100) + 1, false);
+				}
 				FlxG.switchState(Type.createInstance(nextLevel, []));
 			}
 		}
@@ -993,9 +1014,8 @@ class LevelState extends FlxState
 
 class LvlCompletePopup extends FlxSubState
 {
-	private var _timebar:FlxBar;
-	private var timer:FlxTimer;
-
+	// private var _timebar:FlxBar;
+	// private var timer:FlxTimer;
 	public function new()
 	{
 		super(0x61000000);
@@ -1015,22 +1035,67 @@ class LvlCompletePopup extends FlxSubState
 		text.scrollFactor.set(0, 0);
 		add(text);
 
-		final endText = new FlxText(0, (boundingBox.y + 135), 0, "Go through the door to continue.", 15);
+		var res = LevelStats.calculateFinalScore();
+		final level_score = new FlxText(boundingBox.x + 10, boundingBox.y + 60, 0, "Level Score ", 25);
+		level_score.scrollFactor.set(0, 0);
+		add(level_score);
+		final level_score_val = new FlxText(boundingBox.x + 10, boundingBox.y + 60, 440, Std.string(res[0]), 25);
+		level_score_val.alignment = RIGHT;
+		level_score_val.scrollFactor.set(0, 0);
+		add(level_score_val);
+
+		final time_bonus = new FlxText(boundingBox.x + 10, level_score.y + 5, 0, "Time bonus ", 25);
+		time_bonus.scrollFactor.set(0, 0);
+		add(time_bonus);
+
+		final time_bonus_val = new FlxText(boundingBox.x + 10, level_score_val.y + 5, 440, Std.string(res[1]), 25);
+		time_bonus_val.alignment = RIGHT;
+		time_bonus_val.scrollFactor.set(0, 0);
+		add(time_bonus_val);
+
+		final acc_bonus = new FlxText(boundingBox.x + 10, time_bonus.y + 5, 0, "Accuracy bonus ", 25);
+		acc_bonus.scrollFactor.set(0, 0);
+		add(acc_bonus);
+
+		final acc_bonus_val = new FlxText(boundingBox.x + 10, time_bonus_val.y + 5, 440, Std.string(res[2]), 25);
+		acc_bonus_val.alignment = RIGHT;
+		acc_bonus_val.scrollFactor.set(0, 0);
+		add(acc_bonus_val);
+
+		final combo_bonus = new FlxText(boundingBox.x + 10, acc_bonus.y + 5, 0, "Combo bonus ", 25);
+		combo_bonus.scrollFactor.set(0, 0);
+		add(combo_bonus);
+
+		final combo_bonus_val = new FlxText(boundingBox.x + 10, acc_bonus_val.y + 5, 440, Std.string(res[3]), 25);
+		combo_bonus_val.alignment = RIGHT;
+		combo_bonus_val.scrollFactor.set(0, 0);
+		add(combo_bonus_val);
+
+		final final_score = new FlxText(boundingBox.x + 10, combo_bonus.y + 15, 0, "Total score ", 35);
+		final_score.scrollFactor.set(0, 0);
+		add(final_score);
+
+		final final_score_val = new FlxText(boundingBox.x + 10, combo_bonus_val.y + 15, 440, Std.string(res[0] + res[1] + res[2] + res[3]), 35);
+		final_score_val.alignment = RIGHT;
+		final_score_val.scrollFactor.set(0, 0);
+		add(final_score_val);
+
+		final endText = new FlxText(0, boundingBox.y + 135, 0, "Press SPACE to continue.", 15);
 		endText.screenCenter(X);
 		endText.scrollFactor.set(0, 0);
 		add(endText);
 
-		_timebar = new FlxBar(350, 430, HORIZONTAL_INSIDE_OUT, 400, 10, null, "time", 0, 300, true);
-		_timebar.screenCenter(X);
-		_timebar.createFilledBar(0xff428bbf, FlxColor.WHITE, true);
-		_timebar.scrollFactor.set(0, 0);
-		add(_timebar);
+		// _timebar = new FlxBar(350, 430, HORIZONTAL_INSIDE_OUT, 400, 10, null, "time", 0, 300, true);
+		// _timebar.screenCenter(X);
+		// _timebar.createFilledBar(0xff428bbf, FlxColor.WHITE, true);
+		// _timebar.scrollFactor.set(0, 0);
+		// add(_timebar);
 
-		timer = new FlxTimer();
-		timer.start(3, function(Timer:FlxTimer)
-		{
-			close();
-		}, 1);
+		// timer = new FlxTimer();
+		// timer.start(3, function(Timer:FlxTimer)
+		// {
+		// 	close();
+		// }, 1);
 	}
 
 	override function update(elapsed:Float)
@@ -1040,7 +1105,7 @@ class LvlCompletePopup extends FlxSubState
 		{
 			close();
 		}
-		_timebar.value = cast(timer.timeLeft * 100);
+		// _timebar.value = cast(timer.timeLeft * 100);
 	}
 }
 

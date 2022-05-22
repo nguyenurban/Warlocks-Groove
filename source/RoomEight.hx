@@ -35,6 +35,7 @@ class RoomEight extends LevelState
 		createLevel();
 		nextLevel = LvlTwoRoomOne;
 		currLevel = RoomEight;
+		end_of_level = true;
 
 		// beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		// beat_sound.volume = 0.3;
@@ -111,6 +112,10 @@ class RoomEight extends LevelState
 	{
 		if (projectiles.getType() != ENEMY)
 		{
+			if (projectiles.getType() == RED && !cast(projectiles, MagMissile).blow)
+			{
+				LevelStats.hitOnce();
+			}
 			if (Std.isOfType(monsters, Cat))
 			{
 				var cat = cast(monsters, Cat);

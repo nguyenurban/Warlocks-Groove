@@ -13,4 +13,9 @@ class Debug
 	 * Respawn at the same room you died in, as opposed to the last checkpoint.
 	 */
 	public static var RESPAWN_AT_SAME_ROOM = true;
+
+	/**
+	 * Keeps score upon death.
+	 */
+	public static var KEEP_SCORE = true;
 }
