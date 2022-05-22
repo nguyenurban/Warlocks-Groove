@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "79";
+	app.meta.h["build"] = "80";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -8455,8 +8455,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				LevelStats.combo = 0;
 			} else {
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 663, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 664, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 664, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 665, className : "LevelState", methodName : "shoot"});
 				var timing = this.getTiming(diff);
 				var proj;
 				if(closest_tick.getType() == AttackType.RED) {
@@ -8641,24 +8641,28 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			}
 			if(this.end_of_level) {
 				this.lvlPopup = true;
-				this.openSubState(new LvlCompletePopup());
-				LevelStats.stopMusic();
-			}
-			if(this.nextLevel == null) {
-				Logger.levelEnd("game completion exit");
-				var nextState = new MenuState();
-				if(flixel_FlxG.game._state.switchTo(nextState)) {
-					flixel_FlxG.game._requestedState = nextState;
-				}
+				this.openSubState(new LvlCompletePopup($bind(this,this.finishComplete)));
 			} else {
-				Logger.levelEnd("to next level");
-				if(this.end_of_level) {
-					LevelStats.initialize((this.room_no / 100 | 0) + 1,false);
-				}
-				var nextState = Type.createInstance(this.nextLevel,[]);
-				if(flixel_FlxG.game._state.switchTo(nextState)) {
-					flixel_FlxG.game._requestedState = nextState;
-				}
+				this.finishComplete();
+			}
+		}
+	}
+	,finishComplete: function() {
+		if(this.nextLevel == null) {
+			Logger.levelEnd("game completion exit");
+			var nextState = new MenuState();
+			if(flixel_FlxG.game._state.switchTo(nextState)) {
+				flixel_FlxG.game._requestedState = nextState;
+			}
+		} else {
+			Logger.levelEnd("to next level");
+			if(this.end_of_level) {
+				LevelStats.stopMusic();
+				LevelStats.initialize((this.room_no / 100 | 0) + 1,false);
+			}
+			var nextState = Type.createInstance(this.nextLevel,[]);
+			if(flixel_FlxG.game._state.switchTo(nextState)) {
+				flixel_FlxG.game._requestedState = nextState;
 			}
 		}
 	}
@@ -8751,7 +8755,9 @@ flixel_FlxSubState.prototype = $extend(flixel_FlxState.prototype,{
 	}
 	,__class__: flixel_FlxSubState
 });
-var LvlCompletePopup = function() {
+var LvlCompletePopup = function(call) {
+	this.signal = new flixel_util__$FlxSignal_FlxSignal0();
+	this.signal.add(call);
 	flixel_FlxSubState.call(this,1627389952);
 };
 $hxClasses["LvlCompletePopup"] = LvlCompletePopup;
@@ -8761,7 +8767,7 @@ LvlCompletePopup.prototype = $extend(flixel_FlxSubState.prototype,{
 	create: function() {
 		flixel_FlxSubState.prototype.create.call(this);
 		var boundingBox = new flixel_FlxSprite();
-		boundingBox.makeGraphic(460,197,-12416065);
+		boundingBox.makeGraphic(600,400,-12416065);
 		var axes = flixel_util_FlxAxes.XY;
 		if(axes == null) {
 			axes = flixel_util_FlxAxes.XY;
@@ -8820,42 +8826,42 @@ LvlCompletePopup.prototype = $extend(flixel_FlxSubState.prototype,{
 		text.scrollFactor.set(0,0);
 		this.add(text);
 		var res = LevelStats.calculateFinalScore();
-		var level_score = new flixel_text_FlxText(boundingBox.x + 10,boundingBox.y + 60,0,"Level Score ",25);
+		var level_score = new flixel_text_FlxText(boundingBox.x + 10,boundingBox.y + 70,0,"Level Score ",25);
 		level_score.scrollFactor.set(0,0);
 		this.add(level_score);
-		var level_score_val = new flixel_text_FlxText(boundingBox.x + 10,boundingBox.y + 60,440,Std.string(res[0]),25);
+		var level_score_val = new flixel_text_FlxText(boundingBox.x + 10,boundingBox.y + 70,580,Std.string(res[0]),25);
 		level_score_val.set_alignment("right");
 		level_score_val.scrollFactor.set(0,0);
 		this.add(level_score_val);
-		var time_bonus = new flixel_text_FlxText(boundingBox.x + 10,level_score.y + 5,0,"Time bonus ",25);
+		var time_bonus = new flixel_text_FlxText(boundingBox.x + 10,level_score.y + 30,0,"Time bonus ",25);
 		time_bonus.scrollFactor.set(0,0);
 		this.add(time_bonus);
-		var time_bonus_val = new flixel_text_FlxText(boundingBox.x + 10,level_score_val.y + 5,440,Std.string(res[1]),25);
+		var time_bonus_val = new flixel_text_FlxText(boundingBox.x + 10,level_score_val.y + 30,580,Std.string(res[1]),25);
 		time_bonus_val.set_alignment("right");
 		time_bonus_val.scrollFactor.set(0,0);
 		this.add(time_bonus_val);
-		var acc_bonus = new flixel_text_FlxText(boundingBox.x + 10,time_bonus.y + 5,0,"Accuracy bonus ",25);
+		var acc_bonus = new flixel_text_FlxText(boundingBox.x + 10,time_bonus.y + 30,0,"Accuracy bonus ",25);
 		acc_bonus.scrollFactor.set(0,0);
 		this.add(acc_bonus);
-		var acc_bonus_val = new flixel_text_FlxText(boundingBox.x + 10,time_bonus_val.y + 5,440,Std.string(res[2]),25);
+		var acc_bonus_val = new flixel_text_FlxText(boundingBox.x + 10,time_bonus_val.y + 30,580,Std.string(res[2]),25);
 		acc_bonus_val.set_alignment("right");
 		acc_bonus_val.scrollFactor.set(0,0);
 		this.add(acc_bonus_val);
-		var combo_bonus = new flixel_text_FlxText(boundingBox.x + 10,acc_bonus.y + 5,0,"Combo bonus ",25);
+		var combo_bonus = new flixel_text_FlxText(boundingBox.x + 10,acc_bonus.y + 30,0,"Combo bonus ",25);
 		combo_bonus.scrollFactor.set(0,0);
 		this.add(combo_bonus);
-		var combo_bonus_val = new flixel_text_FlxText(boundingBox.x + 10,acc_bonus_val.y + 5,440,Std.string(res[3]),25);
+		var combo_bonus_val = new flixel_text_FlxText(boundingBox.x + 10,acc_bonus_val.y + 30,580,Std.string(res[3]),25);
 		combo_bonus_val.set_alignment("right");
 		combo_bonus_val.scrollFactor.set(0,0);
 		this.add(combo_bonus_val);
-		var final_score = new flixel_text_FlxText(boundingBox.x + 10,combo_bonus.y + 15,0,"Total score ",35);
+		var final_score = new flixel_text_FlxText(boundingBox.x + 10,combo_bonus.y + 50,0,"Total score ",35);
 		final_score.scrollFactor.set(0,0);
 		this.add(final_score);
-		var final_score_val = new flixel_text_FlxText(boundingBox.x + 10,combo_bonus_val.y + 15,440,Std.string(res[0] + res[1] + res[2] + res[3]),35);
+		var final_score_val = new flixel_text_FlxText(boundingBox.x + 10,combo_bonus_val.y + 50,580,Std.string(res[0] + res[1] + res[2] + res[3]),35);
 		final_score_val.set_alignment("right");
 		final_score_val.scrollFactor.set(0,0);
 		this.add(final_score_val);
-		var endText = new flixel_text_FlxText(0,boundingBox.y + 135,0,"Press SPACE to continue.",15);
+		var endText = new flixel_text_FlxText(0,final_score.y + 30,0,"Press SPACE to continue.",15);
 		var axes = flixel_util_FlxAxes.X;
 		if(axes == null) {
 			axes = flixel_util_FlxAxes.XY;
@@ -8886,9 +8892,11 @@ LvlCompletePopup.prototype = $extend(flixel_FlxSubState.prototype,{
 		this.add(endText);
 	}
 	,update: function(elapsed) {
+		flixel_FlxSubState.prototype.update.call(this,elapsed);
 		var _this = flixel_FlxG.keys.justPressed;
 		if(_this.keyManager.checkStatusUnsafe(32,_this.status)) {
 			this.close();
+			this.signal.dispatch();
 		}
 	}
 	,__class__: LvlCompletePopup

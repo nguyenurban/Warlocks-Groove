@@ -18,6 +18,7 @@ import flixel.ui.FlxBar;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.util.FlxSignal.FlxTypedSignal;
+import flixel.util.FlxSignal;
 import flixel.util.FlxTimer;
 
 using flixel.math.FlxPoint;
@@ -921,24 +922,32 @@ class LevelState extends FlxState
 			if (end_of_level)
 			{
 				lvlPopup = true;
-				openSubState(new LvlCompletePopup());
-				LevelStats.stopMusic();
-			}
-			if (nextLevel == null)
-			{
-				Logger.levelEnd("game completion exit");
-				FlxG.switchState(new MenuState());
+				openSubState(new LvlCompletePopup(finishComplete));
 			}
 			else
 			{
-				Logger.levelEnd("to next level");
-				// Logger.nextRoom(nextLevel);
-				if (end_of_level)
-				{
-					LevelStats.initialize(Std.int(room_no / 100) + 1, false);
-				}
-				FlxG.switchState(Type.createInstance(nextLevel, []));
+				finishComplete();
 			}
+		}
+	}
+
+	function finishComplete()
+	{
+		if (nextLevel == null)
+		{
+			Logger.levelEnd("game completion exit");
+			FlxG.switchState(new MenuState());
+		}
+		else
+		{
+			Logger.levelEnd("to next level");
+			// Logger.nextRoom(nextLevel);
+			if (end_of_level)
+			{
+				LevelStats.stopMusic();
+				LevelStats.initialize(Std.int(room_no / 100) + 1, false);
+			}
+			FlxG.switchState(Type.createInstance(nextLevel, []));
 		}
 	}
 
@@ -1016,8 +1025,12 @@ class LvlCompletePopup extends FlxSubState
 {
 	// private var _timebar:FlxBar;
 	// private var timer:FlxTimer;
-	public function new()
+	private var signal:FlxSignal;
+
+	public function new(call:() -> Void)
 	{
+		signal = new FlxSignal();
+		signal.add(call);
 		super(0x61000000);
 	}
 
@@ -1025,62 +1038,62 @@ class LvlCompletePopup extends FlxSubState
 	{
 		super.create();
 		final boundingBox = new FlxSprite();
-		boundingBox.makeGraphic(460, 197, 0xff428bbf);
+		boundingBox.makeGraphic(600, 400, 0xff428bbf);
 		boundingBox.screenCenter(XY);
 		boundingBox.scrollFactor.set(0, 0);
 		add(boundingBox);
 
-		final text = new FlxText(0, (boundingBox.y + 45), 0, "Level Complete", 25);
+		final text = new FlxText(0, (boundingBox.y + 45), 0, "Level Complete!", 35);
 		text.screenCenter(X);
 		text.scrollFactor.set(0, 0);
 		add(text);
 
 		var res = LevelStats.calculateFinalScore();
-		final level_score = new FlxText(boundingBox.x + 10, boundingBox.y + 60, 0, "Level Score ", 25);
+		final level_score = new FlxText(boundingBox.x + 10, boundingBox.y + 90, 0, "Level Score ", 25);
 		level_score.scrollFactor.set(0, 0);
 		add(level_score);
-		final level_score_val = new FlxText(boundingBox.x + 10, boundingBox.y + 60, 440, Std.string(res[0]), 25);
+		final level_score_val = new FlxText(boundingBox.x + 10, boundingBox.y + 90, 580, Std.string(res[0]), 25);
 		level_score_val.alignment = RIGHT;
 		level_score_val.scrollFactor.set(0, 0);
 		add(level_score_val);
 
-		final time_bonus = new FlxText(boundingBox.x + 10, level_score.y + 5, 0, "Time bonus ", 25);
+		final time_bonus = new FlxText(boundingBox.x + 10, level_score.y + 30, 0, "Time bonus ", 25);
 		time_bonus.scrollFactor.set(0, 0);
 		add(time_bonus);
 
-		final time_bonus_val = new FlxText(boundingBox.x + 10, level_score_val.y + 5, 440, Std.string(res[1]), 25);
+		final time_bonus_val = new FlxText(boundingBox.x + 10, level_score_val.y + 30, 580, Std.string(res[1]), 25);
 		time_bonus_val.alignment = RIGHT;
 		time_bonus_val.scrollFactor.set(0, 0);
 		add(time_bonus_val);
 
-		final acc_bonus = new FlxText(boundingBox.x + 10, time_bonus.y + 5, 0, "Accuracy bonus ", 25);
+		final acc_bonus = new FlxText(boundingBox.x + 10, time_bonus.y + 30, 0, "Accuracy bonus ", 25);
 		acc_bonus.scrollFactor.set(0, 0);
 		add(acc_bonus);
 
-		final acc_bonus_val = new FlxText(boundingBox.x + 10, time_bonus_val.y + 5, 440, Std.string(res[2]), 25);
+		final acc_bonus_val = new FlxText(boundingBox.x + 10, time_bonus_val.y + 30, 580, Std.string(res[2]), 25);
 		acc_bonus_val.alignment = RIGHT;
 		acc_bonus_val.scrollFactor.set(0, 0);
 		add(acc_bonus_val);
 
-		final combo_bonus = new FlxText(boundingBox.x + 10, acc_bonus.y + 5, 0, "Combo bonus ", 25);
+		final combo_bonus = new FlxText(boundingBox.x + 10, acc_bonus.y + 30, 0, "Combo bonus ", 25);
 		combo_bonus.scrollFactor.set(0, 0);
 		add(combo_bonus);
 
-		final combo_bonus_val = new FlxText(boundingBox.x + 10, acc_bonus_val.y + 5, 440, Std.string(res[3]), 25);
+		final combo_bonus_val = new FlxText(boundingBox.x + 10, acc_bonus_val.y + 30, 580, Std.string(res[3]), 25);
 		combo_bonus_val.alignment = RIGHT;
 		combo_bonus_val.scrollFactor.set(0, 0);
 		add(combo_bonus_val);
 
-		final final_score = new FlxText(boundingBox.x + 10, combo_bonus.y + 15, 0, "Total score ", 35);
+		final final_score = new FlxText(boundingBox.x + 10, combo_bonus.y + 50, 0, "Total score ", 35);
 		final_score.scrollFactor.set(0, 0);
 		add(final_score);
 
-		final final_score_val = new FlxText(boundingBox.x + 10, combo_bonus_val.y + 15, 440, Std.string(res[0] + res[1] + res[2] + res[3]), 35);
+		final final_score_val = new FlxText(boundingBox.x + 10, combo_bonus_val.y + 50, 580, Std.string(res[0] + res[1] + res[2] + res[3]), 35);
 		final_score_val.alignment = RIGHT;
 		final_score_val.scrollFactor.set(0, 0);
 		add(final_score_val);
 
-		final endText = new FlxText(0, boundingBox.y + 135, 0, "Press SPACE to continue.", 15);
+		final endText = new FlxText(0, final_score.y + 50, 0, "Press SPACE to continue.", 15);
 		endText.screenCenter(X);
 		endText.scrollFactor.set(0, 0);
 		add(endText);
@@ -1104,6 +1117,7 @@ class LvlCompletePopup extends FlxSubState
 		if (FlxG.keys.justPressed.SPACE)
 		{
 			close();
+			signal.dispatch();
 		}
 		// _timebar.value = cast(timer.timeLeft * 100);
 	}
