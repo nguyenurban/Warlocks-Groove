@@ -222,7 +222,7 @@ class LevelStats extends BaseLevel
 		{
 			save_data.erase();
 		}
-		if (save_data.data.scores == null)
+		if (save_data.data.high_scores == null)
 		{
 			save_data.bind("SaveData");
 			save_data.data.high_scores = [-1, -1, -1, -1, -1, -1];
