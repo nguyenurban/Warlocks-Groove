@@ -18,4 +18,9 @@ class Debug
 	 * Keeps score upon death.
 	 */
 	public static var KEEP_SCORE = true;
+
+	/**
+	 * Enable the metronome-like SFX that plays to the beat.
+	 */
+	public static var PLAY_BEAT = true;
 }

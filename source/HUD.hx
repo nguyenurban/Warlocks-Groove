@@ -95,7 +95,7 @@ class HUD extends FlxTypedGroup<FlxSprite>
 
 	public function flashBeatLight()
 	{
-		beat_light.alpha = 0.75;
+		beat_light.alpha = 0.9;
 		var cd = (LevelStats.initialized ? 60 / LevelStats.bpm * 0.9 : 0.5);
 		FlxTween.tween(beat_light, {alpha: 0}, cd, {ease: FlxEase.quadIn, type: FlxTweenType.PERSIST});
 	}

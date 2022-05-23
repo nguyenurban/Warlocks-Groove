@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "86";
+	app.meta.h["build"] = "87";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -7657,7 +7657,7 @@ HUD.prototype = $extend(flixel_group_FlxTypedGroup.prototype,{
 		var tmp = this._boss_hp != null;
 	}
 	,flashBeatLight: function() {
-		this.beat_light.set_alpha(0.75);
+		this.beat_light.set_alpha(0.9);
 		var cd = LevelStats.initialized ? 60 / LevelStats.bpm * 0.9 : 0.5;
 		flixel_tweens_FlxTween.tween(this.beat_light,{ alpha : 0},cd,{ ease : flixel_tweens_FlxEase.quadIn, type : 1});
 	}
