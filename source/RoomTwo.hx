@@ -100,7 +100,7 @@ class Metronome extends Enemy
 		super(x, y, target);
 		// Set stats here
 		health = 15;
-		_speed = 0;
+		BASE_SPEED = 0;
 		_dps = 0;
 		_timer = 0;
 		beat = 0;
