@@ -1,9 +1,7 @@
 import flixel.FlxG;
 import flixel.system.FlxSound;
+import flixel.util.FlxSave;
 import flixel.util.FlxTimer;
-import howler.Howl;
-import openfl.media.Sound;
-import openfl.utils.IAssetCache;
 
 class LevelStats extends BaseLevel
 {
@@ -127,6 +125,8 @@ class LevelStats extends BaseLevel
 	public static var inIntro:Bool;
 	public static var loop_timer:Float;
 
+	public static var save_data:FlxSave;
+
 	/**
 	 * Starts keeping track of stats for current level (but doesn't start music).
 	 * @param level_no Level number (not room number, or the numbers mentioned in `RoomNo.hx`).
@@ -207,6 +207,28 @@ class LevelStats extends BaseLevel
 			shots_landed = 0;
 		}
 		combo = 0;
+	}
+
+	/**
+	 * Initializes the save data, including creating and initializing the save file if it doesn't exist already.
+	 */
+	public static function startData()
+	{
+		if (save_data == null)
+		{
+			save_data = new FlxSave();
+		}
+		if (Debug.DELETE_SAVE)
+		{
+			save_data.erase();
+		}
+		if (save_data.data.scores == null)
+		{
+			save_data.bind("SaveData");
+			save_data.data.high_scores = [-1, -1, -1, -1, -1, -1];
+			save_data.data.hidden_high_scores = [-1, -1, -1, -1, -1, -1];
+			save_data.data.levels_seen = [true, false, false, false, false, false];
+		}
 	}
 
 	public static function changeTickFormat(level_no:Int)

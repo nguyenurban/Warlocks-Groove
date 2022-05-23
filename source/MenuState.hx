@@ -21,6 +21,7 @@ class MenuState extends FlxState
 	{
 		Logger.createLogger();
 		FlxG.mouse.unload();
+		LevelStats.startData();
 		bgColor = 0x00000000;
 		title = new FlxText(50, 150, 0, "Warlock's Groove", 32);
 		title.alignment = CENTER;

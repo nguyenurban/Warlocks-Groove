@@ -23,4 +23,9 @@ class Debug
 	 * Enable the metronome-like SFX that plays to the beat.
 	 */
 	public static var PLAY_BEAT = true;
+
+	/**
+	 * Whether to start the game by deleting any existing saved data first.
+	 */
+	public static var DELETE_SAVE = true;
 }

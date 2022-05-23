@@ -667,6 +667,8 @@ class LevelState extends FlxState
 			LevelStats.chkpt_no = room_no;
 			LevelStats.chkpt_score = LevelStats.score;
 		}
+		LevelStats.save_data.data.levels_seen[Std.int(room_no / 100)] = true;
+		LevelStats.save_data.flush();
 	}
 
 	private function shoot()
@@ -1135,11 +1137,15 @@ class LvlCompletePopup extends FlxSubState
 		final_score.scrollFactor.set(0, 0);
 		add(final_score);
 
-		final final_score_val = new FlxText(boundingBox.x + 10, combo_bonus_val.y + 50, 580, Std.string(res[0] + res[1] + res[2] + res[3]), 35);
+		var score_value = res[0] + res[1] + res[2] + res[3];
+		final final_score_val = new FlxText(boundingBox.x + 10, combo_bonus_val.y + 50, 580, Std.string(score_value), 35);
 		final_score_val.alignment = RIGHT;
 		final_score_val.scrollFactor.set(0, 0);
 		add(final_score_val);
 
+		LevelStats.save_data.data.high_scores[LevelStats.curr_level] = score_value;
+		LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = Std.int(score_value * Math.pow(0.7, LevelStats.num_deaths));
+		LevelStats.save_data.flush();
 		final endText = new FlxText(0, final_score.y + 50, 0, "Press SPACE to continue.", 15);
 		endText.screenCenter(X);
 		endText.scrollFactor.set(0, 0);
