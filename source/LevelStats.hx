@@ -217,14 +217,15 @@ class LevelStats extends BaseLevel
 		if (save_data == null)
 		{
 			save_data = new FlxSave();
+			save_data.bind("SaveData");
 		}
 		if (Debug.DELETE_SAVE)
 		{
 			save_data.erase();
+			save_data.bind("SaveData");
 		}
 		if (save_data.data.high_scores == null)
 		{
-			save_data.bind("SaveData");
 			save_data.data.high_scores = [-1, -1, -1, -1, -1, -1];
 			save_data.data.hidden_high_scores = [-1, -1, -1, -1, -1, -1];
 			save_data.data.levels_seen = [true, false, false, false, false, false];
