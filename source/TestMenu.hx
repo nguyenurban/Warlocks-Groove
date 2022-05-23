@@ -35,6 +35,9 @@ class TestMenuRoom1 extends FlxState
 		roomName.screenCenter(X);
 		add(roomName);
 
+		// All the room numbers for logger and LevelStats are wrong here, but not
+		// like that matters really
+
 		room1 = new FlxButtonPlus(0, 0, () ->
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->

@@ -13,7 +13,8 @@ class MenuState extends FlxState
 {
 	private var title:FlxText;
 	private var play:FlxButtonPlus;
-	private var exit:FlxButtonPlus;
+	// private var exit:FlxButtonPlus;
+	private var level_select:FlxButtonPlus;
 	private var test:FlxButtonPlus;
 
 	override function create()
@@ -35,6 +36,22 @@ class MenuState extends FlxState
 		play.textHighlight.screenCenter(X);
 		add(play);
 
+		level_select = new FlxButtonPlus(0, 0, () ->
+		{
+			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+			{
+				Logger.checkTimeout();
+				FlxG.switchState(new LevelSelect());
+			});
+		}, "", 200, 50);
+		level_select.x = (FlxG.width / 2) - (level_select.width / 2);
+		level_select.y = (FlxG.height / 2) - 10;
+		level_select.textNormal = new FlxText(level_select.x, level_select.y + 10, 0, "Level Select", 25);
+		level_select.textNormal.screenCenter(X);
+		level_select.textHighlight = new FlxText(level_select.x, level_select.y + 10, 0, "Level Select", 25);
+		level_select.textHighlight.screenCenter(X);
+		add(level_select);
+
 		if (Debug.ROOM_SELECT)
 		{
 			test = new FlxButtonPlus(0, 0, () ->
@@ -46,7 +63,7 @@ class MenuState extends FlxState
 				});
 			}, "", 200, 50);
 			test.x = (FlxG.width / 2) - (test.width / 2);
-			test.y = (FlxG.height / 2) - 10;
+			test.y = (FlxG.height / 2) + 60;
 			test.textNormal = new FlxText(test.x, test.y + 10, 0, "Test", 25);
 			test.textNormal.screenCenter(X);
 			test.textHighlight = new FlxText(test.x, test.y + 10, 0, "Test", 25);
