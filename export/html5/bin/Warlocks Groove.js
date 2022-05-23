@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "96";
+	app.meta.h["build"] = "97";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -3509,6 +3509,7 @@ var Main = function() {
 	openfl_display_Sprite.call(this);
 	flixel_FlxG.fixedTimestep = false;
 	flixel_FlxG.autoPause = false;
+	LevelStats.startData();
 	this.addChild(new flixel_FlxGame(1080,720,MenuState));
 };
 $hxClasses["Main"] = Main;
@@ -6841,6 +6842,7 @@ var Projectile = function(x,y,target,type,timing,enchanted,source) {
 	this._target = target;
 	this._type = type;
 	this.timer = new flixel_util_FlxTimer();
+	this._timing = timing;
 	this._enchanted = enchanted;
 	this.origin_point = this.getMidpoint();
 	this.src = source;
@@ -8016,19 +8018,29 @@ LevelSelect.prototype = $extend(flixel_FlxState.prototype,{
 		this.level1.set_x(flixel_FlxG.width / 2 - this.level1.get_width() / 2 - 150);
 		this.level1.set_y(flixel_FlxG.height / 2 - 150);
 		this.add(this.level1);
-		this.level2 = new flixel_addons_ui_FlxButtonPlus(0,0,function() {
-			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
-				Logger.startLevel(201,"level select");
-				LevelStats.initialize(2,false);
-				var nextState = new LvlTwoRoomOne();
-				if(flixel_FlxG.game._state.switchTo(nextState)) {
-					flixel_FlxG.game._requestedState = nextState;
-				}
-			});
-		},"Level 2",100,30);
-		this.level2.set_x(flixel_FlxG.width / 2 - this.level2.get_width() / 2 - 150);
-		this.level2.set_y(flixel_FlxG.height / 2 - 80);
-		this.add(this.level2);
+		if(LevelStats.save_data.data.high_scores[1] != -1) {
+			var level1_hi_score = new flixel_text_FlxText(this.level1.x,this.level1.y + 40,0,"Best score: " + LevelStats.save_data.data.high_scores[1]);
+			this.add(level1_hi_score);
+		}
+		if(LevelStats.save_data.data.levels_seen[2]) {
+			this.level2 = new flixel_addons_ui_FlxButtonPlus(0,0,function() {
+				flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
+					Logger.startLevel(201,"level select");
+					LevelStats.initialize(2,false);
+					var nextState = new LvlTwoRoomOne();
+					if(flixel_FlxG.game._state.switchTo(nextState)) {
+						flixel_FlxG.game._requestedState = nextState;
+					}
+				});
+			},"Level 2",100,30);
+			this.level2.set_x(flixel_FlxG.width / 2 - this.level2.get_width() / 2 - 150);
+			this.level2.set_y(flixel_FlxG.height / 2 - 80);
+			this.add(this.level2);
+			if(LevelStats.save_data.data.high_scores[2] != -1) {
+				var level2_hi_score = new flixel_text_FlxText(this.level2.x,this.level2.y + 40,0,"Best score: " + LevelStats.save_data.data.high_scores[2]);
+				this.add(level2_hi_score);
+			}
+		}
 		this.back = new flixel_addons_ui_FlxButtonPlus(0,0,function() {
 			flixel_FlxG.camera.fade(-16777216,0.33,false,function() {
 				var nextState = new MenuState();
@@ -8446,7 +8458,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				projectiles.kill();
 			}
 			if(projectiles.getType() == AttackType.RED && projectiles.hit_enemies.length == 1) {
-				LevelStats.hitOnce();
+				LevelStats.hitOnce(projectiles._timing);
 			}
 		}
 	}
@@ -8592,13 +8604,11 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 					if(diff <= this.PERFECT_WINDOW) {
 						this.judge_sprite.loadGraphic("assets/images/judge_sprites/perfect.png");
 						judge = "Perfect";
-						LevelStats.ex_score += 3;
 						closest_tick.setJudge(JudgeType.PERFECT);
 						var tmp = closest_tick.getEnchanted();
 					} else if(diff <= this.GREAT_WINDOW) {
 						this.judge_sprite.loadGraphic("assets/images/judge_sprites/great.png");
 						judge = "Great";
-						LevelStats.ex_score += 2;
 						closest_tick.setJudge(JudgeType.GREAT);
 					} else {
 						this.judge_sprite.loadGraphic("assets/images/judge_sprites/ok.png");
@@ -9344,9 +9354,9 @@ LevelStats.startData = function() {
 		LevelStats.save_data.bind("SaveData");
 	}
 	if(LevelStats.save_data.data.high_scores == null) {
-		LevelStats.save_data.data.high_scores = [-1,-1,-1,-1,-1,-1];
-		LevelStats.save_data.data.hidden_high_scores = [-1,-1,-1,-1,-1,-1];
-		LevelStats.save_data.data.levels_seen = [true,false,false,false,false,false];
+		LevelStats.save_data.data.high_scores = [-1,-1,-1,-1,-1,-1,-1];
+		LevelStats.save_data.data.hidden_high_scores = [-1,-1,-1,-1,-1,-1,-1];
+		LevelStats.save_data.data.levels_seen = [false,true,false,false,false,false,false];
 	}
 };
 LevelStats.changeTickFormat = function(level_no) {
@@ -9410,9 +9420,19 @@ LevelStats.update = function(elapsed) {
 		}
 	}
 };
-LevelStats.hitOnce = function() {
+LevelStats.hitOnce = function(judge) {
 	LevelStats.score += 10 * (1 + 0.1 * Math.min(50,++LevelStats.combo)) | 0;
 	LevelStats.max_combo = Math.max(LevelStats.max_combo,LevelStats.combo) | 0;
+	LevelStats.shots_landed++;
+	switch(judge._hx_index) {
+	case 1:
+		LevelStats.ex_score += 3;
+		break;
+	case 2:
+		LevelStats.ex_score += 2;
+		break;
+	default:
+	}
 };
 LevelStats.createTicks = function() {
 	LevelStats._ticks = [];
@@ -9471,7 +9491,7 @@ LevelStats.debugTickDisplay = function() {
 			output += "#";
 		}
 	}
-	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 437, className : "LevelStats", methodName : "debugTickDisplay"});
+	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 447, className : "LevelStats", methodName : "debugTickDisplay"});
 };
 LevelStats.__super__ = BaseLevel;
 LevelStats.prototype = $extend(BaseLevel.prototype,{
@@ -10708,7 +10728,6 @@ MenuState.prototype = $extend(flixel_FlxState.prototype,{
 	create: function() {
 		Logger.createLogger();
 		flixel_FlxG.mouse.unload();
-		LevelStats.startData();
 		this.set_bgColor(0);
 		this.title = new flixel_text_FlxText(50,150,0,"Warlock's Groove",32);
 		this.title.set_alignment("center");
@@ -11035,7 +11054,7 @@ MenuState.prototype = $extend(flixel_FlxState.prototype,{
 		});
 	}
 	,clickExit: function() {
-		haxe_Log.trace("Exiting",{ fileName : "source/MenuState.hx", lineNumber : 99, className : "MenuState", methodName : "clickExit"});
+		haxe_Log.trace("Exiting",{ fileName : "source/MenuState.hx", lineNumber : 98, className : "MenuState", methodName : "clickExit"});
 	}
 	,__class__: MenuState
 });
@@ -11698,7 +11717,7 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 	,handleMonsterProjectileCollisions: function(monsters,projectiles) {
 		if(projectiles.getType() != AttackType.ENEMY) {
 			if(projectiles.getType() == AttackType.RED && !(js_Boot.__cast(projectiles , MagMissile)).blow) {
-				LevelStats.hitOnce();
+				LevelStats.hitOnce(projectiles._timing);
 			}
 			if(((monsters) instanceof Cat)) {
 				var cat = js_Boot.__cast(monsters , Cat);

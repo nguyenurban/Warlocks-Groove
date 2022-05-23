@@ -226,9 +226,10 @@ class LevelStats extends BaseLevel
 		}
 		if (save_data.data.high_scores == null)
 		{
-			save_data.data.high_scores = [-1, -1, -1, -1, -1, -1];
-			save_data.data.hidden_high_scores = [-1, -1, -1, -1, -1, -1];
-			save_data.data.levels_seen = [true, false, false, false, false, false];
+			// NOTE: all of these arrays are 1-indexed
+			save_data.data.high_scores = [-1, -1, -1, -1, -1, -1, -1];
+			save_data.data.hidden_high_scores = [-1, -1, -1, -1, -1, -1, -1];
+			save_data.data.levels_seen = [false, true, false, false, false, false, false];
 		}
 	}
 
@@ -335,10 +336,19 @@ class LevelStats extends BaseLevel
 	/**
 	 * Call this whenever a player attack hits an enemy to update combo and score.
 	 */
-	public static function hitOnce()
+	public static function hitOnce(judge:LevelState.JudgeType)
 	{
 		score += Std.int(10 * (1 + 0.1 * Math.min(50, ++combo)));
 		max_combo = Std.int(Math.max(max_combo, combo));
+		shots_landed++;
+		switch (judge)
+		{
+			case LevelState.JudgeType.PERFECT:
+				ex_score += 3;
+			case LevelState.JudgeType.GREAT:
+				ex_score += 2;
+			default:
+		}
 	}
 
 	private static function createTicks()

@@ -114,7 +114,7 @@ class RoomEight extends LevelState
 		{
 			if (projectiles.getType() == RED && !cast(projectiles, MagMissile).blow)
 			{
-				LevelStats.hitOnce();
+				LevelStats.hitOnce(projectiles._timing);
 			}
 			if (Std.isOfType(monsters, Cat))
 			{

@@ -39,19 +39,33 @@ class LevelSelect extends FlxState
 		level1.x = (FlxG.width / 2) - (level1.width / 2) - 150;
 		level1.y = (FlxG.height / 2) - 150;
 		add(level1);
-
-		level2 = new FlxButtonPlus(0, 0, () ->
+		if (LevelStats.save_data.data.high_scores[1] != -1)
 		{
-			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+			var level1_hi_score = new FlxText(level1.x, level1.y + 40, 0, "Best score: " + LevelStats.save_data.data.high_scores[1]);
+			add(level1_hi_score);
+		}
+
+		if (LevelStats.save_data.data.levels_seen[2])
+		{
+			level2 = new FlxButtonPlus(0, 0, () ->
 			{
-				Logger.startLevel(201, "level select");
-				LevelStats.initialize(2, false);
-				FlxG.switchState(new LvlTwoRoomOne());
-			});
-		}, "Level 2", 100, 30);
-		level2.x = (FlxG.width / 2) - (level2.width / 2) - 150;
-		level2.y = (FlxG.height / 2) - 80;
-		add(level2);
+				FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+				{
+					Logger.startLevel(201, "level select");
+					LevelStats.initialize(2, false);
+					FlxG.switchState(new LvlTwoRoomOne());
+				});
+			}, "Level 2", 100, 30);
+			level2.x = (FlxG.width / 2) - (level2.width / 2) - 150;
+			level2.y = (FlxG.height / 2) - 80;
+			add(level2);
+
+			if (LevelStats.save_data.data.high_scores[2] != -1)
+			{
+				var level2_hi_score = new FlxText(level2.x, level2.y + 40, 0, "Best score: " + LevelStats.save_data.data.high_scores[2]);
+				add(level2_hi_score);
+			}
+		}
 
 		// level3 = new FlxButtonPlus(0, 0, () ->
 		// {

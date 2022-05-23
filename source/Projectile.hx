@@ -27,6 +27,7 @@ class Projectile extends FlxSprite
 	public var src = "n/a";
 
 	public var origin_point:FlxPoint;
+	public var _timing:LevelState.JudgeType;
 
 	public var timer:FlxTimer;
 	public var hit_enemies:Array<Dynamic>;
@@ -38,6 +39,7 @@ class Projectile extends FlxSprite
 		_target = target;
 		_type = type;
 		timer = new FlxTimer();
+		_timing = timing;
 		_enchanted = enchanted;
 		origin_point = this.getMidpoint();
 		src = source;

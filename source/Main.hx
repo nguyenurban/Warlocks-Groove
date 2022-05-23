@@ -20,6 +20,7 @@ class Main extends Sprite
 		// addChild(new FlxGame(810, 540, PlayState));   // Use for a zoomed in camera
 		FlxG.fixedTimestep = false;
 		FlxG.autoPause = false;
+		LevelStats.startData();
 		addChild(new FlxGame(1080, 720, MenuState));
 	}
 }

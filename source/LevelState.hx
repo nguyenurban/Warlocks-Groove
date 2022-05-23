@@ -561,7 +561,7 @@ class LevelState extends FlxState
 			}
 			if (projectiles.getType() == RED && projectiles.hit_enemies.length == 1)
 			{
-				LevelStats.hitOnce();
+				LevelStats.hitOnce(projectiles._timing);
 			}
 		}
 	}
@@ -729,7 +729,6 @@ class LevelState extends FlxState
 						// judge_text.text = "Perfect!!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/perfect.png");
 						judge = "Perfect";
-						LevelStats.ex_score += 3;
 						// timing = LevelState.JudgeType.PERFECT;
 						closest_tick.setJudge(LevelState.JudgeType.PERFECT);
 						if (closest_tick.getEnchanted())
@@ -742,7 +741,6 @@ class LevelState extends FlxState
 						// judge_text.text = "Great!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/great.png");
 						judge = "Great";
-						LevelStats.ex_score += 2;
 						// timing = LevelState.JudgeType.GREAT;
 						closest_tick.setJudge(LevelState.JudgeType.GREAT);
 					}
@@ -986,6 +984,7 @@ class LevelState extends FlxState
 		if (nextLevel == null)
 		{
 			Logger.levelEnd("game completion exit");
+			LevelStats.stopMusic();
 			FlxG.switchState(new MenuState());
 		}
 		else
