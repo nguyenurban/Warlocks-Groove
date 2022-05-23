@@ -16,9 +16,12 @@ class IceLaser extends Projectile
 	 */
 	public var slowed:Float;
 
+	public var deg:Float;
+
 	public function new(x:Float, y:Float, target:FlxObject, timing:JudgeType, enchanted:Bool, rotation:Float)
 	{
 		super(x, y, target, LevelState.AttackType.PURPLE, timing, enchanted);
+		deg = rotation;
 		MOVEMENT_SPEED = 2000;
 		makeGraphic(16, 16, FlxColor.TRANSPARENT);
 		origin.set(0, pixels.height / 2);
@@ -41,7 +44,7 @@ class IceLaser extends Projectile
 
 		if (enchanted && timing == PERFECT)
 		{
-			_damage *= 1.2;
+			_damage *= 1.5;
 		}
 
 		_heading = FlxG.mouse.getPosition();

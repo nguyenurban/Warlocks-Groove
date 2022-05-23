@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "84";
+	app.meta.h["build"] = "85";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -7716,6 +7716,7 @@ HxOverrides.now = function() {
 };
 var IceLaser = function(x,y,target,timing,enchanted,rotation) {
 	Projectile.call(this,x,y,target,AttackType.PURPLE,timing,enchanted);
+	this.deg = rotation;
 	this.MOVEMENT_SPEED = 2000;
 	this.makeGraphic(16,16,0);
 	this.origin.set(0,this.get_pixels().height / 2);
@@ -7736,7 +7737,7 @@ var IceLaser = function(x,y,target,timing,enchanted,rotation) {
 	default:
 	}
 	if(enchanted && timing == JudgeType.PERFECT) {
-		this._damage *= 1.2;
+		this._damage *= 1.5;
 	}
 	this._heading = flixel_FlxG.mouse.getPosition();
 	this.velocity.set(this.MOVEMENT_SPEED,0);
@@ -8330,6 +8331,9 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			}
 			if(projectiles.getType() == AttackType.PURPLE) {
 				(js_Boot.__cast(monsters , Enemy)).ice_slowed = Math.max((js_Boot.__cast(projectiles , IceLaser)).slowed,(js_Boot.__cast(monsters , Enemy)).ice_slowed);
+				var temp = this._player.getMidpoint();
+				var laserGraphic = new LaserBeam(temp.x,temp.y,temp.distanceTo(projectiles.getMidpoint()),(js_Boot.__cast(projectiles , IceLaser)).deg);
+				this.add(laserGraphic);
 			}
 			if(!(projectiles.getType() == AttackType.PURPLE && projectiles._enchanted)) {
 				projectiles.kill();
@@ -8340,6 +8344,11 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 		}
 	}
 	,handleProjectileWallsCollisions: function(projectiles,walls) {
+		if(projectiles.getType() == AttackType.PURPLE) {
+			var temp = this._player.getMidpoint();
+			var laserGraphic = new LaserBeam(temp.x,temp.y,temp.distanceTo(projectiles.getMidpoint()),(js_Boot.__cast(projectiles , IceLaser)).deg);
+			this.add(laserGraphic);
+		}
 		projectiles.kill();
 	}
 	,handleMonsterActions: function(e) {
@@ -8451,8 +8460,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				LevelStats.combo = 0;
 			} else {
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 665, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 666, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 674, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 675, className : "LevelState", methodName : "shoot"});
 				var timing = this.getTiming(diff);
 				var proj;
 				if(closest_tick.getType() == AttackType.RED) {
@@ -8556,8 +8565,6 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 		var length = 1000;
 		var laser = new IceLaser(source.x,source.y,target,timing,enchanted,deg);
 		this._projectiles.add(laser);
-		var laserGraphic = new LaserBeam(source.x,source.y,length,deg);
-		this.add(laserGraphic);
 		return laser;
 	}
 	,createTexts: function() {

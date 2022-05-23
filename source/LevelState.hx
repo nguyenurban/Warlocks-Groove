@@ -532,6 +532,9 @@ class LevelState extends FlxState
 				// {
 				// 	cast(monsters, Enemy).setSpeed(mons_speed);
 				// }, 1);
+				var temp = _player.getMidpoint();
+				var laserGraphic:FlxSprite = new LaserBeam(temp.x, temp.y, temp.distanceTo(projectiles.getMidpoint()), cast(projectiles, IceLaser).deg);
+				add(laserGraphic);
 			}
 			if (!(projectiles.getType() == PURPLE && projectiles._enchanted))
 			{
@@ -546,6 +549,12 @@ class LevelState extends FlxState
 
 	private function handleProjectileWallsCollisions(projectiles:Projectile, walls:FlxTilemap)
 	{
+		if (projectiles.getType() == PURPLE)
+		{
+			var temp = _player.getMidpoint();
+			var laserGraphic:FlxSprite = new LaserBeam(temp.x, temp.y, temp.distanceTo(projectiles.getMidpoint()), cast(projectiles, IceLaser).deg);
+			add(laserGraphic);
+		}
 		projectiles.kill();
 	}
 
@@ -825,8 +834,8 @@ class LevelState extends FlxState
 		var length:Float = 1000;
 		var laser:IceLaser = new IceLaser(source.x, source.y, target, timing, enchanted, deg);
 		_projectiles.add(laser);
-		var laserGraphic:FlxSprite = new LaserBeam(source.x, source.y, length, deg);
-		add(laserGraphic);
+		// var laserGraphic:FlxSprite = new LaserBeam(source.x, source.y, length, deg);
+		// add(laserGraphic);
 		return laser;
 	}
 
