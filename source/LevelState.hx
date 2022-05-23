@@ -684,6 +684,7 @@ class LevelState extends FlxState
 				/*----------------------
 					MISFIRE LOGIC GOES HERE
 					---------------------- */
+				LevelStats.ex_score = Std.int(Math.max(0, LevelStats.ex_score - 1));
 				Logger.playerShot("Misfire", "Misfire", "x");
 				LevelStats.combo = 0;
 			}
@@ -726,6 +727,7 @@ class LevelState extends FlxState
 						// judge_text.text = "Perfect!!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/perfect.png");
 						judge = "Perfect";
+						LevelStats.ex_score += 3;
 						// timing = LevelState.JudgeType.PERFECT;
 						closest_tick.setJudge(LevelState.JudgeType.PERFECT);
 						if (closest_tick.getEnchanted())
@@ -738,6 +740,7 @@ class LevelState extends FlxState
 						// judge_text.text = "Great!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/great.png");
 						judge = "Great";
+						LevelStats.ex_score += 2;
 						// timing = LevelState.JudgeType.GREAT;
 						closest_tick.setJudge(LevelState.JudgeType.GREAT);
 					}
