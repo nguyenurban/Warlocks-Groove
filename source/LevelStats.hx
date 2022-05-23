@@ -365,7 +365,10 @@ class LevelStats extends BaseLevel
 	{
 		for (i in _ticks)
 		{
-			i.x = (i.getTick() * shortest_note_len - timer) * scroll_mul + TICK_X_OFFSET;
+			i.x = (i.getTick() * shortest_note_len
+				- timer) * scroll_mul
+				+ TICK_X_OFFSET
+				- (i.getEnchanted() && i.getJudge() == LevelState.JudgeType.NONE ? 32 : 0);
 		}
 		if (shortest_notes_elpsd >= Std.int(_ticks.length / 2))
 		{
