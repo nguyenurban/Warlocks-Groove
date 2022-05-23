@@ -67,6 +67,11 @@ class Enemy extends FlxSprite
 		return _dps;
 	}
 
+	public function getSize():Float
+	{
+		return _size;
+	}
+
 	public function setSpeed(spd:Float)
 	{
 		_speed = spd;

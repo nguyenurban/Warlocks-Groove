@@ -28,6 +28,7 @@ class RoomNo
 	public static var L2R6 = 206;
 	public static var L2R7 = 207;
 	public static var L2R8 = 208;
+	public static var L3R1 = 301;
 
-	public static var CHKPTS = [1 => [L1R1, L1R7], 2 => [L2R1, L2R7]];
+	public static var CHKPTS = [1 => [L1R1, L1R7], 2 => [L2R1, L2R7], 3 => [L2R1]];
 }

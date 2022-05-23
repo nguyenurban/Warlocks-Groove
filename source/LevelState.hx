@@ -459,6 +459,8 @@ class LevelState extends FlxState
 				_monsters.add(new Goblin(entity.x, entity.y, _player, walls));
 			case "water_strider":
 				_monsters.add(new WaterStrider(entity.x, entity.y, _player, walls));
+			case "slime":
+				_monsters.add(new Slime(entity.x, entity.y, _player, walls));
 			default:
 		}
 	}
@@ -515,6 +517,19 @@ class LevelState extends FlxState
 			monsters.health -= projectiles.getDamage();
 			if (monsters.health <= 0)
 			{
+				switch (Type.typeof(monsters))
+				{
+					case TClass(Slime):
+						for (i in 0...2)
+						{
+							for (j in 0...2)
+							{
+								_monsters.add(new SmallSlime(monsters.x + i * cast(monsters, Enemy).getSize() / 2,
+									monsters.y + j * cast(monsters, Enemy).getSize() / 2, _player, walls));
+							}
+						}
+					default:
+				}
 				_monsters.remove(cast(monsters, Enemy));
 				monsters.kill();
 				kill_sound.play();

@@ -23,19 +23,19 @@ import js.html.idb.Factory;
 
 using flixel.util.FlxSpriteUtil;
 
-class LvlTwoRoomEight extends LevelState
+class LvlThreeRoomOne extends LevelState
 {
 	override public function create()
 	{
 		super.create();
-		room_no = RoomNo.L2R8;
+		room_no = RoomNo.L3R1;
 		FlxG.fixedTimestep = false;
 
-		end_of_level = true;
+		end_of_level = false;
 		bgColor = 0xffcccccc;
 		createLevel();
-		nextLevel = LvlThreeRoomOne;
-		currLevel = LvlTwoRoomEight;
+		nextLevel = null;
+		currLevel = LvlThreeRoomOne;
 
 		// beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		// beat_sound.volume = 0.3;
@@ -50,7 +50,6 @@ class LvlTwoRoomEight extends LevelState
 		// level_bounds = FlxCollision.createCameraWall(FlxG.camera, true, 1);
 		createHUDandTicks();
 		levelUpdate();
-		_hud.spawnBossBar(_monsters.getFirstAlive());
 
 		// timer = 0;
 		// beat = 0;
@@ -61,7 +60,7 @@ class LvlTwoRoomEight extends LevelState
 
 	function createLevel()
 	{
-		map = new FlxOgmo3Loader(AssetPaths.map1__ogmo, AssetPaths.lvl2room8__json);
+		map = new FlxOgmo3Loader(AssetPaths.map1__ogmo, AssetPaths.lvl3room1__json);
 		walls = map.loadTilemap(AssetPaths.tiles__png, "walls");
 		interactables = map.loadTilemap(AssetPaths.tiles__png, "Interactables");
 		add(walls);

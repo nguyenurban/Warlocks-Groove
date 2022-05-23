@@ -217,6 +217,8 @@ class LevelStats extends BaseLevel
 				tick_format = [RED, RED, RED, RED];
 			case 2:
 				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
+			case 3:
+				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
 			default:
 		}
 	}

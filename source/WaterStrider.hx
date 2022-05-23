@@ -29,20 +29,9 @@ class WaterStrider extends Enemy
 		chasing = false;
 		_tilemap = tilemap;
 		prop_vel = FlxVelocity.velocityFromAngle(Random.float(0, 360), _speed);
-		while (_tilemap.ray(this.getMidpoint(),
-			this.getMidpoint()
-				.add(_size / 2
-					+ prop_vel.x * _speed
-					+ acceleration.x * ACTION_TIME,
-					_size / 2 * 128 / 144
-					+ prop_vel.y * _speed
-					+ acceleration.y * ACTION_TIME)))
-		{
-			prop_vel.rotate(FlxPoint.weak(0, 0), 90);
-		}
-		dodge_dir = 90 - Random.int(0, 1) * 180;
-		dodge_timer = new FlxTimer();
-		dodge_timer.start(Random.float(3, 5));
+		// dodge_dir = 90 - Random.int(0, 1) * 180;
+		// dodge_timer = new FlxTimer();
+		// dodge_timer.start(Random.float(3, 5));
 		loadGraphic("assets/images/WaterStrider_Sprite_Sheet.png", true, 144, 128);
 		updateHitbox();
 		setFacingFlip(LEFT, false, false);
@@ -61,42 +50,39 @@ class WaterStrider extends Enemy
 
 	override function takeAction()
 	{
-		if (dodge_timer.finished)
-		{
-			dodge_dir = 90 - Random.int(0, 1) * 180;
-			dodge_timer.reset(Random.float(3, 5));
-		}
-		if (chasing
-			&& _dodgeTarget != null
-			&& FlxMath.distanceToPoint(this, _dodgeTarget.getMidpoint()) < DODGE_RAD
-			&& this.velocity.x * (this.getMidpoint()
-				.x - _dodgeTarget.getMidpoint().x) + this.velocity.y * (this.getMidpoint().y - _dodgeTarget.getMidpoint().y) < 0)
-		{
-			FlxVelocity.moveTowardsPoint(this, _dodgeTarget.getMidpoint(), _speed * 1.5);
-			velocity.rotate(FlxPoint.weak(0, 0), dodge_dir);
-		}
+		// if (dodge_timer.finished)
+		// {
+		// 	dodge_dir = 90 - Random.int(0, 1) * 180;
+		// 	dodge_timer.reset(Random.float(3, 5));
+		// }
+		// if (chasing
+		// 	&& _dodgeTarget != null
+		// 	&& FlxMath.distanceToPoint(this, _dodgeTarget.getMidpoint()) < DODGE_RAD
+		// 	&& this.velocity.x * (this.getMidpoint()
+		// 		.x - _dodgeTarget.getMidpoint().x) + this.velocity.y * (this.getMidpoint().y - _dodgeTarget.getMidpoint().y) < 0)
+		// {
+		// 	FlxVelocity.moveTowardsPoint(this, _dodgeTarget.getMidpoint(), _speed * 1.5);
+		// 	velocity.rotate(FlxPoint.weak(0, 0), dodge_dir);
+		// }
 		if (!chasing && _counter > ACTION_TIME)
 		{
-			velocity = prop_vel;
+			velocity.x = prop_vel.x;
+			velocity.y = prop_vel.y;
 			acceleration.set(-velocity.x / ACTION_TIME, -velocity.y / ACTION_TIME);
+		}
+		else if (!chasing)
+		{
+			FlxVelocity.moveTowardsPoint(this, _target.getMidpoint(), _speed);
+			prop_vel.x = velocity.x;
+			prop_vel.y = velocity.y;
+			velocity.set(0, 0);
 		}
 		else if (chasing && _counter > ACTION_TIME)
 		{
 			chasing = false;
-			velocity.set(0, 0);
 			acceleration.set(0, 0);
-			prop_vel = FlxVelocity.velocityFromAngle(Random.float(0, 360), _speed);
-			while (_tilemap.ray(this.getMidpoint(),
-				this.getMidpoint()
-					.add(_size / 2
-						+ prop_vel.x * _speed
-						+ acceleration.x * ACTION_TIME,
-						_size / 2 * 128 / 144
-						+ prop_vel.y * _speed
-						+ acceleration.y * ACTION_TIME)))
-			{
-				prop_vel.rotate(FlxPoint.weak(0, 0), 90);
-			}
+			// prop_vel = FlxVelocity.velocityFromAngle(Random.float(0, 360), _speed);
+			velocity.set(0, 0);
 			_counter = 0;
 		}
 
