@@ -369,6 +369,7 @@ class LevelState extends FlxState
 			if (LevelStats.shortest_notes_elpsd % LevelStats.snpq == 0)
 			{
 				playBeat();
+				_hud.flashBeatLight();
 			}
 			if (LevelStats.shortest_notes_elpsd % LevelStats.tick_format.length == 0)
 			{

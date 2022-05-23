@@ -6,6 +6,8 @@ import flixel.addons.display.shapes.FlxShapeArrow;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxPoint;
 import flixel.text.FlxText;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
@@ -21,6 +23,8 @@ class HUD extends FlxTypedGroup<FlxSprite>
 	private var _boss_hp:FlxBar;
 	private var score_text:FlxText;
 	private var m_combo_text:FlxText;
+
+	public var beat_light:FlxSprite;
 
 	// supposed boundaries of timeline display
 	private var TIMELINE_LEFT = 100;
@@ -64,6 +68,11 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		m_combo_text = new FlxText(TIMELINE_LEFT + 150, TIMELINE_BOTTOM - 20, 0, "Max Combo ", 12);
 		m_combo_text.setBorderStyle(SHADOW, FlxColor.BLACK, 2);
 		add(m_combo_text);
+
+		beat_light = new FlxSprite(FlxG.width / 2 - 30, TIMELINE_BOTTOM - TIMELINE_TOP);
+		beat_light.loadGraphic("assets/images/beat_light.png");
+		beat_light.alpha = 0;
+		add(beat_light);
 		forEach((sprite:FlxSprite) -> sprite.scrollFactor.set(0, 0));
 	}
 
@@ -82,6 +91,13 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		score_text.text = "Score " + (LevelStats.initialized ? LevelStats.score : 0);
 		m_combo_text.text = "Max Combo " + (LevelStats.initialized ? LevelStats.max_combo : 0);
 		if (_boss_hp != null) {}
+	}
+
+	public function flashBeatLight()
+	{
+		beat_light.alpha = 0.75;
+		var cd = (LevelStats.initialized ? 60 / LevelStats.bpm * 0.9 : 0.5);
+		FlxTween.tween(beat_light, {alpha: 0}, cd, {ease: FlxEase.quadIn, type: FlxTweenType.PERSIST});
 	}
 
 	// boss hp bar will only appear when in a specific room designated as a boss arena
