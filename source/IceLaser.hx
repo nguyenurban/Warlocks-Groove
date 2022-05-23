@@ -11,6 +11,9 @@ import flixel.util.FlxColor;
 
 class IceLaser extends Projectile
 {
+	/**
+	 * How long the enemies are slowed for.
+	 */
 	public var slowed:Float;
 
 	public function new(x:Float, y:Float, target:FlxObject, timing:JudgeType, enchanted:Bool, rotation:Float)
@@ -25,24 +28,20 @@ class IceLaser extends Projectile
 		switch (timing)
 		{
 			case PERFECT:
-				_speed = MOVEMENT_SPEED * 1.2;
 				_damage = 3;
-				slowed = 0.8;
+				slowed = 3;
 			case GREAT:
-				_speed = MOVEMENT_SPEED;
 				_damage = 2;
-				slowed = 0.5;
+				slowed = 2;
 			case OK:
-				_speed = MOVEMENT_SPEED * 0.8;
 				_damage = 1;
-				slowed = 0.2;
+				slowed = 0.25;
 			default:
 		}
 
 		if (enchanted && timing == PERFECT)
 		{
 			_damage *= 1.2;
-			_speed *= 1.2;
 		}
 
 		_heading = FlxG.mouse.getPosition();

@@ -7,6 +7,7 @@ import flixel.util.FlxColor;
 
 class Enemy extends FlxSprite
 {
+	private var BASE_SPEED = 20.0;
 	private var _speed:Float;
 	private var _size:Int;
 	private var _dps:Float;
@@ -14,6 +15,12 @@ class Enemy extends FlxSprite
 	private var _counter:Float;
 	private var _tilemap:FlxTilemap;
 	private var _dodgeTarget:Projectile;
+
+	/**
+	 * Whether or not the enemy is currently slowed by an ice laser.
+	 * < 0 = not slowed, > 0 = # of seconds of slow left
+	 */
+	public var ice_slowed:Float;
 
 	public var DMG_FLICKER = 0.75;
 
@@ -26,18 +33,21 @@ class Enemy extends FlxSprite
 	{
 		super(x, y);
 		health = 20;
-		_speed = 20;
+		_speed = BASE_SPEED;
 		_size = 20;
 		_dps = 20;
 		_target = target;
 		_counter = 0;
 		drag.x = drag.y = 3000;
 		setSize(_size, _size);
+		ice_slowed = 0;
 	}
 
 	override function update(elapsed:Float)
 	{
 		_counter += elapsed;
+		ice_slowed -= elapsed;
+		_speed = (ice_slowed > 0 ? BASE_SPEED * 0.6 : BASE_SPEED);
 		takeAction();
 		super.update(elapsed);
 	}

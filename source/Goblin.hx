@@ -21,8 +21,8 @@ class Goblin extends Enemy
 	{
 		super(x, y, target);
 		// Set stats here
+		BASE_SPEED = 80;
 		health = 35;
-		_speed = 80;
 		_dps = 20;
 		_size = 32;
 		_tilemap = tilemap;

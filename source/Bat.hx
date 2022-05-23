@@ -15,9 +15,9 @@ class Bat extends Enemy
 		super(x, y, target);
 		// Set stats here
 		health = 20;
-		_speed = 60;
 		_dps = 20;
 		_size = 32;
+		BASE_SPEED = 60;
 		_tilemap = tilemap;
 		setSize(_size, _size);
 		scale.set(_size / 32, _size / 32);

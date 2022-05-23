@@ -41,8 +41,8 @@ class Cat extends Enemy
 	public function new(x:Float, y:Float, player:Player, signal:FlxTypedSignal<Array<Float>->Void>)
 	{
 		super(x, y, player);
+		BASE_SPEED = 50;
 		health = 300;
-		_speed = 50;
 		_dps = 20;
 		_target = player;
 		_size = 128;

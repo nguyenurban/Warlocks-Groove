@@ -508,10 +508,6 @@ class LevelState extends FlxState
 		if (projectiles.getType() != ENEMY && !projectiles.hit_enemies.contains(monsters))
 		{
 			projectiles.hit_enemies.push(monsters);
-			if (projectiles.getType() == RED && !cast(projectiles, MagMissile).blow)
-			{
-				LevelStats.hitOnce();
-			}
 			monsters.health -= projectiles.getDamage();
 			if (monsters.health <= 0)
 			{
@@ -528,18 +524,22 @@ class LevelState extends FlxState
 			}
 			if (projectiles.getType() == PURPLE)
 			{
-				var mons_speed:Float = cast(monsters, Enemy).getSpeed();
-				cast(monsters, Enemy).setSpeed(mons_speed * cast(projectiles, IceLaser).slowed);
-				var slowTimer:FlxTimer = new FlxTimer();
-				slowTimer.start(0.25, function(Timer:FlxTimer)
-				{
-					cast(monsters, Enemy).setSpeed(mons_speed);
-				}, 1);
-				LevelStats.hitOnce();
+				// var mons_speed:Float = cast(monsters, Enemy).getSpeed();
+				cast(monsters, Enemy).ice_slowed = Math.max(cast(projectiles, IceLaser).slowed, cast(monsters, Enemy).ice_slowed);
+				// cast(monsters, Enemy).setSpeed(mons_speed * cast(projectiles, IceLaser).slowed);
+				// var slowTimer:FlxTimer = new FlxTimer();
+				// slowTimer.start(0.25, function(Timer:FlxTimer)
+				// {
+				// 	cast(monsters, Enemy).setSpeed(mons_speed);
+				// }, 1);
 			}
 			if (!(projectiles.getType() == PURPLE && projectiles._enchanted))
 			{
 				projectiles.kill();
+			}
+			if (projectiles.getType() == RED && projectiles.hit_enemies.length == 1)
+			{
+				LevelStats.hitOnce();
 			}
 		}
 	}

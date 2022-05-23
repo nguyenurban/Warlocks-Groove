@@ -13,8 +13,8 @@ class NotOctorok extends Enemy
 		super(x, y, target);
 		// Set stats here
 		health = 40;
-		_speed = 40;
 		_dps = 20;
+		BASE_SPEED = 40;
 		_size = 32;
 		value = 75;
 		_tilemap = tilemap;

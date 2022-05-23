@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "83";
+	app.meta.h["build"] = "84";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -6246,15 +6246,17 @@ flixel_FlxSprite.prototype = $extend(flixel_FlxObject.prototype,{
 var Enemy = function(x,y,target) {
 	this.value = 50;
 	this.DMG_FLICKER = 0.75;
+	this.BASE_SPEED = 20.0;
 	flixel_FlxSprite.call(this,x,y);
 	this.health = 20;
-	this._speed = 20;
+	this._speed = this.BASE_SPEED;
 	this._size = 20;
 	this._dps = 20;
 	this._target = target;
 	this._counter = 0;
 	this.drag.set_x(this.drag.set_y(3000));
 	this.setSize(this._size,this._size);
+	this.ice_slowed = 0;
 };
 $hxClasses["Enemy"] = Enemy;
 Enemy.__name__ = "Enemy";
@@ -6262,6 +6264,8 @@ Enemy.__super__ = flixel_FlxSprite;
 Enemy.prototype = $extend(flixel_FlxSprite.prototype,{
 	update: function(elapsed) {
 		this._counter += elapsed;
+		this.ice_slowed -= elapsed;
+		this._speed = this.ice_slowed > 0 ? this.BASE_SPEED * 0.6 : this.BASE_SPEED;
 		this.takeAction();
 		flixel_FlxSprite.prototype.update.call(this,elapsed);
 	}
@@ -6295,9 +6299,9 @@ Enemy.prototype = $extend(flixel_FlxSprite.prototype,{
 var Bat = function(x,y,target,tilemap) {
 	Enemy.call(this,x,y,target);
 	this.health = 20;
-	this._speed = 60;
 	this._dps = 20;
 	this._size = 32;
+	this.BASE_SPEED = 60;
 	this._tilemap = tilemap;
 	this.setSize(this._size,this._size);
 	this.scale.set(this._size / 32,this._size / 32);
@@ -6540,8 +6544,8 @@ var Cat = function(x,y,player,signal) {
 	this.ATTACK_TIME_CAP_MAX = 3.0;
 	this.ATTACK_TIME_CAP_MIN = 1.0;
 	Enemy.call(this,x,y,player);
+	this.BASE_SPEED = 50;
 	this.health = 300;
-	this._speed = 50;
 	this._dps = 20;
 	this._target = player;
 	this._size = 128;
@@ -6898,8 +6902,8 @@ EnemyBullet.prototype = $extend(Projectile.prototype,{
 var EnemyBullet_target_point = null;
 var Goblin = function(x,y,target,tilemap) {
 	Enemy.call(this,x,y,target);
+	this.BASE_SPEED = 80;
 	this.health = 35;
-	this._speed = 80;
 	this._dps = 20;
 	this._size = 32;
 	this._tilemap = tilemap;
@@ -7718,25 +7722,21 @@ var IceLaser = function(x,y,target,timing,enchanted,rotation) {
 	this._energy = 15;
 	switch(timing._hx_index) {
 	case 1:
-		this._speed = this.MOVEMENT_SPEED * 1.2;
 		this._damage = 3;
-		this.slowed = 0.8;
+		this.slowed = 3;
 		break;
 	case 2:
-		this._speed = this.MOVEMENT_SPEED;
 		this._damage = 2;
-		this.slowed = 0.5;
+		this.slowed = 2;
 		break;
 	case 3:
-		this._speed = this.MOVEMENT_SPEED * 0.8;
 		this._damage = 1;
-		this.slowed = 0.2;
+		this.slowed = 0.25;
 		break;
 	default:
 	}
 	if(enchanted && timing == JudgeType.PERFECT) {
 		this._damage *= 1.2;
-		this._speed *= 1.2;
 	}
 	this._heading = flixel_FlxG.mouse.getPosition();
 	this.velocity.set(this.MOVEMENT_SPEED,0);
@@ -8313,9 +8313,6 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 	,handleMonsterProjectileCollisions: function(monsters,projectiles) {
 		if(projectiles.getType() != AttackType.ENEMY && projectiles.hit_enemies.indexOf(monsters) == -1) {
 			projectiles.hit_enemies.push(monsters);
-			if(projectiles.getType() == AttackType.RED && !(js_Boot.__cast(projectiles , MagMissile)).blow) {
-				LevelStats.hitOnce();
-			}
 			monsters.health -= projectiles.getDamage();
 			if(monsters.health <= 0) {
 				this._monsters.remove(js_Boot.__cast(monsters , Enemy));
@@ -8332,16 +8329,13 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				this.hit_sound.play();
 			}
 			if(projectiles.getType() == AttackType.PURPLE) {
-				var mons_speed = (js_Boot.__cast(monsters , Enemy)).getSpeed();
-				(js_Boot.__cast(monsters , Enemy)).setSpeed(mons_speed * (js_Boot.__cast(projectiles , IceLaser)).slowed);
-				var slowTimer = new flixel_util_FlxTimer();
-				slowTimer.start(0.25,function(Timer) {
-					(js_Boot.__cast(monsters , Enemy)).setSpeed(mons_speed);
-				},1);
-				LevelStats.hitOnce();
+				(js_Boot.__cast(monsters , Enemy)).ice_slowed = Math.max((js_Boot.__cast(projectiles , IceLaser)).slowed,(js_Boot.__cast(monsters , Enemy)).ice_slowed);
 			}
 			if(!(projectiles.getType() == AttackType.PURPLE && projectiles._enchanted)) {
 				projectiles.kill();
+			}
+			if(projectiles.getType() == AttackType.RED && projectiles.hit_enemies.length == 1) {
+				LevelStats.hitOnce();
 			}
 		}
 	}
@@ -10759,8 +10753,8 @@ MenuState.prototype = $extend(flixel_FlxState.prototype,{
 var NotOctorok = function(x,y,target,tilemap) {
 	Enemy.call(this,x,y,target);
 	this.health = 40;
-	this._speed = 40;
 	this._dps = 20;
+	this.BASE_SPEED = 40;
 	this._size = 32;
 	this.value = 75;
 	this._tilemap = tilemap;
@@ -12888,7 +12882,7 @@ var WaterStrider = function(x,y,target,tilemap) {
 	this.DODGE_RAD = 400;
 	Enemy.call(this,x,y,target);
 	this.health = 400;
-	this._speed = 120;
+	this.BASE_SPEED = 120;
 	this._dps = 20;
 	this._size = 224;
 	this.setSize(this._size,this._size * 128 / 144);

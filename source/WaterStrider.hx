@@ -21,7 +21,7 @@ class WaterStrider extends Enemy
 		super(x, y, target);
 		// Set stats here
 		health = 400;
-		_speed = 120;
+		BASE_SPEED = 120;
 		_dps = 20;
 		_size = 224;
 		setSize(_size, _size * 128 / 144);
