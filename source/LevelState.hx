@@ -813,7 +813,8 @@ class LevelState extends FlxState
 
 		laserTimer.start(eighthNote / 3, function(Timer:FlxTimer)
 		{
-			makeLaser(source, target, timing, enchanted, deg);
+			// makeLaser(source, target, timing, enchanted, deg);
+			makeLaser(_player.getMidpoint(), target, timing, enchanted, source.angleBetween(FlxG.mouse.getPosition()) - 90);
 		}, 2);
 
 		return laser;

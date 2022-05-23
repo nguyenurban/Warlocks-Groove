@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "82";
+	app.meta.h["build"] = "83";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -8554,7 +8554,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 		var eighthNote = 60 / (2 * LevelStats.bpm);
 		var laser = this.makeLaser(source,target,timing,enchanted,deg);
 		laserTimer.start(eighthNote / 3,function(Timer) {
-			_gthis.makeLaser(source,target,timing,enchanted,deg);
+			_gthis.makeLaser(_gthis._player.getMidpoint(),target,timing,enchanted,source.angleBetween(flixel_FlxG.mouse.getPosition()) - 90);
 		},2);
 		return laser;
 	}
