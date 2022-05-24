@@ -33,7 +33,7 @@ class Projectile extends FlxSprite
 	public var hit_enemies:Array<Dynamic>;
 
 	/**
-	 * Whether or not to call for pixel-perfect collision
+	 * Whether or not to call for pixel-perfect collision (most likely because the bullet is large or not circle-shaped).
 	 */
 	public var precise = false;
 

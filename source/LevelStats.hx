@@ -270,7 +270,7 @@ class LevelStats extends BaseLevel
 	public static function calculateFinalScore():Array<Int>
 	{
 		var time_bonus = Std.int(Math.max(quickest_time_bonus_val - Std.int(Math.max(cumul_timer - quickest_time_bonus, 0)) * time_bonus_penalty, 0));
-		var acc = ex_score / 5 / shots_landed;
+		var acc = ex_score / 3 / shots_landed;
 		var acc_bonus = Std.int(score * acc * 0.5);
 		var combo_bonus = Std.int(Math.min(max_combo_bonus, max_combo) * (max_combo_bonus_value / max_combo_bonus));
 		return [score, time_bonus, acc_bonus, combo_bonus];
@@ -353,34 +353,6 @@ class LevelStats extends BaseLevel
 
 	private static function createTicks()
 	{
-		// if (_ticks != null)
-		// {
-		// 	for (i in 0...(tick_format.length * 4))
-		// 	{
-		// 		_ticks[i].revive();
-		// 		_ticks[i].setType(tick_format[i % tick_format.length]);
-		// 		_ticks[i].setTick(i);
-		// 		_ticks[i].setJudge(NONE);
-		// 		_ticks[i].setEnchanted(Math.random() <= enchant_chance);
-		// 		_ticks[i].x = Std.int((i * shortest_note_len - timer) * scroll_mul) + TICK_X_OFFSET;
-		// 		_ticks[i].y = 0;
-		// 		_ticks[i].scrollFactor.set(0, 0);
-		// 	}
-		// }
-		// else
-		// {
-		// 	_ticks = new Array();
-		// 	for (i in 0...(tick_format.length * 4))
-		// 	{
-		// 		var tick = new Tick(tick_format[i % tick_format.length], i, Math.random() <= enchant_chance,
-		// 			Std.int((i * shortest_note_len - timer) * scroll_mul) + TICK_X_OFFSET, TIMELINE_BOTTOM - TIMELINE_TOP);
-		// 		_ticks[i] = tick;
-		// 		// tick.makeGraphic(20, TIMELINE_BOTTOM - TIMELINE_TOP, temp_color, true);
-		// 		// tick.x = (i * shortest_note_len - timer) * scroll_mul;
-		// 		// tick.y = -150;
-		// 		tick.scrollFactor.set(0, 0);
-		// 	}
-		// }
 		_ticks = new Array();
 		for (i in 0...(tick_format.length * 4))
 		{

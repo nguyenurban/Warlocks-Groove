@@ -62,6 +62,7 @@ class Cat extends Enemy
 		_movetimer = FlxG.random.float(MOVE_TIME_CAP_MIN, MOVE_TIME_CAP_MAX);
 		loadGraphic("assets/images/Cat_Sprite_Sheet.png", true, 32, 32);
 		scale.set(_size / 32, _size / 32);
+
 		updateHitbox();
 		setFacingFlip(LEFT, false, false);
 		setFacingFlip(RIGHT, false, false);
@@ -118,15 +119,14 @@ class Cat extends Enemy
 					]), 5);
 				case 1:
 					charging = true;
+					_signal.dispatch([3, this.getGraphicMidpoint().x, this.getGraphicMidpoint().y, CHARGE_TIME]);
 					new FlxTimer().start(CHARGE_TIME, chargeAtk);
 					_attacktimer = CHARGE_TIME + FlxG.random.float(ATTACK_TIME_CAP_MIN, ATTACK_TIME_CAP_MAX);
-
-				/**
-				 * DISABLING WAVE ATTACK TEMPORARILY
-				 */
 				case 2:
 					charging = true;
+					_signal.dispatch([3, this.getGraphicMidpoint().x, this.getGraphicMidpoint().y, CHARGE_TIME / 2]);
 					new FlxTimer().start(CHARGE_TIME / 2, waveAtk);
+					_attacktimer = CHARGE_TIME / 2 + FlxG.random.float(ATTACK_TIME_CAP_MIN, ATTACK_TIME_CAP_MAX);
 				default:
 			}
 		}

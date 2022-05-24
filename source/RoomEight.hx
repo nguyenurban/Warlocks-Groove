@@ -12,6 +12,8 @@ import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
@@ -25,6 +27,8 @@ using flixel.util.FlxSpriteUtil;
 
 class RoomEight extends LevelState
 {
+	public var charge_aura:FlxSprite;
+
 	override public function create()
 	{
 		super.create();
@@ -65,6 +69,10 @@ class RoomEight extends LevelState
 		// shortest_notes_elpsd = 0;
 		// prev_sne = 0;
 		// FlxG.sound.playMusic("assets/music/test.mp3", 0.6, true);
+		charge_aura = new FlxSprite();
+		charge_aura.loadGraphic("assets/images/charge.png", false, 0, 0, true);
+		charge_aura.alpha = 0;
+		add(charge_aura);
 	}
 
 	function createLevel()
@@ -104,6 +112,16 @@ class RoomEight extends LevelState
 				_projectiles.add(new LargeBullet(input[1], input[2], _player, _player.getMidpoint(), "Large from Cat", 200.0));
 			case 2:
 				_projectiles.add(new WaveBullet(input[1], input[2], _player, _player.getMidpoint(), "Wave from Cat", 155.0));
+			// signal to send just to start charging sprite
+			case 3:
+				charge_aura.setPosition(input[1] - 110, input[2] - 100);
+				FlxTween.tween(charge_aura, {alpha: 1}, input[3], {
+					ease: FlxEase.cubeOut,
+					onComplete: function(input:FlxTween):Void
+					{
+						FlxTween.tween(charge_aura, {alpha: 0}, 0.4, {ease: FlxEase.quadOut});
+					}
+				});
 			default:
 		}
 	}
