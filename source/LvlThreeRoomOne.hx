@@ -34,7 +34,7 @@ class LvlThreeRoomOne extends LevelState
 		end_of_level = false;
 		bgColor = 0xffcccccc;
 		createLevel();
-		nextLevel = null;
+		nextLevel = LvlThreeRoomTwo;
 		currLevel = LvlThreeRoomOne;
 
 		// beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
