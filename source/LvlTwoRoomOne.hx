@@ -93,7 +93,7 @@ class IceLaserObtained extends FlxSubState
 	{
 		super.create();
 		final boundingBox = new FlxSprite();
-		boundingBox.makeGraphic(460, 197, 0xff428bbf);
+		boundingBox.makeGraphic(490, 230, 0xff428bbf);
 		boundingBox.screenCenter(XY);
 		boundingBox.x -= 140;
 		add(boundingBox);
@@ -111,7 +111,11 @@ class IceLaserObtained extends FlxSubState
 		midTextTwo.screenCenter(X);
 		midTextTwo.x -= 140;
 		add(midTextTwo);
-		final endText = new FlxText(0, (boundingBox.y + 150), 0, "Press SPACE to continue", 15);
+		final midTextThree = new FlxText(0, (boundingBox.y + 175), 0, "TIP: You can also fire with right click and SPACE!", 10);
+		midTextThree.screenCenter(X);
+		midTextThree.x -= 140;
+		add(midTextThree);
+		final endText = new FlxText(0, (boundingBox.y + 200), 0, "Press SPACE to continue", 15);
 		endText.screenCenter(X);
 		endText.x -= 140;
 		add(endText);
@@ -120,7 +124,7 @@ class IceLaserObtained extends FlxSubState
 		im.loadGraphic("assets/images/laser.png", false, 80, 64, true);
 		im.setGraphicSize(48, 28);
 		im.x = 400;
-		im.y = 360;
+		im.y = 340;
 		add(im);
 	}
 

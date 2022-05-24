@@ -7,10 +7,13 @@ import flixel.util.FlxColor;
 
 class Enemy extends FlxSprite
 {
-	private var BASE_SPEED = 20.0;
+	public var BASE_SPEED = 20.0;
+
 	private var _speed:Float;
 	private var _size:Int;
-	private var _dps:Float;
+
+	public var _dps:Float;
+
 	private var _target:Player;
 	private var _counter:Float;
 	private var _tilemap:FlxTilemap;

@@ -72,9 +72,9 @@ class LevelStats extends BaseLevel
 	public static var quickest_time_bonus_val = 10000;
 
 	/**
-	 * How many points are deducted from the time bonus per second (default is 10 / sec).
+	 * How many points are deducted from the time bonus per second (default is 100 / sec).
 	 */
-	public static var time_bonus_penalty = 10;
+	public static var time_bonus_penalty = 100;
 
 	/**
 	 * Whether or note `LevelStats.initialize()` has been called yet. Resets
@@ -126,6 +126,33 @@ class LevelStats extends BaseLevel
 
 	public static var save_data:FlxSave;
 
+	public static var PERFECT_WINDOW:Float = 2 / 60;
+	public static var GREAT_WINDOW:Float = 6 / 60;
+	// currently valued such that double-clicking on 1st stage won't cause a misfire
+	// perhaps this value can change by stage
+	public static var OK_WINDOW:Float = 20 / 60;
+
+	/**
+	 * The best scores in each level (from one of us), for reference in 
+	 * adaptive mechanics. Is 1-indexed, not 0-indexed.
+	 */
+	public static var STAFF_BEST = [0, 53000, 111000, 53000, 53000, 53000, 53000];
+
+	public static var TIPS = [
+		"",
+		"The higher your combo is, the quicker you gain energy back.",
+		"",
+		"",
+		"",
+		"",
+		""
+	];
+
+	/**
+	 * Whether or not gameplay is adjusted for last score.
+	 */
+	public static var adapted = false;
+
 	/**
 	 * Starts keeping track of stats for current level (but doesn't start music).
 	 * @param level_no Level number (not room number, or the numbers mentioned in `RoomNo.hx`).
@@ -144,6 +171,7 @@ class LevelStats extends BaseLevel
 		switch (level_no)
 		{
 			case 1:
+				adapted = false;
 				bpm = 130;
 				tick_format = [RED, RED, RED, RED];
 				shortest_note = QUARTER;
@@ -153,24 +181,76 @@ class LevelStats extends BaseLevel
 				ticks_len = 16;
 				bgm = FlxG.sound.load("assets/music/stg1.wav", 0.5);
 				bgm.persist = true;
-				// bgm = setupSound("assets/music/stg1_intro.mp3", true);
-				// bgm_loop = setupSound("assets/music/stg1.mp3", false);
 				intro_beats = 32;
 				looping_beats = 24 * 4;
+				quickest_time_bonus = 60;
+				PERFECT_WINDOW = 2 / 60;
+				GREAT_WINDOW = 6 / 60;
+				OK_WINDOW = 20 / 60;
+
 			case 2:
-				bpm = 130;
+				bpm = 110;
 				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
 				shortest_note = EIGHTH;
 				snpq = 2;
 				scroll_mul = 350;
 				enchant_chance = 0.25;
 				ticks_len = 16;
-				bgm = FlxG.sound.load("assets/music/stg1.wav", 0.5);
+				bgm = FlxG.sound.load("assets/music/stg2.wav", 0.45);
 				bgm.persist = true;
-				// bgm = setupSound("assets/music/stg1_intro.mp3", true);
-				// bgm_loop = setupSound("assets/music/stg1.mp3", false);
-				intro_beats = 32;
-				looping_beats = 24 * 4;
+				intro_beats = 0;
+				looping_beats = 48 * 4;
+				quickest_time_bonus = 120;
+				if (save_data != null
+					&& save_data.data != null
+					&& save_data.data.hidden_high_scores != null
+					&& save_data.data.hidden_high_scores[1] != -1
+					&& save_data.data.hidden_high_scores[1] < STAFF_BEST[1] * 0.5)
+				{
+					adapted = true;
+					PERFECT_WINDOW = 2 / 60;
+					GREAT_WINDOW = 6 / 60;
+					OK_WINDOW = 20 / 60;
+					trace("brub");
+				}
+				else
+				{
+					adapted = false;
+					PERFECT_WINDOW = 2 / 60;
+					GREAT_WINDOW = 4.5 / 60;
+					OK_WINDOW = 12 / 60;
+				}
+
+			case 3:
+				bpm = 128;
+				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
+				shortest_note = EIGHTH;
+				snpq = 2;
+				scroll_mul = 350;
+				enchant_chance = 0.25;
+				ticks_len = 16;
+				bgm = FlxG.sound.load("assets/music/stg3.wav", 0.45);
+				bgm.persist = true;
+				intro_beats = 0;
+				looping_beats = 57 * 4;
+				if (save_data != null
+					&& save_data.data != null
+					&& save_data.data.hidden_high_scores != null
+					&& save_data.data.hidden_high_scores[2] != -1
+					&& save_data.data.hidden_high_scores[2] < STAFF_BEST[2] * 0.5)
+				{
+					adapted = true;
+					PERFECT_WINDOW = 2 / 60;
+					GREAT_WINDOW = 6 / 60;
+					OK_WINDOW = 20 / 60;
+				}
+				else
+				{
+					adapted = false;
+					PERFECT_WINDOW = 2 / 60;
+					GREAT_WINDOW = 4 / 60;
+					OK_WINDOW = 10 / 60;
+				}
 			default:
 		}
 		inIntro = true;
@@ -268,10 +348,11 @@ class LevelStats extends BaseLevel
 
 	public static function calculateFinalScore():Array<Int>
 	{
-		var time_bonus = Std.int(Math.max(quickest_time_bonus_val - Std.int(Math.max(cumul_timer - quickest_time_bonus, 0)) * time_bonus_penalty, 0));
+		var time_bonus = Std.int(Math.max(quickest_time_bonus_val - Std.int(Math.max(cumul_timer - quickest_time_bonus, 0)) * time_bonus_penalty,
+			0) * (LevelStats.adapted ? 0.8 : 1));
 		var acc = ex_score / 3 / shots_fired;
-		var acc_bonus = Std.int(score * acc * 0.5);
-		var combo_bonus = Std.int(Math.min(max_combo_bonus, max_combo) * (max_combo_bonus_value / max_combo_bonus));
+		var acc_bonus = Std.int(score * acc * 0.5 * (LevelStats.adapted ? 0.8 : 1));
+		var combo_bonus = Std.int(Math.min(max_combo_bonus, max_combo) * (max_combo_bonus_value / max_combo_bonus) * (LevelStats.adapted ? 0.8 : 1));
 		return [score, time_bonus, acc_bonus, combo_bonus];
 	}
 

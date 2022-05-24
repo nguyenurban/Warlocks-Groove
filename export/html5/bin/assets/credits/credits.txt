@@ -14,3 +14,6 @@ Cat Sprite Sheet: https://opengameart.org/content/lpc-rat-cat-and-dog
 Slime/SmallSlime: https://opengameart.org/content/25x25-slime-animation
 Rock: https://opengameart.org/content/rock-0
 Alligator: https://opengameart.org/content/crocodile-1
+
+Stage 2 music: "Keep Dancing" by DavidKBD
+Stage 3 music: "Icecap Mountains" by DavidKBD

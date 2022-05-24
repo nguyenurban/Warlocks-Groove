@@ -118,25 +118,6 @@ class LevelState extends FlxState
 	private var fire_e_sound:FlxSound;
 	private var DELAY = 0.066;
 
-	// to be loaded in by a stage's own file
-	// private var bpm:Float;
-	// private var qtr_note:Float;
-	// private var shortest_note:LevelState.NoteType;
-	// // shortest notes per quarter note
-	// private var snpq:Int;
-	// private var shortest_note_len:Float;
-	// each stage will have layout of ticks specified over one measure
-	// e.g. stage 1: [r, r, r, r]
-	// stage 2: [r, p, r, p, r, p, r, p]
-	// etc...
-	// private var tick_format:Array<LevelState.AttackType>;
-	// also most likely to be stored somewhere else
-	private var PERFECT_WINDOW:Float = 2 / 60;
-	private var GREAT_WINDOW:Float = 6 / 60;
-	// currently valued such that double-clicking on 1st stage won't cause a misfire
-	// perhaps this value can change by stage
-	private var OK_WINDOW:Float = 20 / 60;
-
 	// PURELY FOR TESTING
 	private var ENCHANT_CHANCE:Float = 0.25;
 
@@ -456,6 +437,16 @@ class LevelState extends FlxState
 			add(_hud);
 			addTicks();
 		}
+
+		if (LevelStats.adapted)
+		{
+			for (m in _monsters)
+			{
+				m._dps *= 0.8;
+				m.BASE_SPEED *= 0.9;
+				m.health *= 0.8;
+			}
+		}
 	}
 
 	function placeEntities(entity:EntityData)
@@ -647,7 +638,7 @@ class LevelState extends FlxState
 			{
 				projectiles.kill();
 			}
-			if (projectiles.getType() == RED && projectiles.hit_enemies.length == 1)
+			if (projectiles.hit_enemies.length == 1)
 			{
 				LevelStats.hitOnce(projectiles._timing);
 			}
@@ -743,7 +734,7 @@ class LevelState extends FlxState
 			LevelStats.combo = 0;
 			p.health -= e.getDamage();
 			p.damageInvuln();
-			Logger.tookDamage(this, e, e.getDamage());
+			Logger.tookDamage(e, e.getDamage());
 			if (p.health <= 0)
 			{
 				Logger.playerDeath(e);
@@ -761,7 +752,7 @@ class LevelState extends FlxState
 				LevelStats.combo = 0;
 				p.health -= proj.getDamage();
 				p.damageInvuln();
-				Logger.tookDamage(this, proj.src, proj.getDamage());
+				Logger.tookDamage(proj.src, proj.getDamage());
 				if (p.health <= 0)
 				{
 					Logger.playerDeath(proj);
@@ -837,7 +828,7 @@ class LevelState extends FlxState
 
 				var energy_used = proj.getEnergy();
 
-				if (!(closest_tick.getEnchanted() && diff <= PERFECT_WINDOW)
+				if (!(closest_tick.getEnchanted() && diff <= LevelStats.PERFECT_WINDOW)
 					&& !_player.useEnergy(energy_used)) // TODO: cost is only for red attack; implement logic
 				{
 					// judge_text.text = "Out of energy!";
@@ -847,7 +838,7 @@ class LevelState extends FlxState
 				else
 				{
 					var judge:String;
-					if (diff <= PERFECT_WINDOW)
+					if (diff <= LevelStats.PERFECT_WINDOW)
 					{
 						// judge_text.text = "Perfect!!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/perfect.png");
@@ -859,7 +850,7 @@ class LevelState extends FlxState
 							// judge_text.text += "#";
 						}
 					}
-					else if (diff <= GREAT_WINDOW)
+					else if (diff <= LevelStats.GREAT_WINDOW)
 					{
 						// judge_text.text = "Great!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/great.png");
@@ -868,7 +859,7 @@ class LevelState extends FlxState
 						closest_tick.setJudge(LevelState.JudgeType.GREAT);
 					}
 					else
-					{ // diff <= OK_WINDOW
+					{ // diff <= LevelStats.OK_WINDOW
 						// judge_text.text = "OK";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/ok.png");
 						judge = "OK";
@@ -891,11 +882,11 @@ class LevelState extends FlxState
 
 	private function getTiming(diff:Float)
 	{
-		if (diff <= PERFECT_WINDOW)
+		if (diff <= LevelStats.PERFECT_WINDOW)
 		{
 			return LevelState.JudgeType.PERFECT;
 		}
-		else if (diff <= GREAT_WINDOW)
+		else if (diff <= LevelStats.GREAT_WINDOW)
 		{
 			return LevelState.JudgeType.GREAT;
 		}
@@ -913,7 +904,7 @@ class LevelState extends FlxState
 		// to decide which tick to compare the player's fire to
 		var earlier_beat = null;
 		while (LevelStats.shortest_notes_elpsd - i >= 0
-			&& LevelStats.timer - (LevelStats.shortest_notes_elpsd - i) * LevelStats.shortest_note_len <= OK_WINDOW)
+			&& LevelStats.timer - (LevelStats.shortest_notes_elpsd - i) * LevelStats.shortest_note_len <= LevelStats.OK_WINDOW)
 		{
 			var curr = LevelStats._ticks[(LevelStats.shortest_notes_elpsd - i) % LevelStats._ticks.length];
 			if (curr.getJudge() == NONE)
@@ -925,7 +916,7 @@ class LevelState extends FlxState
 		}
 		i = 1;
 		var later_beat = null;
-		while ((LevelStats.shortest_notes_elpsd + i) * LevelStats.shortest_note_len - LevelStats.timer <= OK_WINDOW)
+		while ((LevelStats.shortest_notes_elpsd + i) * LevelStats.shortest_note_len - LevelStats.timer <= LevelStats.OK_WINDOW)
 		{
 			var curr = LevelStats._ticks[(LevelStats.shortest_notes_elpsd + i) % LevelStats._ticks.length];
 			if (curr.getJudge() == NONE)
@@ -1266,9 +1257,18 @@ class LvlCompletePopup extends FlxSubState
 		add(final_score_val);
 
 		LevelStats.save_data.data.high_scores[LevelStats.curr_level] = score_value;
-		LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = Std.int(score_value * Math.pow(0.7, LevelStats.num_deaths));
+		LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = Std.int(score_value * Math.pow(0.9, LevelStats.num_deaths));
 		LevelStats.save_data.flush();
-		final endText = new FlxText(0, final_score.y + 50, 0, "Press SPACE to continue.", 15);
+		Logger.scoreGet(score_value, LevelStats.num_deaths);
+		var text = LevelStats.TIPS[LevelStats.curr_level];
+		if (text != "")
+		{
+			final tipText = new FlxText(0, final_score.y + 50, 0, "TIP: " + LevelStats.TIPS[LevelStats.curr_level], 10);
+			tipText.screenCenter(X);
+			tipText.scrollFactor.set(0, 0);
+			add(tipText);
+		}
+		final endText = new FlxText(0, final_score.y + 65, 0, "Press SPACE to continue.", 15);
 		endText.screenCenter(X);
 		endText.scrollFactor.set(0, 0);
 		add(endText);
