@@ -46,10 +46,9 @@ class LevelStats extends BaseLevel
 	public static var ex_score = 0;
 
 	/**
-	 * How many times the player hits an enemy (not how many times they fired,
-	 * though misfires will increment this by one).
+	 * How many times the player shoots.
 	 */
-	public static var shots_landed = 0;
+	public static var shots_fired = 0;
 
 	/**
 	 * Timer that doesn't reset on death; only on starting a new level.
@@ -204,7 +203,7 @@ class LevelStats extends BaseLevel
 			cumul_timer = 0;
 			max_combo = 0;
 			ex_score = 0;
-			shots_landed = 0;
+			shots_fired = 0;
 		}
 		combo = 0;
 	}
@@ -270,7 +269,7 @@ class LevelStats extends BaseLevel
 	public static function calculateFinalScore():Array<Int>
 	{
 		var time_bonus = Std.int(Math.max(quickest_time_bonus_val - Std.int(Math.max(cumul_timer - quickest_time_bonus, 0)) * time_bonus_penalty, 0));
-		var acc = ex_score / 3 / shots_landed;
+		var acc = ex_score / 3 / shots_fired;
 		var acc_bonus = Std.int(score * acc * 0.5);
 		var combo_bonus = Std.int(Math.min(max_combo_bonus, max_combo) * (max_combo_bonus_value / max_combo_bonus));
 		return [score, time_bonus, acc_bonus, combo_bonus];
@@ -340,7 +339,6 @@ class LevelStats extends BaseLevel
 	{
 		score += Std.int(10 * (1 + 0.1 * Math.min(50, ++combo)));
 		max_combo = Std.int(Math.max(max_combo, combo));
-		shots_landed++;
 		switch (judge)
 		{
 			case LevelState.JudgeType.PERFECT:

@@ -678,6 +678,7 @@ class LevelState extends FlxState
 		// TODO: change up accounting for energy
 		if (_player.alive && (FlxG.mouse.justPressed || FlxG.mouse.justPressedRight || FlxG.keys.justPressed.SPACE))
 		{
+			LevelStats.shots_fired++;
 			var closest_tick = get_closest_tick();
 			if (closest_tick == null)
 			{

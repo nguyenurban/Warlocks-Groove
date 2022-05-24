@@ -101,18 +101,29 @@ class RoomEight extends LevelState
 		super.update(elapsed);
 	}
 
+	/**
+	 * takes calls from enemies present in this room.
+	 * @param input 0th index = action, 1st index = X-coordinate for action, 2nd index = Y-coordinate, 3rd and further = anything else needed
+	 */
 	public function handleCall(input:Array<Float>)
 	{
 		switch (input[0])
 		{
 			case 0:
 				// TODO: replace this with proper own projectile
-				_projectiles.add(new EnemyBullet(input[1], input[2], _player, _player.getMidpoint(), "FB from Cat", 120.0));
+				_projectiles.add(new EnemyBullet(input[1], input[2], _player, _player.getMidpoint(), "FB from Cat", 150.0));
 			case 1:
-				_projectiles.add(new LargeBullet(input[1], input[2], _player, _player.getMidpoint(), "Large from Cat", 200.0));
+				for (i in 0...5)
+				{
+					var ran_point = _player.getMidpoint();
+					ran_point.rotate(FlxPoint.weak(input[1], input[2]), FlxG.random.float(-50, 50));
+					_projectiles.add(new LargeBullet(input[1], input[2], null, ran_point, "Large from Cat", FlxG.random.float(100, 150)));
+					ran_point.put();
+				}
 			case 2:
-				_projectiles.add(new WaveBullet(input[1], input[2], _player, _player.getMidpoint(), "Wave from Cat", 155.0));
+				_projectiles.add(new WaveBullet(input[1], input[2], _player, _player.getMidpoint(), "Wave from Cat", 190.0));
 			// signal to send just to start charging sprite
+			// input[3] = charge time
 			case 3:
 				charge_aura.setPosition(input[1] - 110, input[2] - 100);
 				FlxTween.tween(charge_aura, {alpha: 1}, input[3], {
