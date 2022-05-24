@@ -17,15 +17,14 @@ class WaveBullet extends EnemyBullet
 	{
 		super(x, y, target, targetPoint, src, speed);
 
-		loadGraphic("assets/images/cat_wave.png", true, 32, 32, true);
-		animation.add("n", [0, 1, 2, 3, 4, 5], 5);
-		animation.play("n");
-		setGraphicSize(32 * 2, 32 * 3);
+		loadGraphic("assets/images/cat_wave.png", false, 32, 32, true);
+		setGraphicSize(32 * 2, 32 * 4);
 		// setSize(7 * 2, 23 * 3);
-		offset = FlxPoint.weak(13 * 2, 5 * 3);
+		// offset = FlxPoint.weak(13 * 2, 5 * 3);
 		var point = (target == null ? targetPoint : target.getMidpoint());
 		var diff = FlxAngle.angleBetweenPoint(this, point, true);
 		angle = diff;
+		precise = true;
 		updateHitbox();
 	}
 

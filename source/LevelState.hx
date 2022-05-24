@@ -633,7 +633,7 @@ class LevelState extends FlxState
 
 	private function handlePlayerProjectileCollisions(p:Player, proj:Projectile)
 	{
-		if (proj.getType() == ENEMY && (!proj.precise || FlxCollision.pixelPerfectCheck(p, proj)))
+		if (proj.getType() == ENEMY && (!proj.precise || FlxCollision.pixelPerfectCheck(proj, p, 200)))
 		{
 			if (p.isVuln())
 			{
