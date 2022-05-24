@@ -16,6 +16,7 @@ import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
 import flixel.ui.FlxBar;
 import flixel.ui.FlxButton;
+import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
 import flixel.util.FlxSignal.FlxTypedSignal;
 import flixel.util.FlxSignal;
@@ -632,7 +633,7 @@ class LevelState extends FlxState
 
 	private function handlePlayerProjectileCollisions(p:Player, proj:Projectile)
 	{
-		if (proj.getType() == ENEMY)
+		if (proj.getType() == ENEMY && (!proj.precise || FlxCollision.pixelPerfectCheck(p, proj)))
 		{
 			if (p.isVuln())
 			{

@@ -32,6 +32,11 @@ class Projectile extends FlxSprite
 	public var timer:FlxTimer;
 	public var hit_enemies:Array<Dynamic>;
 
+	/**
+	 * Whether or not to call for pixel-perfect collision
+	 */
+	public var precise = false;
+
 	public function new(x:Float, y:Float, target:FlxObject /**monsters:FlxTypedGroup<Enemy>**/, type:LevelState.AttackType, timing:LevelState.JudgeType,
 			enchanted:Bool, ?source:String)
 	{

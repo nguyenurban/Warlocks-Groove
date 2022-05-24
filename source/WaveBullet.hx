@@ -21,11 +21,12 @@ class WaveBullet extends EnemyBullet
 		animation.add("n", [0, 1, 2, 3, 4, 5], 5);
 		animation.play("n");
 		setGraphicSize(32 * 2, 32 * 3);
-		setSize(7 * 2, 23 * 3);
+		// setSize(7 * 2, 23 * 3);
 		offset = FlxPoint.weak(13 * 2, 5 * 3);
 		var point = (target == null ? targetPoint : target.getMidpoint());
 		var diff = FlxAngle.angleBetweenPoint(this, point, true);
 		angle = diff;
+		updateHitbox();
 	}
 
 	override function update(elapsed:Float)
