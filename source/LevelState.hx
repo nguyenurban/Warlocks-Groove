@@ -560,7 +560,7 @@ class LevelState extends FlxState
 			{
 				projectiles.kill();
 			}
-			if (projectiles.getType() == RED && projectiles.hit_enemies.length == 1)
+			if (projectiles.hit_enemies.length == 1)
 			{
 				LevelStats.hitOnce(projectiles._timing);
 			}

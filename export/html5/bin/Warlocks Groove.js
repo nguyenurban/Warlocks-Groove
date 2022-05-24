@@ -887,7 +887,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "101";
+	app.meta.h["build"] = "102";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Warlocks Groove";
 	app.meta.h["name"] = "Warlocks Groove";
@@ -8465,7 +8465,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			if(!(projectiles.getType() == AttackType.PURPLE && projectiles._enchanted)) {
 				projectiles.kill();
 			}
-			if(projectiles.getType() == AttackType.RED && projectiles.hit_enemies.length == 1) {
+			if(projectiles.hit_enemies.length == 1) {
 				LevelStats.hitOnce(projectiles._timing);
 			}
 		}
@@ -8581,6 +8581,7 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 			tmp = false;
 		}
 		if(tmp) {
+			LevelStats.shots_fired++;
 			var closest_tick = this.get_closest_tick();
 			if(closest_tick == null) {
 				this.judge_sprite.loadGraphic("assets/images/judge_sprites/misfire.png");
@@ -8590,8 +8591,8 @@ LevelState.prototype = $extend(flixel_FlxState.prototype,{
 				LevelStats.combo = 0;
 			} else {
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - this.DELAY;
-				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 697, className : "LevelState", methodName : "shoot"});
-				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 698, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(diff,{ fileName : "source/LevelState.hx", lineNumber : 698, className : "LevelState", methodName : "shoot"});
+				haxe_Log.trace(closest_tick.getTick(),{ fileName : "source/LevelState.hx", lineNumber : 699, className : "LevelState", methodName : "shoot"});
 				var timing = this.getTiming(diff);
 				var proj;
 				if(closest_tick.getType() == AttackType.RED) {
@@ -9349,7 +9350,7 @@ LevelStats.initialize = function(level_no,retry) {
 		LevelStats.cumul_timer = 0;
 		LevelStats.max_combo = 0;
 		LevelStats.ex_score = 0;
-		LevelStats.shots_landed = 0;
+		LevelStats.shots_fired = 0;
 	}
 	LevelStats.combo = 0;
 };
@@ -9386,7 +9387,7 @@ LevelStats.setupSound = function(url,isIntro) {
 };
 LevelStats.calculateFinalScore = function() {
 	var time_bonus = Math.max(LevelStats.quickest_time_bonus_val - (Math.max(LevelStats.cumul_timer - LevelStats.quickest_time_bonus,0) | 0) * LevelStats.time_bonus_penalty,0) | 0;
-	var acc = LevelStats.ex_score / 3 / LevelStats.shots_landed;
+	var acc = LevelStats.ex_score / 3 / LevelStats.shots_fired;
 	var acc_bonus = LevelStats.score * acc * 0.5 | 0;
 	var combo_bonus = Math.min(LevelStats.max_combo_bonus,LevelStats.max_combo) * (LevelStats.max_combo_bonus_value / LevelStats.max_combo_bonus) | 0;
 	return [LevelStats.score,time_bonus,acc_bonus,combo_bonus];
@@ -9432,7 +9433,6 @@ LevelStats.update = function(elapsed) {
 LevelStats.hitOnce = function(judge) {
 	LevelStats.score += 10 * (1 + 0.1 * Math.min(50,++LevelStats.combo)) | 0;
 	LevelStats.max_combo = Math.max(LevelStats.max_combo,LevelStats.combo) | 0;
-	LevelStats.shots_landed++;
 	switch(judge._hx_index) {
 	case 1:
 		LevelStats.ex_score += 3;
@@ -9500,7 +9500,7 @@ LevelStats.debugTickDisplay = function() {
 			output += "#";
 		}
 	}
-	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 419, className : "LevelStats", methodName : "debugTickDisplay"});
+	haxe_Log.trace(output,{ fileName : "source/LevelStats.hx", lineNumber : 417, className : "LevelStats", methodName : "debugTickDisplay"});
 };
 LevelStats.__super__ = BaseLevel;
 LevelStats.prototype = $extend(BaseLevel.prototype,{
@@ -11741,8 +11741,8 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 			point._inPool = false;
 			var point1 = point;
 			point1._weak = true;
-			ran_point.rotate(point1,flixel_FlxG.random.float(-45,45));
-			this._projectiles.add(new LargeBullet(input[1],input[2],null,ran_point,"Large from Cat",flixel_FlxG.random.float(75,175)));
+			ran_point.rotate(point1,flixel_FlxG.random.float(-50,50));
+			this._projectiles.add(new LargeBullet(input[1],input[2],null,ran_point,"Large from Cat",flixel_FlxG.random.float(100,150)));
 			ran_point.put();
 			var ran_point = this._player.getMidpoint();
 			var X = input[1];
@@ -11765,8 +11765,8 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 			point._inPool = false;
 			var point1 = point;
 			point1._weak = true;
-			ran_point.rotate(point1,flixel_FlxG.random.float(-45,45));
-			this._projectiles.add(new LargeBullet(input[1],input[2],null,ran_point,"Large from Cat",flixel_FlxG.random.float(75,175)));
+			ran_point.rotate(point1,flixel_FlxG.random.float(-50,50));
+			this._projectiles.add(new LargeBullet(input[1],input[2],null,ran_point,"Large from Cat",flixel_FlxG.random.float(100,150)));
 			ran_point.put();
 			var ran_point = this._player.getMidpoint();
 			var X = input[1];
@@ -11789,8 +11789,8 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 			point._inPool = false;
 			var point1 = point;
 			point1._weak = true;
-			ran_point.rotate(point1,flixel_FlxG.random.float(-45,45));
-			this._projectiles.add(new LargeBullet(input[1],input[2],null,ran_point,"Large from Cat",flixel_FlxG.random.float(75,175)));
+			ran_point.rotate(point1,flixel_FlxG.random.float(-50,50));
+			this._projectiles.add(new LargeBullet(input[1],input[2],null,ran_point,"Large from Cat",flixel_FlxG.random.float(100,150)));
 			ran_point.put();
 			var ran_point = this._player.getMidpoint();
 			var X = input[1];
@@ -11813,8 +11813,8 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 			point._inPool = false;
 			var point1 = point;
 			point1._weak = true;
-			ran_point.rotate(point1,flixel_FlxG.random.float(-45,45));
-			this._projectiles.add(new LargeBullet(input[1],input[2],null,ran_point,"Large from Cat",flixel_FlxG.random.float(75,175)));
+			ran_point.rotate(point1,flixel_FlxG.random.float(-50,50));
+			this._projectiles.add(new LargeBullet(input[1],input[2],null,ran_point,"Large from Cat",flixel_FlxG.random.float(100,150)));
 			ran_point.put();
 			var ran_point = this._player.getMidpoint();
 			var X = input[1];
@@ -11837,12 +11837,12 @@ RoomEight.prototype = $extend(LevelState.prototype,{
 			point._inPool = false;
 			var point1 = point;
 			point1._weak = true;
-			ran_point.rotate(point1,flixel_FlxG.random.float(-45,45));
-			this._projectiles.add(new LargeBullet(input[1],input[2],null,ran_point,"Large from Cat",flixel_FlxG.random.float(75,175)));
+			ran_point.rotate(point1,flixel_FlxG.random.float(-50,50));
+			this._projectiles.add(new LargeBullet(input[1],input[2],null,ran_point,"Large from Cat",flixel_FlxG.random.float(100,150)));
 			ran_point.put();
 			break;
 		case 2:
-			this._projectiles.add(new WaveBullet(input[1],input[2],this._player,this._player.getMidpoint(),"Wave from Cat",200.0));
+			this._projectiles.add(new WaveBullet(input[1],input[2],this._player,this._player.getMidpoint(),"Wave from Cat",190.0));
 			break;
 		case 3:
 			this.charge_aura.setPosition(input[1] - 110,input[2] - 100);
@@ -120070,7 +120070,7 @@ LevelStats.combo = 0;
 LevelStats.max_combo = 0;
 LevelStats.num_deaths = 0;
 LevelStats.ex_score = 0;
-LevelStats.shots_landed = 0;
+LevelStats.shots_fired = 0;
 LevelStats.cumul_timer = 0.0;
 LevelStats.max_combo_bonus = 100;
 LevelStats.max_combo_bonus_value = 50000;
