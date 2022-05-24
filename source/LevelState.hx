@@ -310,9 +310,16 @@ class LevelState extends FlxState
 
 		while (_rocks.countLiving() > 50)
 		{
-			var r = _rocks.getFirstAlive();
-			r.kill();
-			_rocks.remove(r);
+			var min_r = _rocks.getFirstAlive();
+			for (r in _rocks)
+			{
+				if (r.age < min_r.age)
+				{
+					min_r = r;
+				}
+			}
+			min_r.kill();
+			_rocks.remove(min_r);
 		}
 
 		if (!_player.exists)
@@ -527,7 +534,8 @@ class LevelState extends FlxState
 	{
 		var mag = FlxVector.weak(p.velocity.x, p.velocity.y).length;
 		r.velocity.set(r.speed * p.velocity.x / mag, r.speed * p.velocity.y / mag);
-		r.deadly = true;
+		r.deadlyToPlayer = true;
+		r.deadlyToMonster = true;
 		if (p.getType() == PURPLE)
 		{
 			var temp = _player.getMidpoint();
@@ -539,12 +547,12 @@ class LevelState extends FlxState
 
 	private function handlePlayerRockCollision(r:Rock, p:Player)
 	{
-		if (p.isVuln() && r.deadly)
+		if (p.isVuln() && r.deadlyToPlayer)
 		{
 			LevelStats.combo = 0;
 			p.health -= r.damage;
 			p.damageInvuln();
-			Logger.tookDamage(this, r, r.damage);
+			Logger.tookDamage(r, r.damage);
 			if (p.health <= 0)
 			{
 				Logger.playerDeath(r);
@@ -556,7 +564,7 @@ class LevelState extends FlxState
 
 	private function handleMonsterRockCollision(r:Rock, e:Enemy)
 	{
-		if (r.deadly)
+		if (r.deadlyToMonster)
 		{
 			e.health -= r.damage;
 			if (e.health <= 0)
@@ -687,27 +695,20 @@ class LevelState extends FlxState
 						_projectiles.add(new StriderShockwave(e.getMidpoint().x, e.getMidpoint().y, null, tar, src, 100));
 					}
 				case "From Alligator":
-					var dir_x = e.getMidpoint().x - _player.getMidpoint().x;
-					var dir_y = e.getMidpoint().y - _player.getMidpoint().y;
 					if (cast(e, Alligator).isRapidFiring())
 					{
-						var rock = new Rock(e.getMidpoint().x - e.getSize() / 2 * dir_x / Math.abs(dir_x),
-							e.getMidpoint().y - e.getSize() / 2 * dir_y / Math.abs(dir_y));
+						var rock = new Rock(e.getMidpoint().x, e.getMidpoint().y);
 						_rocks.add(rock);
-						rock.deadly = true;
+						rock.deadlyToPlayer = true;
 						FlxVelocity.moveTowardsPoint(rock, _player.getMidpoint(), rock.speed);
 					}
 					else if (Random.int(0, 1) == 0)
 					{
 						for (angle in -3...4)
 						{
-							var pos = new FlxPoint(e.getMidpoint().x - e.getSize() / 2 * dir_x / Math.abs(dir_x),
-								e.getMidpoint().y - e.getSize() / 2 * dir_y / Math.abs(dir_y));
-							pos.rotate(e.getMidpoint(), angle * 10);
-							var rock = new Rock(pos.x, pos.y);
-							pos.destroy();
+							var rock = new Rock(e.getMidpoint().x, e.getMidpoint().y);
 							_rocks.add(rock);
-							rock.deadly = true;
+							rock.deadlyToPlayer = true;
 							FlxVelocity.moveTowardsPoint(rock, _player.getMidpoint(), rock.speed);
 							rock.velocity.rotate(FlxPoint.weak(0, 0), angle * 10);
 						}

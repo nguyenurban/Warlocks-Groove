@@ -3,13 +3,19 @@ import flixel.math.FlxVector;
 
 class Rock extends FlxSprite
 {
+	static var nextAge = 0;
+
+	public var age:Float;
 	public var damage:Float;
 	public var speed:Float;
-	public var deadly:Bool;
+	public var deadlyToMonster:Bool;
+	public var deadlyToPlayer:Bool;
 
 	public function new(x:Float, y:Float)
 	{
 		super(x, y);
+		age = nextAge;
+		nextAge++;
 		setSize(16, 16);
 		scale.set(0.5, 0.5);
 		loadGraphic("assets/images/Rock.png", true, 32, 32);
@@ -20,9 +26,11 @@ class Rock extends FlxSprite
 		setFacingFlip(DOWN, false, false);
 		animation.add("r", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 6, false);
 		damage = 10;
-		elasticity = 0.8;
+		elasticity = 0.5;
 		speed = 400;
-		drag.x = drag.y = 20;
+		drag.x = drag.y = 50;
+		deadlyToPlayer = false;
+		deadlyToMonster = false;
 	}
 
 	override function update(elapsed:Float)
@@ -34,7 +42,8 @@ class Rock extends FlxSprite
 		}
 		if (FlxVector.weak(velocity.x, velocity.y).length < 200)
 		{
-			deadly = false;
+			deadlyToPlayer = false;
+			deadlyToMonster = false;
 		}
 	}
 }
