@@ -153,24 +153,33 @@ class LevelStats extends BaseLevel
 				ticks_len = 16;
 				bgm = FlxG.sound.load("assets/music/stg1.wav", 0.5);
 				bgm.persist = true;
-				// bgm = setupSound("assets/music/stg1_intro.mp3", true);
-				// bgm_loop = setupSound("assets/music/stg1.mp3", false);
 				intro_beats = 32;
 				looping_beats = 24 * 4;
 			case 2:
-				bpm = 130;
+				bpm = 110;
 				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
 				shortest_note = EIGHTH;
 				snpq = 2;
 				scroll_mul = 350;
 				enchant_chance = 0.25;
 				ticks_len = 16;
-				bgm = FlxG.sound.load("assets/music/stg1.wav", 0.5);
+				bgm = FlxG.sound.load("assets/music/stg2.wav", 0.45);
 				bgm.persist = true;
-				// bgm = setupSound("assets/music/stg1_intro.mp3", true);
-				// bgm_loop = setupSound("assets/music/stg1.mp3", false);
-				intro_beats = 32;
-				looping_beats = 24 * 4;
+				intro_beats = 0;
+				looping_beats = 48 * 4;
+			case 3:
+				bpm = 128;
+				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
+				shortest_note = EIGHTH;
+				snpq = 2;
+				scroll_mul = 350;
+				enchant_chance = 0.25;
+				ticks_len = 16;
+				bgm = FlxG.sound.load("assets/music/stg2.wav", 0.45);
+				bgm.persist = true;
+				intro_beats = 0;
+				looping_beats = 57 * 4;
+
 			default:
 		}
 		inIntro = true;
