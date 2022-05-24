@@ -142,12 +142,12 @@ class MagMissileObtained extends FlxSubState
 	{
 		super.create();
 		final boundingBox = new FlxSprite();
-		boundingBox.makeGraphic(460, 197, 0xff428bbf);
+		boundingBox.makeGraphic(460, 250, 0xff428bbf);
 		boundingBox.screenCenter(XY);
 		boundingBox.x -= 140;
 		add(boundingBox);
 
-		final text = new FlxText(0, (boundingBox.y + 45), 0, "Magic Missile Obtained!", 25);
+		final text = new FlxText(0, (boundingBox.y + 25), 0, "Magic Missile Obtained!", 25);
 		text.screenCenter(X);
 		text.x -= 140;
 		add(text);
@@ -160,7 +160,19 @@ class MagMissileObtained extends FlxSubState
 		midTextTwo.screenCenter(X);
 		midTextTwo.x -= 140;
 		add(midTextTwo);
-		final endText = new FlxText(0, (boundingBox.y + 150), 0, "Press SPACE to continue", 15);
+		final midTextThree = new FlxText(0, boundingBox.y + 150, 0, "The better the timing, the more powerful.", 10);
+		midTextThree.screenCenter(X);
+		midTextThree.x -= 140;
+		add(midTextThree);
+		final midTextFour = new FlxText(0, boundingBox.y + 180, 0, "Tip: Getting a Perfect rating on ticks with green auras", 10);
+		midTextFour.screenCenter(X);
+		midTextFour.x -= 140;
+		add(midTextFour);
+		final midTextFive = new FlxText(0, boundingBox.y + 195, 0, "will make it even more powerful!", 10);
+		midTextFive.screenCenter(X);
+		midTextFive.x -= 140;
+		add(midTextFive);
+		final endText = new FlxText(0, (boundingBox.y + 220), 0, "Press SPACE to continue", 15);
 		endText.screenCenter(X);
 		endText.x -= 140;
 		add(endText);
@@ -169,7 +181,7 @@ class MagMissileObtained extends FlxSubState
 		im.loadGraphic("assets/images/magic_missile.png", false, 80, 64, true);
 		im.setGraphicSize(48, 28);
 		im.x = 120;
-		im.y = 200;
+		im.y = 160;
 		add(im);
 	}
 

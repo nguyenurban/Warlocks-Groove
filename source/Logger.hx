@@ -33,11 +33,15 @@ class Logger
 		var now = Timer.stamp();
 		if (now - SESSION_TIMEOUT > last_player_action)
 		{
-			newSession();
 			if (LevelStats.initialized)
 			{
 				levelEnd("timed out at least " + SESSION_TIMEOUT + " seconds ago");
+				newSession();
 				startLevel(LevelStats.curr_level, "resume from timeout");
+			}
+			else
+			{
+				newSession();
 			}
 		}
 		last_player_action = now;
@@ -126,11 +130,19 @@ class Logger
 		}
 	}
 
-	public static function tookDamage(curr_room:LevelState, cause:Dynamic, dmg:Float)
+	public static function tookDamage(cause:Dynamic, dmg:Float)
 	{
 		if (_logger != null)
 		{
-			Logger._logger.logLevelAction(LoggingActions.TOOK_DAMAGE, Std.string(curr_room) + ", " + cause + ", " + dmg);
+			Logger._logger.logLevelAction(LoggingActions.TOOK_DAMAGE, cause + ", " + dmg);
+		}
+	}
+
+	public static function scoreGet(score:Int, num_deaths:Int)
+	{
+		if (_logger != null)
+		{
+			Logger._logger.logLevelAction(LoggingActions.SCORE_GET, score + ", " + num_deaths);
 		}
 	}
 }

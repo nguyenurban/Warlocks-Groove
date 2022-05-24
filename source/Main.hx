@@ -21,6 +21,7 @@ class Main extends Sprite
 		FlxG.fixedTimestep = false;
 		FlxG.autoPause = false;
 		LevelStats.startData();
+		Logger.createLogger();
 		addChild(new FlxGame(1080, 720, MenuState));
 	}
 }
