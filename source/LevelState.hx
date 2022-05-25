@@ -6,10 +6,12 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.FlxSubState;
+import flixel.addons.display.FlxMouseSpring;
 import flixel.addons.display.shapes.*;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxRect;
+import flixel.math.FlxVector;
 import flixel.math.FlxVelocity;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
@@ -67,6 +69,7 @@ class LevelState extends FlxState
 	private var _monsters:FlxTypedGroup<Enemy>;
 	private var _projectiles:FlxTypedGroup<Projectile>;
 	private var _doors:FlxTypedGroup<Door>;
+	private var _rocks:FlxTypedGroup<Rock>;
 
 	// NEXT LEVEL STATES
 	var nextLevel:Class<LevelState>;
@@ -188,6 +191,8 @@ class LevelState extends FlxState
 
 		_doors = new FlxTypedGroup<Door>();
 		add(_doors);
+		_rocks = new FlxTypedGroup<Rock>();
+		add(_rocks);
 		// vars to be loaded in by a file (or are unique to each level)
 		// bpm = 130;
 		// qtr_note = 60 / bpm;
@@ -303,6 +308,20 @@ class LevelState extends FlxState
 			// }
 		}
 
+		while (_rocks.countLiving() > 50)
+		{
+			var min_r = _rocks.getFirstAlive();
+			for (r in _rocks)
+			{
+				if (r.age < min_r.age)
+				{
+					min_r = r;
+				}
+			}
+			min_r.kill();
+			_rocks.remove(min_r);
+		}
+
 		if (!_player.exists)
 		{
 			LevelStats.stopMusic();
@@ -339,6 +358,12 @@ class LevelState extends FlxState
 		FlxG.collide(_player, _doors, levelComplete);
 		FlxG.collide(_monsters, _doors);
 		FlxG.collide(_projectiles, _doors);
+		FlxG.overlap(_rocks, _projectiles, handleRockProjectileOverlap);
+		FlxG.collide(_rocks, walls);
+		FlxG.collide(_rocks, _player, handlePlayerRockCollision);
+		FlxG.collide(_rocks, _monsters, handleMonsterRockCollision);
+		FlxG.collide(_rocks, _doors);
+		FlxG.collide(_rocks, _rocks);
 		super.update(elapsed);
 		FlxG.collide(_player, walls);
 		LevelStats.update(elapsed);
@@ -453,6 +478,10 @@ class LevelState extends FlxState
 				_monsters.add(new WaterStrider(entity.x, entity.y, _player, walls));
 			case "slime":
 				_monsters.add(new Slime(entity.x, entity.y, _player, walls));
+			case "rock":
+				_rocks.add(new Rock(entity.x, entity.y));
+			case "alligator":
+				_monsters.add(new Alligator(entity.x, entity.y, _player, walls));
 			default:
 		}
 	}
@@ -499,6 +528,72 @@ class LevelState extends FlxState
 			}
 		}
 		return projectile;
+	}
+
+	private function handleRockProjectileOverlap(r:Rock, p:Projectile)
+	{
+		var mag = FlxVector.weak(p.velocity.x, p.velocity.y).length;
+		r.velocity.set(r.speed * p.velocity.x / mag, r.speed * p.velocity.y / mag);
+		r.deadlyToPlayer = true;
+		r.deadlyToMonster = true;
+		if (p.getType() == PURPLE)
+		{
+			var temp = _player.getMidpoint();
+			var laserGraphic:FlxSprite = new LaserBeam(temp.x, temp.y, temp.distanceTo(p.getMidpoint()), cast(p, IceLaser).deg);
+			add(laserGraphic);
+		}
+		p.kill();
+	}
+
+	private function handlePlayerRockCollision(r:Rock, p:Player)
+	{
+		if (p.isVuln() && r.deadlyToPlayer)
+		{
+			LevelStats.combo = 0;
+			p.health -= r.damage;
+			p.damageInvuln();
+			Logger.tookDamage(r, r.damage);
+			if (p.health <= 0)
+			{
+				Logger.playerDeath(r);
+				p.kill();
+			}
+			r.kill();
+		}
+	}
+
+	private function handleMonsterRockCollision(r:Rock, e:Enemy)
+	{
+		if (r.deadlyToMonster)
+		{
+			e.health -= r.damage;
+			if (e.health <= 0)
+			{
+				switch (Type.typeof(e))
+				{
+					case TClass(Slime):
+						for (i in 0...2)
+						{
+							for (j in 0...2)
+							{
+								_monsters.add(new SmallSlime(e.x + i * cast(e, Enemy).getSize() / 2, e.y + j * cast(e, Enemy).getSize() / 2, _player, walls));
+							}
+						}
+					default:
+				}
+				_monsters.remove(cast(e, Enemy));
+				e.kill();
+				kill_sound.play();
+				LevelStats.score += cast(e, Enemy).value;
+			}
+			else
+			{
+				var m = cast(e, Enemy);
+				FlxSpriteUtil.flicker(m, m.DMG_FLICKER);
+				hit_sound.play();
+			}
+			r.kill();
+		}
 	}
 
 	private function handleMonsterProjectileCollisions(monsters:FlxObject, projectiles:Projectile)
@@ -582,6 +677,10 @@ class LevelState extends FlxState
 			{
 				src += "WaterStrider";
 			}
+			else if (Std.isOfType(e, Alligator))
+			{
+				src += "Alligator";
+			}
 			else
 			{
 				src += "unknown";
@@ -594,6 +693,29 @@ class LevelState extends FlxState
 						var dir = FlxVelocity.velocityFromAngle(angle * 15, 50);
 						var tar = e.getMidpoint().add(dir.x, dir.y);
 						_projectiles.add(new StriderShockwave(e.getMidpoint().x, e.getMidpoint().y, null, tar, src, 100));
+					}
+				case "From Alligator":
+					if (cast(e, Alligator).isRapidFiring())
+					{
+						var rock = new Rock(e.getMidpoint().x, e.getMidpoint().y);
+						_rocks.add(rock);
+						rock.deadlyToPlayer = true;
+						FlxVelocity.moveTowardsPoint(rock, _player.getMidpoint(), rock.speed);
+					}
+					else if (Random.int(0, 1) == 0)
+					{
+						for (angle in -3...4)
+						{
+							var rock = new Rock(e.getMidpoint().x, e.getMidpoint().y);
+							_rocks.add(rock);
+							rock.deadlyToPlayer = true;
+							FlxVelocity.moveTowardsPoint(rock, _player.getMidpoint(), rock.speed);
+							rock.velocity.rotate(FlxPoint.weak(0, 0), angle * 10);
+						}
+					}
+					else
+					{
+						cast(e, Alligator).startRapidFire();
 					}
 				default:
 					_projectiles.add(new EnemyBullet(e.getMidpoint().x, e.getMidpoint().y, _player, null, src));
