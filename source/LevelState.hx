@@ -600,6 +600,14 @@ class LevelState extends FlxState
 	{
 		if (projectiles.getType() != ENEMY && !projectiles.hit_enemies.contains(monsters))
 		{
+			if (projectiles.getType() == GREEN)
+			{
+				if (!FlxG.pixelPerfectOverlap(cast(monsters), projectiles, 1))
+				{
+					return;
+				}
+				// trace("Green attack collided");
+			}
 			projectiles.hit_enemies.push(monsters);
 			monsters.health -= projectiles.getDamage();
 			if (monsters.health <= 0)
@@ -822,9 +830,13 @@ class LevelState extends FlxState
 					}, 1);
 					_projectiles.add(proj);
 				}
-				else // if (closest_tick.getType() == LevelState.AttackType.PURPLE)
+				else if (closest_tick.getType() == LevelState.AttackType.PURPLE)
 				{
 					proj = shootLaser(_monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT, _player.getMidpoint());
+				}
+				else
+				{
+					proj = shootFireBlast(_monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT, _player.getMidpoint());
 				}
 
 				var energy_used = proj.getEnergy();
@@ -943,6 +955,21 @@ class LevelState extends FlxState
 			- earlier_beat.getTick() * LevelStats.shortest_note_len <= later_beat.getTick() * LevelStats.shortest_note_len - LevelStats.timer ? earlier_beat : later_beat;
 	}
 
+	private function shootFireBlast(target:FlxObject, timing:JudgeType, enchanted:Bool, source:FlxPoint)
+	{
+		var mouse:FlxPoint = FlxG.mouse.getPosition();
+		var deg:Float = source.angleBetween(mouse) - 90;
+
+		var fire_blast:FireBlast = new FireBlast(_player.x, _player.y, target, timing, enchanted, deg);
+		fire_blast.timer.start(0.2, function(Timer:FlxTimer)
+		{
+			fire_blast.kill();
+		}, 1);
+		_projectiles.add(fire_blast);
+
+		return fire_blast;
+	}
+
 	private function shootLaser(target:FlxObject, timing:JudgeType, enchanted:Bool, source:FlxPoint)
 	{
 		// var ground:Float = FlxG.height - 100;
@@ -968,7 +995,6 @@ class LevelState extends FlxState
 
 	private function makeLaser(source:FlxPoint, target:FlxObject, timing:JudgeType, enchanted:Bool, deg:Float)
 	{
-		var length:Float = 1000;
 		var laser:IceLaser = new IceLaser(source.x, source.y, target, timing, enchanted, deg);
 		_projectiles.add(laser);
 		// var laserGraphic:FlxSprite = new LaserBeam(source.x, source.y, length, deg);
