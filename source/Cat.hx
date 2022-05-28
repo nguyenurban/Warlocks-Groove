@@ -20,7 +20,7 @@ class Cat extends Enemy
 	private var MAX_MOVING_TIME = 3.0;
 	private var charging:Bool;
 	private var CHARGE_TIME = 2.0;
-	private var FB_FIRE_RATE = 0.25;
+	private var FB_FIRE_RATE = 0.35;
 	private var FB_SHOT_VARIANCE = 10;
 	private var moving:Bool;
 	private var curr_dest:FlxPoint;

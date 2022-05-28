@@ -111,17 +111,17 @@ class RoomEight extends LevelState
 		{
 			case 0:
 				// TODO: replace this with proper own projectile
-				_projectiles.add(new EnemyBullet(input[1], input[2], _player, _player.getMidpoint(), "FB from Cat", 150.0));
+				_projectiles.add(new EnemyBullet(input[1], input[2], _player, _player.getMidpoint(), "FB from Cat", 140.0));
 			case 1:
-				for (i in 0...5)
+				for (i in 0...4)
 				{
 					var ran_point = _player.getMidpoint();
 					ran_point.rotate(FlxPoint.weak(input[1], input[2]), FlxG.random.float(-50, 50));
-					_projectiles.add(new LargeBullet(input[1], input[2], null, ran_point, "Large from Cat", FlxG.random.float(100, 150)));
+					_projectiles.add(new LargeBullet(input[1], input[2], null, ran_point, "Large from Cat", FlxG.random.float(90, 140)));
 					ran_point.put();
 				}
 			case 2:
-				_projectiles.add(new WaveBullet(input[1], input[2], _player, _player.getMidpoint(), "Wave from Cat", 190.0));
+				_projectiles.add(new WaveBullet(input[1], input[2], _player, _player.getMidpoint(), "Wave from Cat", 150.0));
 			// signal to send just to start charging sprite
 			// input[3] = charge time
 			case 3:

@@ -696,11 +696,11 @@ class LevelState extends FlxState
 			switch (src)
 			{
 				case "From WaterStrider":
-					for (angle in 0...24)
+					for (angle in 0...20)
 					{
-						var dir = FlxVelocity.velocityFromAngle(angle * 15, 50);
+						var dir = FlxVelocity.velocityFromAngle(angle * 18, 50);
 						var tar = e.getMidpoint().add(dir.x, dir.y);
-						_projectiles.add(new StriderShockwave(e.getMidpoint().x, e.getMidpoint().y, null, tar, src, 100));
+						_projectiles.add(new StriderShockwave(e.getMidpoint().x, e.getMidpoint().y, null, tar, src, 85));
 					}
 				case "From Alligator":
 					if (cast(e, Alligator).isRapidFiring())
