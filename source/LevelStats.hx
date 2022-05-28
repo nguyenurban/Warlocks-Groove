@@ -186,7 +186,7 @@ class LevelStats extends BaseLevel
 				quickest_time_bonus = 60;
 				PERFECT_WINDOW = 2 / 60;
 				GREAT_WINDOW = 6 / 60;
-				OK_WINDOW = 20 / 60;
+				OK_WINDOW = 10 / 60;
 
 			case 2:
 				bpm = 110;
@@ -218,7 +218,7 @@ class LevelStats extends BaseLevel
 					adapted = false;
 					PERFECT_WINDOW = 2 / 60;
 					GREAT_WINDOW = 4.5 / 60;
-					OK_WINDOW = 12 / 60;
+					OK_WINDOW = 8 / 60;
 				}
 
 			case 3:
@@ -242,14 +242,14 @@ class LevelStats extends BaseLevel
 					adapted = true;
 					PERFECT_WINDOW = 2 / 60;
 					GREAT_WINDOW = 6 / 60;
-					OK_WINDOW = 20 / 60;
+					OK_WINDOW = 10 / 60;
 				}
 				else
 				{
 					adapted = false;
 					PERFECT_WINDOW = 2 / 60;
 					GREAT_WINDOW = 4 / 60;
-					OK_WINDOW = 10 / 60;
+					OK_WINDOW = 6 / 60;
 				}
 			default:
 		}

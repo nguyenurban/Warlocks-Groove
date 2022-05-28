@@ -223,7 +223,7 @@ class LevelState extends FlxState
 		beat_sound = FlxG.sound.load("assets/sounds/beat.wav");
 		beat_sound.volume = 0.3;
 		hit_sound = FlxG.sound.load("assets/sounds/hit.mp3");
-		hit_sound.volume = 0.2;
+		hit_sound.volume = 0.4;
 		kill_sound = FlxG.sound.load("assets/sounds/kill.mp3");
 		kill_sound.volume = 0.7;
 		fire_sound = FlxG.sound.load("assets/sounds/fire.mp3");
@@ -600,6 +600,10 @@ class LevelState extends FlxState
 	{
 		if (projectiles.getType() != ENEMY && !projectiles.hit_enemies.contains(monsters))
 		{
+			if (projectiles.getType() == RED || projectiles.getType() == GREEN)
+			{
+				FlxG.camera.shake(0.001, 0.1);
+			}
 			if (projectiles.getType() == GREEN)
 			{
 				if (!FlxG.pixelPerfectOverlap(cast(monsters), projectiles, 1))
