@@ -12,12 +12,13 @@ using flixel.util.FlxSpriteUtil;
 class Player extends FlxSprite
 {
 	private var INVULN_WINDOW = 2.0;
-	private var MAX_HEALTH = 100;
-	private var MAX_ENERGY = 100;
+
+	public var MAX_HEALTH = 100;
+	public var MAX_ENERGY = 100;
 
 	public var _energy:Float;
 
-	private var BASE_ENERGY_REGEN = 50.0;
+	private var BASE_ENERGY_REGEN = 30.0;
 
 	static inline var MOVEMENT_SPEED:Float = 200;
 
@@ -34,8 +35,8 @@ class Player extends FlxSprite
 		setSize(24, 24);
 		offset.set(4, 4);
 		drag.x = drag.y = 3000;
-		health = MAX_HEALTH;
-		_energy = MAX_ENERGY;
+		// health = MAX_HEALTH;
+		// _energy = MAX_ENERGY;
 		invuln_buffer = 0;
 		timer = new FlxTimer();
 		animation.add("run_down", [36, 37, 38, 39, 40, 41, 42, 43], 5);
@@ -91,15 +92,13 @@ class Player extends FlxSprite
 	{
 		if (!LevelStats.initialized)
 		{
-			_energy = Math.min(_energy + BASE_ENERGY_REGEN, MAX_ENERGY); // TODO: regen can be multiplied by freshness and combo meter
+			_energy = Math.max(Math.min(_energy + BASE_ENERGY_REGEN, MAX_ENERGY), _energy); // TODO: regen can be multiplied by freshness and combo meter
 		}
 		else
 		{
-			_energy = Math.min(_energy
-				+ BASE_ENERGY_REGEN
-				+ 20 * (Math.min(100, LevelStats.max_combo) / 100)
-				+ 30 * (Math.min(100, LevelStats.combo) / 100),
-				MAX_ENERGY); // TODO: regen can be multiplied by freshness and combo meter
+			_energy = Math.max(Math.min(_energy + BASE_ENERGY_REGEN + 10 * (Math.min(100, LevelStats.max_combo) / 100)
+				+ 15 * (Math.min(100, LevelStats.combo) / 100), MAX_ENERGY),
+				_energy); // TODO: regen can be multiplied by freshness and combo meter
 		}
 	}
 

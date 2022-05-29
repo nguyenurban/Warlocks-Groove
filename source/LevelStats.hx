@@ -126,11 +126,27 @@ class LevelStats extends BaseLevel
 
 	public static var save_data:FlxSave;
 
+	/**
+	 * Whether or not to restore the player's HP to full when a room calls its `create()` function
+	 * (i.e. if the player just died / the first room).
+	 */
+	public static var reset_hp_to_full = false;
+
+	/**
+	 * Temporary space to store player's health between rooms.
+	 */
+	public static var temp_hp = 100.0;
+
+	/**
+	 * Temporary space to store player's energy between rooms.
+	 */
+	public static var temp_energy = 100.0;
+
 	public static var PERFECT_WINDOW:Float = 2 / 60;
 	public static var GREAT_WINDOW:Float = 6 / 60;
 	// currently valued such that double-clicking on 1st stage won't cause a misfire
 	// perhaps this value can change by stage
-	public static var OK_WINDOW:Float = 20 / 60;
+	public static var OK_WINDOW:Float = 10 / 60;
 
 	/**
 	 * The best scores in each level (from one of us), for reference in 
@@ -286,6 +302,7 @@ class LevelStats extends BaseLevel
 			shots_fired = 0;
 		}
 		combo = 0;
+		reset_hp_to_full = true;
 	}
 
 	/**

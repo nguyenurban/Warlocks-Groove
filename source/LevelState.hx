@@ -232,6 +232,18 @@ class LevelState extends FlxState
 		fire_e_sound.volume = 0.2;
 		lvlPopup = false;
 		startMusicSub();
+		if (LevelStats.reset_hp_to_full)
+		{
+			_player.health = _player.MAX_HEALTH;
+			_player._energy = _player.MAX_ENERGY;
+
+			LevelStats.reset_hp_to_full = false;
+		}
+		else
+		{
+			_player.health = LevelStats.temp_hp;
+			_player._energy = LevelStats.temp_energy;
+		}
 	}
 
 	override function update(elapsed:Float)
@@ -351,6 +363,7 @@ class LevelState extends FlxState
 		FlxG.overlap(_monsters, _player, handleMonsterPlayerOverlap);
 		FlxG.overlap(_player, _projectiles, handlePlayerProjectileCollisions);
 		FlxG.overlap(_monsters, _projectiles, handleMonsterProjectileCollisions);
+		FlxG.overlap(_player, interactables, handlePlayerInteractablesCollisions);
 		FlxG.collide(_monsters, walls);
 		FlxG.collide(_monsters, interactables);
 		FlxG.collide(_projectiles, walls, handleProjectileWallsCollisions);
@@ -776,6 +789,27 @@ class LevelState extends FlxState
 		}
 	}
 
+	private function handlePlayerInteractablesCollisions(p:Player, obj:FlxSprite)
+	{
+		// restore health to player
+		// if player is already at max health, restore energy instead, which is allowed to go
+		// above 100
+		if (Std.isOfType(obj, HealthPickup))
+		{
+			var pickup = cast(obj, HealthPickup);
+			var temp = p.MAX_HEALTH - p.health;
+			p.health += Math.min(pickup.RESTORE, temp);
+			p._energy += Math.max(0, pickup.RESTORE - temp);
+		}
+		else if (Std.isOfType(obj, HealthPellet))
+		{
+			var pellet = cast(obj, HealthPellet);
+			var temp = p.MAX_HEALTH - p.health;
+			p.health += Math.min(pellet.RESTORE, temp);
+			p._energy += Math.max(0, pellet.RESTORE - temp);
+		}
+	}
+
 	private function startMusic() {}
 
 	/**
@@ -1141,6 +1175,8 @@ class LevelState extends FlxState
 				LevelStats.stopMusic();
 				LevelStats.initialize(Std.int(room_no / 100) + 1, false);
 			}
+			LevelStats.temp_hp = _player.health;
+			LevelStats.temp_energy = _player._energy;
 			FlxG.switchState(Type.createInstance(nextLevel, []));
 		}
 	}
