@@ -33,7 +33,7 @@ class LevelSelect extends FlxState
 			{
 				Logger.startLevel(101);
 				LevelStats.initialize(1, false);
-				FlxG.switchState(new RoomOne());
+				FlxG.switchState(new RoomTwo());
 			});
 		}, "Level 1", 100, 30);
 		level1.x = (FlxG.width / 2) - (level1.width / 2) - 150;

@@ -641,6 +641,12 @@ class LevelState extends FlxState
 							}
 						}
 					default:
+						if (LevelStats.save_data.data.ab_group == 2)
+						{
+							if (LevelStats.combo >= 100) {}
+							else if (LevelStats.combo >= 50) {}
+							else {}
+						}
 				}
 				_monsters.remove(cast(monsters, Enemy));
 				monsters.kill();

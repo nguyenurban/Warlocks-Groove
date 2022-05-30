@@ -88,7 +88,7 @@ class MenuState extends FlxState
 		{
 			Logger.startLevel(1);
 			LevelStats.initialize(1, false);
-			FlxG.switchState(new RoomOne());
+			FlxG.switchState(new RoomTwo());
 		});
 	}
 

@@ -12,14 +12,18 @@
  */
 class RoomNo
 {
-	public static var L1R1 = 101;
-	public static var L1R2 = 102;
-	public static var L1R3 = 103;
-	public static var L1R4 = 104;
-	public static var L1R5 = 105;
-	public static var L1R6 = 106;
-	public static var L1R7 = 107;
-	public static var L1R8 = 108;
+	/**
+	 * NOTE: deprecated; do not use.
+	 */
+	public static var L1R1 = 100;
+
+	public static var L1R2 = 101;
+	public static var L1R3 = 102;
+	public static var L1R4 = 103;
+	public static var L1R5 = 104;
+	public static var L1R6 = 105;
+	public static var L1R7 = 106;
+	public static var L1R8 = 107;
 	public static var L2R1 = 201;
 	public static var L2R2 = 202;
 	public static var L2R3 = 203;

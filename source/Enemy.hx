@@ -28,6 +28,21 @@ class Enemy extends FlxSprite
 	public var DMG_FLICKER = 0.75;
 
 	/**
+	 * If health pellets are used, the number of pellets to drop on kill when the player has a combo less than 25.
+	 */
+	public var pellet_drop = 2;
+
+	/**
+	 * If health pellets are used, the number of pellets to drop when the player has a combo between 25 and 99.
+	 */
+	public var pd_25_combo = 3;
+
+	/**
+	 * If health pellets are used, the number of pleets to drop when the player has a combo of 100 or better.
+	 */
+	public var pd_100_combo = 5;
+
+	/**
 	 * How many points this enemy awards upon kill (default 50).
 	 */
 	public var value = 50;

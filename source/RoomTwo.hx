@@ -65,11 +65,19 @@ class RoomTwo extends LevelState
 
 	function loadTutorial()
 	{
-		var mouse = new FlxSprite(70, 200);
+		var WASD = new FlxSprite(70, 200);
+		WASD.loadGraphic("assets/images/WASD.png", false, 80, 64, true);
+		WASD.setGraphicSize(120, 96);
+		add(WASD);
+		var instr_wasd = new FlxText(40, 280, 0, "to Move Around", 10);
+		instr_wasd.setFormat("assets/font.ttf", 30, FlxColor.WHITE, LEFT);
+		instr_wasd.setBorderStyle(OUTLINE, FlxColor.BLACK, 1);
+		add(instr_wasd);
+		var mouse = new FlxSprite(70, 350);
 		mouse.loadGraphic("assets/images/mouse.png", false, 80, 64, true);
 		add(mouse);
-		var instr = new FlxText(50, 360, 0, "FIRE ON BEAT", 10);
-		instr.setFormat("assets/font.ttf", 30, FlxColor.RED, LEFT);
+		var instr = new FlxText(50, 510, 0, "Fire on Beat", 10);
+		instr.setFormat("assets/font.ttf", 30, FlxColor.WHITE, LEFT);
 		instr.setBorderStyle(OUTLINE, FlxColor.BLACK, 1);
 		add(instr);
 		final MagMissilePopup = new MagMissileObtained();
@@ -106,6 +114,9 @@ class Metronome extends Enemy
 		beat = 0;
 		prev_beat = 0;
 		immovable = true;
+		pellet_drop = 0;
+		pd_25_combo = 0;
+		pd_100_combo = 0;
 		loadGraphic("assets/images/metronome.png", true, 400, 400);
 		setGraphicSize(64, 64);
 		updateHitbox();
