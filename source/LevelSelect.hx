@@ -12,7 +12,7 @@ class LevelSelect extends FlxState
 	private var title:FlxText;
 	private var level1:FlxButtonPlus;
 	private var level2:FlxButtonPlus;
-	// private var level3:FlxButtonPlus;
+	private var level3:FlxButtonPlus;
 	// private var level4:FlxButtonPlus;
 	// private var level5:FlxButtonPlus;
 	// private var level6:FlxButtonPlus;
@@ -67,6 +67,27 @@ class LevelSelect extends FlxState
 			}
 		}
 
+		if (LevelStats.save_data.data.levels_seen[3])
+		{
+			level3 = new FlxButtonPlus(0, 0, () ->
+			{
+				FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
+				{
+					Logger.startLevel(301, "level select");
+					LevelStats.initialize(3, false);
+					FlxG.switchState(new LvlThreeRoomOne());
+				});
+			}, "Level 3", 100, 30);
+			level3.x = (FlxG.width / 2) - (level2.width / 2) - 150;
+			level3.y = (FlxG.height / 2) - 10;
+			add(level2);
+
+			if (LevelStats.save_data.data.high_scores[3] != -1)
+			{
+				var level3_hi_score = new FlxText(level3.x, level3.y + 40, 0, "Best score: " + LevelStats.save_data.data.high_scores[3]);
+				add(level3_hi_score);
+			}
+		}
 		// level3 = new FlxButtonPlus(0, 0, () ->
 		// {
 		// 	FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->

@@ -370,8 +370,8 @@ class TestMenuRoom3 extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
-				Logger.startLevel(RoomNo.L2R1);
-				LevelStats.initialize(2, false);
+				Logger.startLevel(RoomNo.L3R1);
+				LevelStats.initialize(3, false);
 				FlxG.switchState(new LvlThreeRoomOne());
 			});
 		}, "Room 1", 100, 30);
@@ -383,8 +383,8 @@ class TestMenuRoom3 extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
-				Logger.startLevel(RoomNo.L2R2);
-				LevelStats.initialize(2, false);
+				Logger.startLevel(RoomNo.L3R2);
+				LevelStats.initialize(3, false);
 				FlxG.switchState(new LvlThreeRoomTwo());
 			});
 		}, "Room 2", 100, 30);
@@ -396,8 +396,8 @@ class TestMenuRoom3 extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
-				Logger.startLevel(RoomNo.L2R3);
-				LevelStats.initialize(2, false);
+				Logger.startLevel(RoomNo.L3R3);
+				LevelStats.initialize(3, false);
 				FlxG.switchState(new LvlThreeRoomThree());
 			});
 		}, "Room 3", 100, 30);
@@ -409,8 +409,8 @@ class TestMenuRoom3 extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
-				Logger.startLevel(RoomNo.L2R4);
-				LevelStats.initialize(2, false);
+				Logger.startLevel(RoomNo.L3R4);
+				LevelStats.initialize(3, false);
 				FlxG.switchState(new LvlThreeRoomFour());
 			});
 		}, "Room 4", 100, 30);
@@ -422,8 +422,8 @@ class TestMenuRoom3 extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
-				Logger.startLevel(RoomNo.L2R5);
-				LevelStats.initialize(2, false);
+				Logger.startLevel(RoomNo.L3R5);
+				LevelStats.initialize(3, false);
 				FlxG.switchState(new LvlThreeRoomFive());
 			});
 		}, "Room 5", 100, 30);
@@ -435,8 +435,8 @@ class TestMenuRoom3 extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
-				Logger.startLevel(RoomNo.L2R6);
-				LevelStats.initialize(2, false);
+				Logger.startLevel(RoomNo.L3R6);
+				LevelStats.initialize(3, false);
 				FlxG.switchState(new LvlThreeRoomSix());
 			});
 		}, "Room 6", 100, 30);
@@ -448,8 +448,8 @@ class TestMenuRoom3 extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
-				Logger.startLevel(RoomNo.L2R7);
-				LevelStats.initialize(2, false);
+				Logger.startLevel(RoomNo.L3R7);
+				LevelStats.initialize(3, false);
 				FlxG.switchState(new LvlThreeRoomSeven());
 			});
 		}, "Room 7", 100, 30);
@@ -461,8 +461,8 @@ class TestMenuRoom3 extends FlxState
 		{
 			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, () ->
 			{
-				Logger.startLevel(RoomNo.L2R8);
-				LevelStats.initialize(2, false);
+				Logger.startLevel(RoomNo.L3R15);
+				LevelStats.initialize(3, false);
 				FlxG.switchState(new LvlThreeRoomFifteen());
 			});
 		}, "Room 15", 100, 30);
