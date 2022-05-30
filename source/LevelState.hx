@@ -570,6 +570,7 @@ class LevelState extends FlxState
 			{
 				Logger.playerDeath(r);
 				p.kill();
+				LevelStats.num_deaths++;
 			}
 			r.kill();
 		}
@@ -771,6 +772,7 @@ class LevelState extends FlxState
 			{
 				Logger.playerDeath(e);
 				p.kill();
+				LevelStats.num_deaths++;
 			}
 		}
 	}
@@ -789,6 +791,7 @@ class LevelState extends FlxState
 				{
 					Logger.playerDeath(proj);
 					p.kill();
+					LevelStats.num_deaths++;
 				}
 			}
 			proj.kill();

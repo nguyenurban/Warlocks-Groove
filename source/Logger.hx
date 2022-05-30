@@ -35,7 +35,12 @@ class Logger
 		{
 			if (LevelStats.initialized)
 			{
-				levelEnd("timed out at least " + SESSION_TIMEOUT + " seconds ago");
+				levelEnd((LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
+					+ ", "
+					+ LevelStats.adapted
+					+ ", timed out at least "
+					+ SESSION_TIMEOUT
+					+ " seconds ago");
 				newSession();
 				startLevel(LevelStats.curr_level, "resume from timeout");
 			}
@@ -86,11 +91,16 @@ class Logger
 		{
 			if (details != null)
 			{
-				Logger._logger.logLevelStart(room, details);
+				Logger._logger.logLevelStart(room,
+					(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
+					+ ", "
+					+ LevelStats.adapted
+					+ ", "
+					+ details);
 			}
 			else
 			{
-				Logger._logger.logLevelStart(room);
+				Logger._logger.logLevelStart(room, (LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0) + ", " + LevelStats.adapted);
 			}
 		}
 	}
@@ -99,7 +109,12 @@ class Logger
 	{
 		if (_logger != null)
 		{
-			Logger._logger.logLevelAction(LoggingActions.NEXT_ROOM, Std.string(n_room));
+			Logger._logger.logLevelAction(LoggingActions.NEXT_ROOM,
+				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
+				+ ", "
+				+ LevelStats.adapted
+				+ ", "
+				+ Std.string(n_room));
 		}
 	}
 
@@ -110,7 +125,12 @@ class Logger
 		if (_logger != null)
 		{
 			// Logger._logger.logLevelAction(LoggingActions.PLAYER_DEATH, Std.string(curr_room) + ", " + Std.string(cause));
-			Logger._logger.logLevelAction(LoggingActions.PLAYER_DEATH, Std.string(cause));
+			Logger._logger.logLevelAction(LoggingActions.PLAYER_DEATH,
+				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
+				+ ", "
+				+ LevelStats.adapted
+				+ ", "
+				+ Std.string(cause));
 		}
 	}
 
@@ -118,7 +138,7 @@ class Logger
 	{
 		if (_logger != null)
 		{
-			Logger._logger.logLevelEnd(cause);
+			Logger._logger.logLevelEnd((LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0) + ", " + LevelStats.adapted + ", " + cause);
 		}
 	}
 
@@ -126,7 +146,16 @@ class Logger
 	{
 		if (_logger != null)
 		{
-			Logger._logger.logLevelAction(LoggingActions.PLAYER_SHOOT, type + ", " + judge + ", " + timing);
+			Logger._logger.logLevelAction(LoggingActions.PLAYER_SHOOT,
+				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
+				+ ", "
+				+ LevelStats.adapted
+				+ ", "
+				+ type
+				+ ", "
+				+ judge
+				+ ", "
+				+ timing);
 		}
 	}
 
@@ -134,7 +163,14 @@ class Logger
 	{
 		if (_logger != null)
 		{
-			Logger._logger.logLevelAction(LoggingActions.TOOK_DAMAGE, cause + ", " + dmg);
+			Logger._logger.logLevelAction(LoggingActions.TOOK_DAMAGE,
+				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
+				+ ", "
+				+ LevelStats.adapted
+				+ ", "
+				+ cause
+				+ ", "
+				+ dmg);
 		}
 	}
 
@@ -142,7 +178,14 @@ class Logger
 	{
 		if (_logger != null)
 		{
-			Logger._logger.logLevelAction(LoggingActions.SCORE_GET, score + ", " + num_deaths);
+			Logger._logger.logLevelAction(LoggingActions.SCORE_GET,
+				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
+				+ ", "
+				+ LevelStats.adapted
+				+ ", "
+				+ score
+				+ ", "
+				+ num_deaths);
 		}
 	}
 }
