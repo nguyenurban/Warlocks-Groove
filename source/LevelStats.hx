@@ -124,6 +124,15 @@ class LevelStats extends BaseLevel
 	public static var inIntro:Bool;
 	public static var loop_timer:Float;
 
+	/**
+	 * Data fields:
+	 * `high_scores`: Highest scores achieved by the player. 1-indexed.
+	 * `hidden_high_scores`: High scores that account for number of deaths.
+	 * `level_seen`: Whether or not the player has seen a specific level. 1-indexed.
+	 * `ab_group`: A randomly decided group upon creating a save file that determines various outcomes:
+	 *  `1 =` Health pickups appear in predetermined locations.
+	 *  `2 =` Enemies drop health pellets on kill. Higher accuracy leads to more drops.
+	 */
 	public static var save_data:FlxSave;
 
 	/**
@@ -326,6 +335,7 @@ class LevelStats extends BaseLevel
 			save_data.data.high_scores = [-1, -1, -1, -1, -1, -1, -1];
 			save_data.data.hidden_high_scores = [-1, -1, -1, -1, -1, -1, -1];
 			save_data.data.levels_seen = [false, true, false, false, false, false, false];
+			save_data.data.ab_group = (Debug.AB_GROUP != 0 ? Debug.AB_GROUP : FlxG.random.int(1, 2));
 		}
 	}
 

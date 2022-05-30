@@ -28,4 +28,13 @@ class Debug
 	 * Whether to start the game by deleting any existing saved data first.
 	 */
 	public static var DELETE_SAVE = true;
+
+	/**
+	 * Whether or not to force the game to assign this session to a specific play-testing group for the health
+	 * restoration mechanic.
+	 * `0 =` random,
+	 * `1 =` group A: use fixed health pickups
+	 * `2 =` group B: use health pellets dropped on kill
+	 */
+	public static var AB_GROUP = 0;
 }
