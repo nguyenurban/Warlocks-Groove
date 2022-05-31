@@ -625,6 +625,7 @@ class LevelState extends FlxState
 					return;
 				}
 				// trace("Green attack collided");
+				cast(projectiles, FireBlast).knockback(cast(monsters, Enemy));
 			}
 			projectiles.hit_enemies.push(monsters);
 			monsters.health -= projectiles.getDamage();
@@ -1013,6 +1014,8 @@ class LevelState extends FlxState
 			fire_blast.kill();
 		}, 1);
 		_projectiles.add(fire_blast);
+
+		fire_blast.knockback(_player);
 
 		return fire_blast;
 	}
