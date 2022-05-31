@@ -31,6 +31,9 @@ class NotOctorok extends Enemy
 		animation.add("r", [8, 9, 10, 11], 6, false);
 		animation.add("u", [12, 13, 14, 15], 6, false);
 		animation.add("d", [0, 1, 2, 3], 6, false);
+		pellet_drop = 3;
+		pd_25_combo = 4;
+		pd_100_combo = 6;
 	}
 
 	override function takeAction()

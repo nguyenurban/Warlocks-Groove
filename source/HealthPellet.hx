@@ -31,7 +31,7 @@ class HealthPellet extends Item
 		// }
 		animation.play("default");
 		despawn_timer += elapsed;
-		if (despawn_timer >= 10)
+		if (despawn_timer >= 20)
 		{
 			kill();
 		}

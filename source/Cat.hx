@@ -47,6 +47,9 @@ class Cat extends Enemy
 		_target = player;
 		_size = 128;
 		_signal = signal;
+		pellet_drop = 30;
+		pd_25_combo = 30;
+		pd_100_combo = 30;
 		setSize(_size, _size);
 		_attacktimer = FlxG.random.float(ATTACK_TIME_CAP_MIN, ATTACK_TIME_CAP_MAX);
 		charging = false;

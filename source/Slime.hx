@@ -31,6 +31,9 @@ class Slime extends Enemy
 		animation.add("s", [0, 1, 5, 6, 7, 8, 9, 10, 11], 6, false);
 		animation.add("u", [30, 31, 35, 36, 37, 38, 39, 40, 41], 6, false);
 		animation.add("d", [15, 16, 20, 21, 22, 23, 24, 25, 26], 6, false);
+		pellet_drop = 0;
+		pd_25_combo = 0;
+		pd_100_combo = 0;
 	}
 
 	override function takeAction()

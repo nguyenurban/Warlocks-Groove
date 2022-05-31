@@ -43,6 +43,9 @@ class Goblin extends Enemy
 		animation.add("r", [11, 12, 13, 14, 15, 16, 17], 6, false);
 		animation.add("u", [22, 23, 24, 25, 26, 27, 28], 6, false);
 		animation.add("d", [0, 1, 2, 3, 4, 5, 6], 6, false);
+		pellet_drop = 3;
+		pd_25_combo = 4;
+		pd_100_combo = 6;
 	}
 
 	override function takeAction()
