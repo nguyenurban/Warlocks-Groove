@@ -885,7 +885,7 @@ class LevelState extends FlxState
 			LevelStats.chkpt_no = room_no;
 			LevelStats.chkpt_score = LevelStats.score;
 		}
-		LevelStats.save_data.data.levels_seen[Std.int(room_no / 100)] = true;
+		LevelStats.save_data.data.levels_seen[Std.int(room_no / 100)] = (LevelStats.hard_mode ? 1 : 0);
 		LevelStats.save_data.flush();
 	}
 
@@ -1368,11 +1368,18 @@ class LvlCompletePopup extends FlxSubState
 		var hid_score_value = Std.int(score_value * Math.pow(0.9, LevelStats.num_deaths));
 
 		var text = LevelStats.TIPS[LevelStats.curr_level];
-		if (hid_score_value >= LevelStats.STAFF_BEST[LevelStats.curr_level] * 0.9)
+		if (LevelStats.hard_mode)
 		{
 			LevelStats.save_data.data.hard_high_scores[LevelStats.curr_level] = score_value;
-			LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = Std.int(score_value * Math.pow(0.9, LevelStats.num_deaths));
-			LevelStats.save_data.flush();
+		}
+		else
+		{
+			LevelStats.save_data.data.high_scores[LevelStats.curr_level] = score_value;
+		}
+		LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = hid_score_value;
+		LevelStats.save_data.flush();
+		if (hid_score_value >= LevelStats.STAFF_BEST[LevelStats.curr_level] * 0.9 && !LevelStats.hard_mode)
+		{
 			final tipText = new FlxText(0, final_score.y + 50, 0, "You're pretty good; try this next level on Hard Mode!", 14);
 			tipText.addFormat(new FlxTextFormat(FlxColor.YELLOW, true), 43, 52);
 			tipText.screenCenter(X);
@@ -1386,9 +1393,6 @@ class LvlCompletePopup extends FlxSubState
 		}
 		else if (text != "")
 		{
-			LevelStats.save_data.data.high_scores[LevelStats.curr_level] = score_value;
-			LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = Std.int(score_value * Math.pow(0.9, LevelStats.num_deaths));
-			LevelStats.save_data.flush();
 			final tipText = new FlxText(0, final_score.y + 50, 0, "TIP: " + LevelStats.TIPS[LevelStats.curr_level], 10);
 			tipText.screenCenter(X);
 			tipText.scrollFactor.set(0, 0);
