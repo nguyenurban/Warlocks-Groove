@@ -10,6 +10,7 @@ import flixel.addons.display.FlxMouseSpring;
 import flixel.addons.display.shapes.*;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxAngle;
 import flixel.math.FlxRect;
 import flixel.math.FlxVector;
 import flixel.math.FlxVelocity;
@@ -637,9 +638,25 @@ class LevelState extends FlxState
 					default:
 						if (LevelStats.save_data.data.ab_group == 2)
 						{
-							if (LevelStats.combo >= 100) {}
-							else if (LevelStats.combo >= 50) {}
-							else {}
+							var spawn = 0;
+							var m = cast(monsters, Enemy);
+							if (LevelStats.combo >= 100)
+							{
+								spawn = m.pd_100_combo;
+							}
+							else if (LevelStats.combo >= 25)
+							{
+								spawn = m.pd_25_combo;
+							}
+							else
+							{
+								spawn = m.pellet_drop;
+							}
+							for (i in 0...spawn)
+							{
+								_pickups.add(new HealthPellet(monsters.x, monsters.y,
+									FlxAngle.getCartesianCoords(FlxG.random.float(0, 5), FlxG.random.float(0, 360))));
+							}
 						}
 				}
 				_monsters.remove(cast(monsters, Enemy));
@@ -1185,26 +1202,8 @@ class LevelState extends FlxState
 		}
 	}
 
-	// function updateTicks()
-	// {
-	// 	for (i in _ticks)
-	// 	{
-	// 		i.x = (i.getTick() * shortest_note_len - timer) * SCROLL_MUL + TICK_X_OFFSET;
-	// 	}
-	// 	if (shortest_notes_elpsd >= Std.int(_ticks.length / 2))
-	// 	{
-	// 		if (shortest_notes_elpsd > prev_sne)
-	// 		{
-	// 			var recycled_tick = _ticks[(shortest_notes_elpsd - Std.int(_ticks.length / 2)) % _ticks.length];
-	// 			// TESTING ONLY; TO BE CHANGED LATER WHEN ENCHANTED MARKUP IS CREATED
-	// 			// (also, enchanted has to be set before judge in order for enchant glow to show up properly)
-	// 			recycled_tick.setEnchanted(Math.random() <= ENCHANT_CHANCE);
-	// 			recycled_tick.setJudge(NONE);
-	// 			recycled_tick.setTick(shortest_notes_elpsd + Std.int(_ticks.length / 2));
-	// 			debugTickDisplay();
-	// 		}
-	// 	}
-	// }
+	public function killEnemy(enemy:Enemy) {}
+
 	public override function toString():String
 	{
 		return Type.getClassName(Type.getClass(this));
