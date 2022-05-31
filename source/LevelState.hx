@@ -70,6 +70,7 @@ class LevelState extends FlxState
 	private var _projectiles:FlxTypedGroup<Projectile>;
 	private var _doors:FlxTypedGroup<Door>;
 	private var _rocks:FlxTypedGroup<Rock>;
+	private var _pickups:FlxTypedGroup<Item>;
 
 	// NEXT LEVEL STATES
 	var nextLevel:Class<LevelState>;
@@ -193,6 +194,8 @@ class LevelState extends FlxState
 		add(_doors);
 		_rocks = new FlxTypedGroup<Rock>();
 		add(_rocks);
+		_pickups = new FlxTypedGroup<Item>();
+		add(_pickups);
 		// vars to be loaded in by a file (or are unique to each level)
 		// bpm = 130;
 		// qtr_note = 60 / bpm;
@@ -295,14 +298,6 @@ class LevelState extends FlxState
 			_energybar.visible = true;
 			_energyico.visible = true;
 		}
-
-		// updateDebugTexts();
-
-		// updateTicks();
-		// for (i in LevelStats._ticks)
-		// {
-		// 	i.x = (i.getTick() * LevelStats.shortest_note_len - LevelStats.timer) * LevelStats.scroll_mul + LevelStats.TICK_X_OFFSET;
-		// }
 		_monsters.forEach(handleMonsterActions);
 		// _projectiles.forEach(handleProjectileRaycasts);
 		if (_monsters.countLiving() <= 0)
@@ -311,13 +306,6 @@ class LevelState extends FlxState
 			{
 				d.unlock();
 			}
-			// disabling for now
-			// if (!lvlPopup && currLevel == RoomEight)
-			// {
-			// 	final lvlCompPop = new LvlCompletePopup();
-			// 	openSubState(lvlCompPop);
-			// 	lvlPopup = true;
-			// }
 		}
 
 		while (_rocks.countLiving() > 50)
@@ -363,7 +351,7 @@ class LevelState extends FlxState
 		FlxG.overlap(_monsters, _player, handleMonsterPlayerOverlap);
 		FlxG.overlap(_player, _projectiles, handlePlayerProjectileCollisions);
 		FlxG.overlap(_monsters, _projectiles, handleMonsterProjectileCollisions);
-		FlxG.overlap(_player, interactables, handlePlayerInteractablesCollisions);
+		FlxG.overlap(_player, interactables, handlePlayerPickupCollisions);
 		FlxG.collide(_monsters, walls);
 		FlxG.collide(_monsters, interactables);
 		FlxG.collide(_projectiles, walls, handleProjectileWallsCollisions);
@@ -495,6 +483,11 @@ class LevelState extends FlxState
 				_rocks.add(new Rock(entity.x, entity.y));
 			case "alligator":
 				_monsters.add(new Alligator(entity.x, entity.y, _player, walls));
+			case "health_pickup":
+				if (LevelStats.save_data != null && LevelStats.save_data.data != null && LevelStats.save_data.data.ab_group == 1)
+				{
+					_pickups.add(new HealthPickup(entity.x, entity.y));
+				}
 			default:
 		}
 	}
@@ -798,7 +791,7 @@ class LevelState extends FlxState
 		}
 	}
 
-	private function handlePlayerInteractablesCollisions(p:Player, obj:FlxSprite)
+	private function handlePlayerPickupCollisions(p:Player, obj:FlxSprite)
 	{
 		// restore health to player
 		// if player is already at max health, restore energy instead, which is allowed to go
@@ -809,6 +802,7 @@ class LevelState extends FlxState
 			var temp = p.MAX_HEALTH - p.health;
 			p.health += Math.min(pickup.RESTORE, temp);
 			p._energy += Math.max(0, pickup.RESTORE - temp);
+			obj.kill();
 		}
 		else if (Std.isOfType(obj, HealthPellet))
 		{
@@ -816,6 +810,7 @@ class LevelState extends FlxState
 			var temp = p.MAX_HEALTH - p.health;
 			p.health += Math.min(pellet.RESTORE, temp);
 			p._energy += Math.max(0, pellet.RESTORE - temp);
+			obj.kill();
 		}
 	}
 
@@ -863,8 +858,8 @@ class LevelState extends FlxState
 			else
 			{
 				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - DELAY;
-				trace(diff);
-				trace(closest_tick.getTick());
+				// trace(diff);
+				// trace(closest_tick.getTick());
 				var timing = getTiming(diff);
 
 				var proj:Projectile;

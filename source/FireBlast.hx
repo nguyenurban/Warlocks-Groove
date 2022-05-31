@@ -101,7 +101,7 @@ class FireBlast extends Projectile
 	private function kill_projectile()
 	{
 		super.kill();
-		trace("projectile killed");
+		// trace("projectile killed");
 	}
 
 	private function AI(elapsed:Float) {}
