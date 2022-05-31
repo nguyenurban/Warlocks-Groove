@@ -1359,25 +1359,48 @@ class LvlCompletePopup extends FlxSubState
 		final_score.scrollFactor.set(0, 0);
 		add(final_score);
 
-		var score_value = res[0] + res[1] + res[2] + res[3];
+		var score_value = Std.int(res[0] + res[1] + res[2] + res[3]);
 		final final_score_val = new FlxText(boundingBox.x + 10, combo_bonus_val.y + 50, 580, Std.string(score_value), 35);
 		final_score_val.alignment = RIGHT;
 		final_score_val.scrollFactor.set(0, 0);
 		add(final_score_val);
 
-		LevelStats.save_data.data.high_scores[LevelStats.curr_level] = score_value;
-		LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = Std.int(score_value * Math.pow(0.9, LevelStats.num_deaths));
-		LevelStats.save_data.flush();
-		Logger.scoreGet(score_value, LevelStats.num_deaths);
+		var hid_score_value = Std.int(score_value * Math.pow(0.9, LevelStats.num_deaths));
+
 		var text = LevelStats.TIPS[LevelStats.curr_level];
-		if (text != "")
+		if (hid_score_value >= LevelStats.STAFF_BEST[LevelStats.curr_level] * 0.9)
 		{
+			LevelStats.save_data.data.hard_high_scores[LevelStats.curr_level] = score_value;
+			LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = Std.int(score_value * Math.pow(0.9, LevelStats.num_deaths));
+			LevelStats.save_data.flush();
+			final tipText = new FlxText(0, final_score.y + 50, 0, "You're pretty good; try this next level on Hard Mode!", 14);
+			tipText.addFormat(new FlxTextFormat(FlxColor.YELLOW, true), 43, 52);
+			tipText.screenCenter(X);
+			tipText.scrollFactor.set(0, 0);
+			add(tipText);
+			final tipText2 = new FlxText(0, final_score.y + 70, 0, "(You can choose between Normal and Hard in the Level Select menu)", 8);
+			tipText2.screenCenter(X);
+			tipText2.scrollFactor.set(0, 0);
+			add(tipText2);
+			LevelStats.hard_mode = true;
+		}
+		else if (text != "")
+		{
+			LevelStats.save_data.data.high_scores[LevelStats.curr_level] = score_value;
+			LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = Std.int(score_value * Math.pow(0.9, LevelStats.num_deaths));
+			LevelStats.save_data.flush();
 			final tipText = new FlxText(0, final_score.y + 50, 0, "TIP: " + LevelStats.TIPS[LevelStats.curr_level], 10);
 			tipText.screenCenter(X);
 			tipText.scrollFactor.set(0, 0);
 			add(tipText);
+			// if (LevelStats.curr_level == 1)
+			// {
+			// 	LevelStats.hard_mode = false;
+			// }
+			LevelStats.hard_mode = LevelStats.curr_level != 1;
 		}
-		final endText = new FlxText(0, final_score.y + 65, 0, "Press SPACE to continue.", 15);
+		Logger.scoreGet(score_value, LevelStats.num_deaths);
+		final endText = new FlxText(0, final_score.y + 100, 0, "Press SPACE to continue.", 15);
 		endText.screenCenter(X);
 		endText.scrollFactor.set(0, 0);
 		add(endText);

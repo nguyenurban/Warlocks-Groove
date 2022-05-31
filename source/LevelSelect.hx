@@ -45,7 +45,7 @@ class LevelSelect extends FlxState
 			add(level1_hi_score);
 		}
 
-		if (LevelStats.save_data.data.levels_seen[2])
+		if (LevelStats.save_data.data.levels_seen[2] >= 0)
 		{
 			level2 = new FlxButtonPlus(0, 0, () ->
 			{
@@ -67,7 +67,7 @@ class LevelSelect extends FlxState
 			}
 		}
 
-		if (LevelStats.save_data.data.levels_seen[3])
+		if (LevelStats.save_data.data.levels_seen[3] >= 0)
 		{
 			level3 = new FlxButtonPlus(0, 0, () ->
 			{

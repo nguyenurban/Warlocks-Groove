@@ -19,6 +19,7 @@ class MenuState extends FlxState
 
 	override function create()
 	{
+		LevelStats.hard_mode = false;
 		FlxG.mouse.unload();
 		bgColor = 0x00000000;
 		title = new FlxText(50, 150, 0, "Warlock's Groove", 32);
