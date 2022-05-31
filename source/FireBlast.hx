@@ -3,6 +3,8 @@ import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.math.FlxAngle;
 import flixel.math.FlxVelocity;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
 
 using flixel.math.FlxPoint;
@@ -13,6 +15,9 @@ class FireBlast extends Projectile
 
 	// in degrees per second
 	private var heading:FlxPoint;
+
+	private var player_knockback:Float;
+	private var enemy_knockback:Float;
 
 	public function new(x:Float, y:Float, target:FlxObject, timing:JudgeType, enchanted:Bool, rotation:Float)
 	{
@@ -29,12 +34,18 @@ class FireBlast extends Projectile
 			case PERFECT:
 				_speed = MOVEMENT_SPEED * 1.2;
 				_damage = 7;
+				player_knockback = 10;
+				enemy_knockback = 20;
 			case GREAT:
 				_speed = MOVEMENT_SPEED;
 				_damage = 5;
+				player_knockback = 15;
+				enemy_knockback = 15;
 			case OK:
 				_speed = MOVEMENT_SPEED * 0.8;
 				_damage = 3;
+				player_knockback = 25;
+				enemy_knockback = 10;
 			default:
 		}
 
@@ -104,5 +115,23 @@ class FireBlast extends Projectile
 		// trace("projectile killed");
 	}
 
-	private function AI(elapsed:Float) {}
+	public function knockback(target:FlxObject)
+	{
+		if (Std.isOfType(target, Player))
+		{
+			var x2:Float = target.x - player_knockback * Math.cos(this.angle * Math.PI / 180);
+			var y2:Float = target.y - player_knockback * Math.sin(this.angle * Math.PI / 180);
+			FlxTween.linearMotion(target, target.x, target.y, x2, y2, 0.2, true, {ease: FlxEase.quadOut});
+			// target.velocity.add(500, 0);
+			// target.velocity.rotate(FlxPoint.weak(0, 0), this.angle - 180);
+		}
+		else
+		{
+			var x2:Float = target.x + enemy_knockback * Math.cos(this.angle * Math.PI / 180);
+			var y2:Float = target.y + enemy_knockback * Math.sin(this.angle * Math.PI / 180);
+			FlxTween.linearMotion(target, target.x, target.y, x2, y2, 0.2, true, {ease: FlxEase.quadOut});
+			// target.velocity.add(500, 0);
+			// target.velocity.rotate(FlxPoint.weak(0, 0), this.angle);
+		}
+	}
 }
