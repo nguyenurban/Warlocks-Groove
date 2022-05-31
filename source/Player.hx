@@ -46,6 +46,10 @@ class Player extends FlxSprite
 		animation.add("kill", [27, 28, 29, 30, 31, 32], 5, false);
 		setFacingFlip(FlxObject.LEFT, true, false);
 		setFacingFlip(FlxObject.RIGHT, false, false);
+		if (LevelStats.save_data != null && LevelStats.save_data.data != null && LevelStats.save_data.data.ab_group == 1)
+		{
+			BASE_ENERGY_REGEN = 50.0;
+		}
 	}
 
 	override function kill()
