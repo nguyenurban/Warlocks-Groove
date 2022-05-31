@@ -203,7 +203,7 @@ class LevelStats extends BaseLevel
 				snpq = 1;
 				scroll_mul = 350;
 				enchant_chance = 0.25;
-				ticks_len = 16;
+				ticks_len = 4;
 				bgm = FlxG.sound.load("assets/music/stg1.wav", 0.5);
 				bgm.persist = true;
 				intro_beats = 32;
@@ -220,7 +220,7 @@ class LevelStats extends BaseLevel
 				snpq = 2;
 				scroll_mul = 350;
 				enchant_chance = 0.25;
-				ticks_len = 16;
+				ticks_len = 8;
 				bgm = FlxG.sound.load("assets/music/stg2.wav", 0.45);
 				bgm.persist = true;
 				intro_beats = 0;
@@ -241,17 +241,19 @@ class LevelStats extends BaseLevel
 				else
 				{
 					adapted = false;
-					PERFECT_WINDOW = 2 / 60;
-					GREAT_WINDOW = 4.5 / 60;
+					PERFECT_WINDOW = 1.5 / 60;
+					GREAT_WINDOW = 3 / 60;
 					OK_WINDOW = 8 / 60;
 				}
 
 			case 3:
 				bpm = 128;
-				tick_format = [RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN];
+				tick_format = [
+					RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN
+				];
 				shortest_note = SIXTEENTH;
 				snpq = 4;
-				scroll_mul = 350;
+				scroll_mul = 500;
 				enchant_chance = 0.25;
 				ticks_len = 16;
 				bgm = FlxG.sound.load("assets/music/stg3.wav", 0.45);
@@ -348,7 +350,9 @@ class LevelStats extends BaseLevel
 			case 2:
 				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
 			case 3:
-				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
+				tick_format = [
+					RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN
+				];
 			default:
 		}
 	}

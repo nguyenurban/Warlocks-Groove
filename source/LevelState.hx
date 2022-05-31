@@ -120,7 +120,7 @@ class LevelState extends FlxState
 	private var fire_e_sound:FlxSound;
 	private var pickup_sound:FlxSound;
 	private var pellet_sound:FlxSound;
-	private var DELAY = 0.066;
+	private var DELAY = -0.01;
 
 	// PURELY FOR TESTING
 	private var ENCHANT_CHANCE:Float = 0.25;
@@ -911,10 +911,10 @@ class LevelState extends FlxState
 			}
 			else
 			{
-				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - DELAY;
-				// trace(diff);
+				var diff = closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer + DELAY;
+				trace(diff);
 				// trace(closest_tick.getTick());
-				var timing = getTiming(diff);
+				var timing = getTiming(Math.abs(diff));
 
 				var proj:Projectile;
 				if (closest_tick.getType() == LevelState.AttackType.RED)
@@ -937,7 +937,7 @@ class LevelState extends FlxState
 
 				var energy_used = proj.getEnergy();
 
-				if (!(closest_tick.getEnchanted() && diff <= LevelStats.PERFECT_WINDOW)
+				if (!(closest_tick.getEnchanted() && Math.abs(diff) <= LevelStats.PERFECT_WINDOW)
 					&& !_player.useEnergy(energy_used)) // TODO: cost is only for red attack; implement logic
 				{
 					// judge_text.text = "Out of energy!";
@@ -947,7 +947,7 @@ class LevelState extends FlxState
 				else
 				{
 					var judge:String;
-					if (diff <= LevelStats.PERFECT_WINDOW)
+					if (Math.abs(diff) <= LevelStats.PERFECT_WINDOW)
 					{
 						// judge_text.text = "Perfect!!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/perfect.png");
@@ -959,7 +959,7 @@ class LevelState extends FlxState
 							// judge_text.text += "#";
 						}
 					}
-					else if (diff <= LevelStats.GREAT_WINDOW)
+					else if (Math.abs(diff) <= LevelStats.GREAT_WINDOW)
 					{
 						// judge_text.text = "Great!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/great.png");
@@ -991,11 +991,11 @@ class LevelState extends FlxState
 
 	private function getTiming(diff:Float)
 	{
-		if (diff <= LevelStats.PERFECT_WINDOW)
+		if (Math.abs(diff) <= LevelStats.PERFECT_WINDOW)
 		{
 			return LevelState.JudgeType.PERFECT;
 		}
-		else if (diff <= LevelStats.GREAT_WINDOW)
+		else if (Math.abs(diff) <= LevelStats.GREAT_WINDOW)
 		{
 			return LevelState.JudgeType.GREAT;
 		}

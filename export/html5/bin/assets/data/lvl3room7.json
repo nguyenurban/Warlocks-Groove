@@ -77,7 +77,8 @@
       "gridCellsX": 58,
       "gridCellsY": 58,
       "entities": [
-        {"name": "locked_door", "id": 0, "_eid": "16702615", "x": 0, "y": 144, "originX": 0, "originY": 0}
+        {"name": "locked_door", "id": 0, "_eid": "16702615", "x": 0, "y": 144, "originX": 0, "originY": 0},
+        {"name": "health_pickup", "id": 1, "_eid": "02005071", "x": 768, "y": 432, "originX": 0, "originY": 0}
       ]
     }
   ]

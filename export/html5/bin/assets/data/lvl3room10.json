@@ -30,8 +30,6 @@
       "entities": [
         {"name": "slime", "id": 0, "_eid": "29775934", "x": 272, "y": 496, "originX": 0, "originY": 0},
         {"name": "slime", "id": 1, "_eid": "29775934", "x": 464, "y": 496, "originX": 0, "originY": 0},
-        {"name": "bat", "id": 2, "_eid": "70875051", "x": 176, "y": 400, "originX": 0, "originY": 0},
-        {"name": "bat", "id": 3, "_eid": "70875051", "x": 560, "y": 384, "originX": 0, "originY": 0},
         {"name": "not_octorok", "id": 4, "_eid": "72772920", "x": 368, "y": 160, "originX": 0, "originY": 0},
         {"name": "goblin", "id": 5, "_eid": "71442107", "x": 432, "y": 112, "originX": 0, "originY": 0},
         {"name": "goblin", "id": 6, "_eid": "71442107", "x": 304, "y": 112, "originX": 0, "originY": 0},
@@ -98,7 +96,8 @@
         {"name": "rock", "id": 39, "_eid": "36235148", "x": 400, "y": 352, "originX": 0, "originY": 0},
         {"name": "rock", "id": 40, "_eid": "36235148", "x": 336, "y": 352, "originX": 0, "originY": 0},
         {"name": "rock", "id": 41, "_eid": "36235148", "x": 368, "y": 320, "originX": 0, "originY": 0},
-        {"name": "rock", "id": 42, "_eid": "36235148", "x": 368, "y": 384, "originX": 0, "originY": 0}
+        {"name": "rock", "id": 42, "_eid": "36235148", "x": 368, "y": 384, "originX": 0, "originY": 0},
+        {"name": "health_pickup", "id": 43, "_eid": "02005071", "x": 368, "y": 496, "originX": 0, "originY": 0}
       ]
     }
   ]
