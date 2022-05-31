@@ -33,8 +33,7 @@
         {"name": "not_octorok", "id": 2, "_eid": "72772920", "x": 80, "y": 112, "originX": 0, "originY": 0},
         {"name": "goblin", "id": 3, "_eid": "71442107", "x": 80, "y": 224, "originX": 0, "originY": 0},
         {"name": "not_octorok", "id": 4, "_eid": "72772920", "x": 672, "y": 48, "originX": 0, "originY": 0},
-        {"name": "goblin", "id": 5, "_eid": "71442107", "x": 528, "y": 48, "originX": 0, "originY": 0},
-        {"name": "goblin", "id": 6, "_eid": "71442107", "x": 336, "y": 48, "originX": 0, "originY": 0}
+        {"name": "goblin", "id": 5, "_eid": "71442107", "x": 528, "y": 48, "originX": 0, "originY": 0}
       ]
     },
     {
@@ -75,7 +74,8 @@
       "gridCellsX": 48,
       "gridCellsY": 46,
       "entities": [
-        {"name": "locked_door", "id": 0, "_eid": "16702615", "x": 736, "y": 48, "originX": 0, "originY": 0}
+        {"name": "locked_door", "id": 0, "_eid": "16702615", "x": 736, "y": 48, "originX": 0, "originY": 0},
+        {"name": "health_pickup", "id": 1, "_eid": "02005071", "x": 80, "y": 48, "originX": 0, "originY": 0}
       ]
     }
   ]
