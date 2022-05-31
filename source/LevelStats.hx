@@ -179,6 +179,11 @@ class LevelStats extends BaseLevel
 	public static var adapted = false;
 
 	/**
+	 * Whether or not the player should be served the hard version of rooms.
+	 */
+	public static var hard_mode = false;
+
+	/**
 	 * Starts keeping track of stats for current level (but doesn't start music).
 	 * @param level_no Level number (not room number, or the numbers mentioned in `RoomNo.hx`).
 	 * @param retry Whether or not this initialization is from retrying from a death (i.e. resets score to score at checkpoint, still keeps track of time).

@@ -60,6 +60,10 @@ class LvlTwoRoomThree extends LevelState
 	function createLevel()
 	{
 		map = new FlxOgmo3Loader(AssetPaths.map1__ogmo, AssetPaths.lvl2room3__json);
+		if (LevelStats.hard_mode)
+		{
+			map = new FlxOgmo3Loader(AssetPaths.map1__ogmo, AssetPaths.lvl2room3hard__json);
+		}
 		walls = map.loadTilemap(AssetPaths.tiles__png, "walls");
 		interactables = map.loadTilemap(AssetPaths.tiles__png, "Interactables");
 		add(walls);
