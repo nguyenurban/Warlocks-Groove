@@ -675,7 +675,10 @@ class LevelState extends FlxState
 				var m = cast(monsters, Enemy);
 				FlxSpriteUtil.flicker(m, m.DMG_FLICKER);
 				hit_sound.play();
-				if (Std.isOfType(monsters, Cat) || Std.isOfType(monsters, WaterStrider) || Std.isOfType(monsters, Alligator))
+				if (Std.isOfType(monsters, Cat)
+					|| Std.isOfType(monsters, WaterStrider)
+					|| Std.isOfType(monsters, Alligator)
+					&& LevelStats.save_data.data.ab_group == 2)
 				{
 					var spawn = 0;
 					if (LevelStats.combo >= 100)
