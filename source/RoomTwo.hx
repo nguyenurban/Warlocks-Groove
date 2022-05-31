@@ -109,7 +109,7 @@ class RoomTwo extends LevelState
 
 	override public function levelComplete(p:Player, d:Door)
 	{
-		LevelStats.hard_mode = perfect_count / hit_count >= 0.6;
+		LevelStats.hard_mode = LevelStats.force_hard == 1 || (perfect_count / hit_count >= 0.6 && LevelStats.force_hard == 0);
 		super.levelComplete(p, d);
 	}
 }

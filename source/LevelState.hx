@@ -1378,7 +1378,8 @@ class LvlCompletePopup extends FlxSubState
 		}
 		LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = hid_score_value;
 		LevelStats.save_data.flush();
-		if (hid_score_value >= LevelStats.STAFF_BEST[LevelStats.curr_level] * 0.9 && !LevelStats.hard_mode)
+		if (hid_score_value >= LevelStats.STAFF_BEST[LevelStats.curr_level] * 0.9
+			&& (!LevelStats.hard_mode || (LevelStats.hard_mode && LevelStats.curr_level == 1)))
 		{
 			final tipText = new FlxText(0, final_score.y + 50, 0, "You're pretty good; try this next level on Hard Mode!", 14);
 			tipText.addFormat(new FlxTextFormat(FlxColor.YELLOW, true), 43, 52);
@@ -1389,6 +1390,7 @@ class LvlCompletePopup extends FlxSubState
 			tipText2.screenCenter(X);
 			tipText2.scrollFactor.set(0, 0);
 			add(tipText2);
+			LevelStats.save_data.data.levels_seen[LevelStats.curr_level] = 1;
 			LevelStats.hard_mode = true;
 		}
 		else if (text != "")

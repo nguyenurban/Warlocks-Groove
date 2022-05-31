@@ -189,6 +189,14 @@ class LevelStats extends BaseLevel
 	public static var hard_mode = false;
 
 	/**
+	 * Whether or not to force Hard Mode on or off (only used for when selecting level 1 from the level select screen).
+	 * `-1 =` Force normal mode
+	 * `0 =` No force
+	 * `1 =` Force hard mode
+	 */
+	public static var force_hard = 0;
+
+	/**
 	 * Bonus multiplier for score bonuses for being on hard mode.
 	 */
 	public static var HARD_MODE_BONUS = 1.2;
