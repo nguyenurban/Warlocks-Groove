@@ -248,9 +248,9 @@ class LevelStats extends BaseLevel
 
 			case 3:
 				bpm = 128;
-				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
-				shortest_note = EIGHTH;
-				snpq = 2;
+				tick_format = [RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN];
+				shortest_note = SIXTEENTH;
+				snpq = 4;
 				scroll_mul = 350;
 				enchant_chance = 0.25;
 				ticks_len = 16;

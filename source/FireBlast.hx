@@ -34,17 +34,17 @@ class FireBlast extends Projectile
 			case PERFECT:
 				_speed = MOVEMENT_SPEED * 1.2;
 				_damage = 7;
-				player_knockback = 10;
+				player_knockback = 0;
 				enemy_knockback = 20;
 			case GREAT:
 				_speed = MOVEMENT_SPEED;
 				_damage = 5;
-				player_knockback = 15;
+				player_knockback = 5;
 				enemy_knockback = 15;
 			case OK:
 				_speed = MOVEMENT_SPEED * 0.8;
 				_damage = 3;
-				player_knockback = 25;
+				player_knockback = 15;
 				enemy_knockback = 10;
 			default:
 		}
