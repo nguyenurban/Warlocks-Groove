@@ -1,5 +1,5 @@
 Energy icon: PiXeRaT (https://opengameart.org/users/pixerat)
-Health icon: Gerald Burke (opengameart.org)
+Health icon and health pickup: Gerald Burke (opengameart.org)
 Crosshair  : Saturn (https://s-a-t-u-r-n.itch.io/crosshair-for-your-shooter-2d-games)
 Bat Sprite Sheet: https://opengameart.org/content/bat-sprite
 NotOctorok Sprite Sheet: https://opengameart.org/content/monster-sprites
@@ -14,6 +14,7 @@ Cat Sprite Sheet: https://opengameart.org/content/lpc-rat-cat-and-dog
 Slime/SmallSlime: https://opengameart.org/content/25x25-slime-animation
 Rock: https://opengameart.org/content/rock-0
 Alligator: https://opengameart.org/content/crocodile-1
+Health pellets (coins) by Kicked-in-Teeth (itch.io)
 
 Stage 2 music: "Keep Dancing" by DavidKBD
 Stage 3 music: "Icecap Mountains" by DavidKBD

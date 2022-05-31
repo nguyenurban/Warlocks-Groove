@@ -36,5 +36,5 @@ class Debug
 	 * `1 =` group A: use fixed health pickups
 	 * `2 =` group B: use health pellets dropped on kill
 	 */
-	public static var AB_GROUP = 0;
+	public static var AB_GROUP = 2;
 }

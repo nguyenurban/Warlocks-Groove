@@ -118,6 +118,8 @@ class LevelState extends FlxState
 	private var hit_sound:FlxSound;
 	private var kill_sound:FlxSound;
 	private var fire_e_sound:FlxSound;
+	private var pickup_sound:FlxSound;
+	private var pellet_sound:FlxSound;
 	private var DELAY = 0.066;
 
 	// PURELY FOR TESTING
@@ -234,6 +236,11 @@ class LevelState extends FlxState
 		fire_sound.volume = 0.4;
 		fire_e_sound = FlxG.sound.load("assets/sounds/fire_e.mp3");
 		fire_e_sound.volume = 0.2;
+		pickup_sound = FlxG.sound.load("assets/sounds/HealthPickup.wav");
+		pickup_sound.volume = 0.5;
+		pellet_sound = FlxG.sound.load("assets/sounds/HealthPellet.wav");
+		pellet_sound.volume = 0.2;
+		pellet_sound.pan = FlxG.random.float(-0.2, 0.2);
 		lvlPopup = false;
 		startMusicSub();
 		if (LevelStats.reset_hp_to_full)
@@ -352,7 +359,7 @@ class LevelState extends FlxState
 		FlxG.overlap(_monsters, _player, handleMonsterPlayerOverlap);
 		FlxG.overlap(_player, _projectiles, handlePlayerProjectileCollisions);
 		FlxG.overlap(_monsters, _projectiles, handleMonsterProjectileCollisions);
-		FlxG.overlap(_player, interactables, handlePlayerPickupCollisions);
+		FlxG.overlap(_player, _pickups, handlePlayerPickupCollisions);
 		FlxG.collide(_monsters, walls);
 		FlxG.collide(_monsters, interactables);
 		FlxG.collide(_projectiles, walls, handleProjectileWallsCollisions);
@@ -366,6 +373,8 @@ class LevelState extends FlxState
 		FlxG.collide(_rocks, _monsters, handleMonsterRockCollision);
 		FlxG.collide(_rocks, _doors);
 		FlxG.collide(_rocks, _rocks);
+		FlxG.collide(_pickups, walls);
+		FlxG.collide(_pickups, _doors);
 		super.update(elapsed);
 		FlxG.collide(_player, walls);
 		LevelStats.update(elapsed);
@@ -656,7 +665,7 @@ class LevelState extends FlxState
 							for (i in 0...spawn)
 							{
 								_pickups.add(new HealthPellet(monsters.x, monsters.y,
-									FlxAngle.getCartesianCoords(FlxG.random.float(0, 5), FlxG.random.float(0, 360))));
+									FlxAngle.getCartesianCoords(FlxG.random.float(0, 100), FlxG.random.float(0, 360))));
 							}
 						}
 				}
@@ -816,18 +825,23 @@ class LevelState extends FlxState
 		// above 100
 		if (Std.isOfType(obj, HealthPickup))
 		{
+			pickup_sound.play(true);
 			var pickup = cast(obj, HealthPickup);
 			var temp = p.MAX_HEALTH - p.health;
 			p.health += Math.min(pickup.RESTORE, temp);
 			p._energy += Math.max(0, pickup.RESTORE - temp);
+			LevelStats.score += 100;
 			obj.kill();
 		}
 		else if (Std.isOfType(obj, HealthPellet))
 		{
+			pellet_sound.play(true);
+			pellet_sound.pan = FlxG.random.float(-0.2, 0.2);
 			var pellet = cast(obj, HealthPellet);
 			var temp = p.MAX_HEALTH - p.health;
 			p.health += Math.min(pellet.RESTORE, temp);
 			p._energy += Math.max(0, pellet.RESTORE - temp);
+			LevelStats.score += 10;
 			obj.kill();
 		}
 	}
