@@ -137,53 +137,72 @@ class RoomEight extends LevelState
 		}
 	}
 
-	private override function handleMonsterProjectileCollisions(monsters:FlxObject, projectiles:Projectile)
-	{
-		if (projectiles.getType() != ENEMY)
-		{
-			if (projectiles.getType() == RED && !cast(projectiles, MagMissile).blow)
-			{
-				LevelStats.hitOnce(projectiles._timing);
-			}
-			if (Std.isOfType(monsters, Cat))
-			{
-				var cat = cast(monsters, Cat);
-				if (cat.shielded)
-				{
-					if (projectiles._enchanted)
-					{
-						cat.curr_shield_hp--;
-						if (cat.curr_shield_hp == 0)
-						{
-							cat.shieldBreaking();
-							// other shield-breaking code goes here
-						}
-					}
-					else
-					{
-						// shield deflecting projectile logic goes here
-					}
-				}
-				else
-				{
-					monsters.health -= projectiles.getDamage();
-					if (monsters.health <= 0)
-					{
-						_monsters.remove(cast(monsters, Enemy));
-						monsters.kill();
-					}
-					projectiles.kill();
-					// trace("projectile kill initiated");
-				}
-			}
-			monsters.health -= projectiles.getDamage();
-			if (monsters.health <= 0)
-			{
-				_monsters.remove(cast(monsters, Enemy));
-				monsters.kill();
-			}
-			projectiles.kill();
-			// trace("projectile kill initiated");
-		}
-	}
+	// disabling for now...
+	// private override function handleMonsterProjectileCollisions(monsters:FlxObject, projectiles:Projectile)
+	// {
+	// 	if (projectiles.getType() != ENEMY)
+	// 	{
+	// 		if (projectiles.getType() == RED && !cast(projectiles, MagMissile).blow)
+	// 		{
+	// 			LevelStats.hitOnce(projectiles._timing);
+	// 		}
+	// 		if (Std.isOfType(monsters, Cat))
+	// 		{
+	// 			var cat = cast(monsters, Cat);
+	// 			if (cat.shielded)
+	// 			{
+	// 				if (projectiles._enchanted)
+	// 				{
+	// 					cat.curr_shield_hp--;
+	// 					if (cat.curr_shield_hp == 0)
+	// 					{
+	// 						cat.shieldBreaking();
+	// 						// other shield-breaking code goes here
+	// 					}
+	// 				}
+	// 				else
+	// 				{
+	// 					// shield deflecting projectile logic goes here
+	// 				}
+	// 			}
+	// 			else
+	// 			{
+	// 				monsters.health -= projectiles.getDamage();
+	// 				if (monsters.health <= 0)
+	// 				{
+	// 					_monsters.remove(cast(monsters, Enemy));
+	// 					monsters.kill();
+	// 				}
+	// 				projectiles.kill();
+	// 				// trace("projectile kill initiated");
+	// 			}
+	// 		}
+	// 		monsters.health -= projectiles.getDamage();
+	// 		if (monsters.health <= 0)
+	// 		{
+	// 			_monsters.remove(cast(monsters, Enemy));
+	// 			spawnHealthPellets(cast(monsters, Cat).pellet_drop, monsters.getMidpoint().x, monsters.getMidpoint().y);
+	// 			monsters.kill();
+	// 		}
+	// 		else
+	// 		{
+	// 			var spawn = 0;
+	// 			if (LevelStats.combo >= 100)
+	// 			{
+	// 				spawn = 2;
+	// 			}
+	// 			else if (LevelStats.combo >= 25)
+	// 			{
+	// 				spawn = 1 + FlxG.random.int(0, 1);
+	// 			}
+	// 			else
+	// 			{
+	// 				spawn = FlxG.random.int(0, 1);
+	// 			}
+	// 			spawnHealthPellets(spawn, monsters.getMidpoint().x, monsters.getMidpoint().y);
+	// 		}
+	// 		projectiles.kill();
+	// 		// trace("projectile kill initiated");
+	// 	}
+	// }
 }

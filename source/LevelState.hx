@@ -300,7 +300,7 @@ class LevelState extends FlxState
 				_energyico.visible = false;
 			}
 		}
-		else
+		else if (_energybar.value < 100)
 		{
 			e_bar_timer = 0;
 			_energybar.visible = true;
@@ -662,11 +662,7 @@ class LevelState extends FlxState
 							{
 								spawn = m.pellet_drop;
 							}
-							for (i in 0...spawn)
-							{
-								_pickups.add(new HealthPellet(monsters.x, monsters.y,
-									FlxAngle.getCartesianCoords(FlxG.random.float(0, 100), FlxG.random.float(0, 360))));
-							}
+							spawnHealthPellets(spawn, monsters.getMidpoint().x, monsters.getMidpoint().y);
 						}
 				}
 				_monsters.remove(cast(monsters, Enemy));
@@ -679,6 +675,23 @@ class LevelState extends FlxState
 				var m = cast(monsters, Enemy);
 				FlxSpriteUtil.flicker(m, m.DMG_FLICKER);
 				hit_sound.play();
+				if (Std.isOfType(monsters, Cat) || Std.isOfType(monsters, WaterStrider) || Std.isOfType(monsters, Alligator))
+				{
+					var spawn = 0;
+					if (LevelStats.combo >= 100)
+					{
+						spawn = 2;
+					}
+					else if (LevelStats.combo >= 25)
+					{
+						spawn = 1 + FlxG.random.int(0, 1);
+					}
+					else
+					{
+						spawn = FlxG.random.int(0, 1);
+					}
+					spawnHealthPellets(spawn, monsters.getMidpoint().x, monsters.getMidpoint().y);
+				}
 			}
 			if (projectiles.getType() == PURPLE)
 			{
@@ -702,6 +715,14 @@ class LevelState extends FlxState
 			{
 				LevelStats.hitOnce(projectiles._timing);
 			}
+		}
+	}
+
+	public function spawnHealthPellets(amt:Int, x:Float, y:Float)
+	{
+		for (i in 0...amt)
+		{
+			_pickups.add(new HealthPellet(x, y, FlxAngle.getCartesianCoords(FlxG.random.float(0, 200), FlxG.random.float(0, 360))));
 		}
 	}
 
@@ -829,7 +850,7 @@ class LevelState extends FlxState
 			var pickup = cast(obj, HealthPickup);
 			var temp = p.MAX_HEALTH - p.health;
 			p.health += Math.min(pickup.RESTORE, temp);
-			p._energy += Math.max(0, pickup.RESTORE - temp);
+			p._energy += Math.max(0, pickup.RESTORE - temp) * 5;
 			LevelStats.score += 100;
 			obj.kill();
 		}
@@ -840,7 +861,7 @@ class LevelState extends FlxState
 			var pellet = cast(obj, HealthPellet);
 			var temp = p.MAX_HEALTH - p.health;
 			p.health += Math.min(pellet.RESTORE, temp);
-			p._energy += Math.max(0, pellet.RESTORE - temp);
+			p._energy += Math.max(0, pellet.RESTORE - temp) * 5;
 			LevelStats.score += 10;
 			obj.kill();
 		}
