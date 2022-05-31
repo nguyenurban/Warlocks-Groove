@@ -112,7 +112,7 @@ class FireBlast extends Projectile
 	private function kill_projectile()
 	{
 		super.kill();
-		trace("projectile killed");
+		// trace("projectile killed");
 	}
 
 	public function knockback(target:FlxObject)

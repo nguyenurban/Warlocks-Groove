@@ -236,7 +236,7 @@ class LevelStats extends BaseLevel
 					PERFECT_WINDOW = 2 / 60;
 					GREAT_WINDOW = 6 / 60;
 					OK_WINDOW = 20 / 60;
-					trace("brub");
+					// trace("brub");
 				}
 				else
 				{
@@ -522,6 +522,6 @@ class LevelStats extends BaseLevel
 				output += "#";
 			}
 		}
-		trace(output);
+		// trace(output);
 	}
 }

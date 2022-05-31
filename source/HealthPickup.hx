@@ -1,12 +1,11 @@
 import flixel.FlxSprite;
 
-class HealthPickup extends FlxSprite
+class HealthPickup extends Item
 {
-	public var RESTORE = 50;
-
-	public function new(x:Float, y:Float, unlocked:Bool)
+	public function new(x:Float, y:Float)
 	{
 		super(x, y);
+		RESTORE = 50;
 		immovable = true;
 		// loadGraphic("assets/images/Door.png", true, 32, 32);
 		// animation.add("l", [2], 1, false);

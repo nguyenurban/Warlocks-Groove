@@ -173,7 +173,7 @@ class RoomEight extends LevelState
 						monsters.kill();
 					}
 					projectiles.kill();
-					trace("projectile kill initiated");
+					// trace("projectile kill initiated");
 				}
 			}
 			monsters.health -= projectiles.getDamage();
@@ -183,7 +183,7 @@ class RoomEight extends LevelState
 				monsters.kill();
 			}
 			projectiles.kill();
-			trace("projectile kill initiated");
+			// trace("projectile kill initiated");
 		}
 	}
 }
