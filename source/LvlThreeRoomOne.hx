@@ -2,6 +2,7 @@ import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.FlxSubState;
 import flixel.addons.display.shapes.*;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader.EntityData;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
@@ -65,22 +66,75 @@ class LvlThreeRoomOne extends LevelState
 		interactables = map.loadTilemap(AssetPaths.tiles__png, "Interactables");
 		add(walls);
 		add(interactables);
-		// loadTutorial();
+		loadTutorial();
 	}
 
 	function loadTutorial()
 	{
-		var mouse = new FlxSprite(70, 200);
-		mouse.loadGraphic("assets/images/mouse.png", false, 80, 64, true);
-		add(mouse);
-		var instr = new FlxText(50, 360, 0, "FIRE ON BEAT", 10);
-		instr.setFormat("assets/font.ttf", 20, FlxColor.RED, LEFT);
-		instr.setBorderStyle(OUTLINE, FlxColor.BLACK, 1);
-		add(instr);
+		final windBlastPopup = new WindBlastObtained();
+		openSubState(windBlastPopup);
 	}
 
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+	}
+}
+
+class WindBlastObtained extends FlxSubState
+{
+	public function new()
+	{
+		super(0x61000000);
+	}
+
+	override public function create()
+	{
+		super.create();
+		final boundingBox = new FlxSprite();
+		boundingBox.makeGraphic(490, 230, 0xff428bbf);
+		boundingBox.screenCenter(XY);
+		boundingBox.x -= 140;
+		add(boundingBox);
+
+		final text = new FlxText(0, (boundingBox.y + 45), 0, "Wind Blast Obtained!", 25);
+		text.screenCenter(X);
+		text.x -= 140;
+		add(text);
+
+		final midTextOne = new FlxText(0, (boundingBox.y + 125), 0, "Attack precisely on the GREEN beats to fire a short-ranged cone attack!", 10);
+		midTextOne.screenCenter(X);
+		midTextOne.x -= 140;
+		add(midTextOne);
+		final midTextTwo = new FlxText(0, (boundingBox.y + 140), 0, "Enchanted ticks make the attack wider and more effective.", 10);
+		midTextTwo.screenCenter(X);
+		midTextTwo.x -= 140;
+		add(midTextTwo);
+		final midTextThree = new FlxText(0, (boundingBox.y + 175), 0, "TIP: This attack also knockbacks the player and enemies!", 10);
+		midTextThree.screenCenter(X);
+		midTextThree.x -= 140;
+		add(midTextThree);
+		final endText = new FlxText(0, (boundingBox.y + 200), 0, "Press SPACE to continue", 15);
+		endText.screenCenter(X);
+		endText.x -= 140;
+		add(endText);
+
+		final im = new FlxSprite();
+		im.loadGraphic("assets/images/wind_blast_thumb.png", false, 48, 48, true);
+		im.setGraphicSize(60, 60);
+		im.x = 365;
+		im.y = 320;
+		add(im);
+	}
+
+	override function update(elapsed:Float)
+	{
+		super.update(elapsed);
+		if (FlxG.keys.justPressed.SPACE)
+		{
+			// LevelStats.startMusic();
+			close();
+			LevelStats.bgm.resume();
+		}
 	}
 }

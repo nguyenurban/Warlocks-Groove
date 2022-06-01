@@ -119,11 +119,12 @@ class FireBlast extends Projectile
 	{
 		if (Std.isOfType(target, Player))
 		{
-			var x2:Float = target.x - player_knockback * Math.cos(this.angle * Math.PI / 180);
-			var y2:Float = target.y - player_knockback * Math.sin(this.angle * Math.PI / 180);
-			FlxTween.linearMotion(target, target.x, target.y, x2, y2, 0.2, true, {ease: FlxEase.quadOut});
-			// target.velocity.add(500, 0);
-			// target.velocity.rotate(FlxPoint.weak(0, 0), this.angle - 180);
+			// var x2:Float = target.x - player_knockback * Math.cos(this.angle * Math.PI / 180);
+			// var y2:Float = target.y - player_knockback * Math.sin(this.angle * Math.PI / 180);
+			// FlxTween.linearMotion(target, target.x, target.y, x2, y2, 0.2, true, {ease: FlxEase.quadOut});
+
+			target.velocity.add(500, 0);
+			target.velocity.rotate(FlxPoint.weak(0, 0), this.angle - 180);
 		}
 		else
 		{

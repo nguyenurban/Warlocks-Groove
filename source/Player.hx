@@ -26,6 +26,11 @@ class Player extends FlxSprite
 
 	public var timer:FlxTimer;
 
+	private var kb_timer:FlxTimer;
+
+	public var kb_vel:Float;
+	public var kb_angle:Float;
+
 	public function new(x:Float = 0, y:Float = 0)
 	{
 		super(x, y);
@@ -39,6 +44,9 @@ class Player extends FlxSprite
 		// _energy = MAX_ENERGY;
 		invuln_buffer = 0;
 		timer = new FlxTimer();
+		kb_timer = new FlxTimer();
+		kb_vel = 0;
+		kb_angle = 0;
 		animation.add("run_down", [36, 37, 38, 39, 40, 41, 42, 43], 5);
 		animation.add("run_side", [45, 46, 47, 48, 49, 50, 51, 52], 5);
 		animation.add("run_up", [54, 55, 56, 57, 58, 59, 60, 61], 5);
@@ -182,8 +190,15 @@ class Player extends FlxSprite
 				newAngle = 0;
 			}
 
-			velocity.set(MOVEMENT_SPEED, 0);
-			velocity.rotate(FlxPoint.weak(0, 0), newAngle);
+			if (kb_timer.timeLeft != 0)
+			{
+				knockback();
+			}
+			else
+			{
+				velocity.set(MOVEMENT_SPEED, 0);
+				velocity.rotate(FlxPoint.weak(0, 0), newAngle);
+			}
 		}
 
 		if (up)
@@ -212,5 +227,17 @@ class Player extends FlxSprite
 		{
 			animation.play("idle");
 		}
+	}
+
+	public function knockback()
+	{
+		this.velocity.set(kb_vel, 0);
+		this.velocity.rotate(FlxPoint.weak(0, 0), kb_vel);
+	}
+
+	public function setKBvals(velocity:Float, rotation:Float)
+	{
+		kb_vel = velocity;
+		kb_angle = rotation;
 	}
 }
