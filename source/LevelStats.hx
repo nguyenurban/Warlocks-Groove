@@ -128,7 +128,12 @@ class LevelStats extends BaseLevel
 	 * Data fields:
 	 * `high_scores`: Highest scores achieved by the player. 1-indexed.
 	 * `hidden_high_scores`: High scores that account for number of deaths.
-	 * `level_seen`: Whether or not the player has seen a specific level. 1-indexed.
+	 * `levels_seen`: Whether or not the player has seen a specific level. 1-indexed.
+	 * `hard_high_scores`: High scores on Hard Mode versions of levels. 1-indexed. Does not have a
+	 * hidden version.
+	 * `-1 =` Not seen before
+	 * `0 =` Seen normal version
+	 * `1 =` Seen hard version
 	 * `ab_group`: A randomly decided group upon creating a save file that determines various outcomes:
 	 *  `1 =` Health pickups appear in predetermined locations.
 	 *  `2 =` Enemies drop health pellets on kill. Higher accuracy leads to more drops.
@@ -166,8 +171,8 @@ class LevelStats extends BaseLevel
 	public static var TIPS = [
 		"",
 		"The higher your combo is, the quicker you gain energy back.",
-		"",
-		"",
+		"You don't have to click all the notes! Rationing is key.",
+		"Get a high enough score on a level to unlock hard mode!",
 		"",
 		"",
 		""
@@ -177,6 +182,24 @@ class LevelStats extends BaseLevel
 	 * Whether or not gameplay is adjusted for last score.
 	 */
 	public static var adapted = false;
+
+	/**
+	 * Whether or not the player should be served the hard version of rooms.
+	 */
+	public static var hard_mode = false;
+
+	/**
+	 * Whether or not to force Hard Mode on or off (only used for when selecting level 1 from the level select screen).
+	 * `-1 =` Force normal mode
+	 * `0 =` No force
+	 * `1 =` Force hard mode
+	 */
+	public static var force_hard = 0;
+
+	/**
+	 * Bonus multiplier for score bonuses for being on hard mode.
+	 */
+	public static var HARD_MODE_BONUS = 1.2;
 
 	/**
 	 * Starts keeping track of stats for current level (but doesn't start music).
@@ -203,7 +226,7 @@ class LevelStats extends BaseLevel
 				snpq = 1;
 				scroll_mul = 350;
 				enchant_chance = 0.25;
-				ticks_len = 16;
+				ticks_len = 4;
 				bgm = FlxG.sound.load("assets/music/stg1.wav", 0.5);
 				bgm.persist = true;
 				intro_beats = 32;
@@ -220,7 +243,7 @@ class LevelStats extends BaseLevel
 				snpq = 2;
 				scroll_mul = 350;
 				enchant_chance = 0.25;
-				ticks_len = 16;
+				ticks_len = 8;
 				bgm = FlxG.sound.load("assets/music/stg2.wav", 0.45);
 				bgm.persist = true;
 				intro_beats = 0;
@@ -230,7 +253,8 @@ class LevelStats extends BaseLevel
 					&& save_data.data != null
 					&& save_data.data.hidden_high_scores != null
 					&& save_data.data.hidden_high_scores[1] != -1
-					&& save_data.data.hidden_high_scores[1] < STAFF_BEST[1] * 0.5)
+					&& save_data.data.hidden_high_scores[1] < STAFF_BEST[1] * 0.5
+					&& !hard_mode)
 				{
 					adapted = true;
 					PERFECT_WINDOW = 2 / 60;
@@ -241,17 +265,19 @@ class LevelStats extends BaseLevel
 				else
 				{
 					adapted = false;
-					PERFECT_WINDOW = 2 / 60;
-					GREAT_WINDOW = 4.5 / 60;
+					PERFECT_WINDOW = 1.5 / 60;
+					GREAT_WINDOW = 3 / 60;
 					OK_WINDOW = 8 / 60;
 				}
 
 			case 3:
 				bpm = 128;
-				tick_format = [RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN];
+				tick_format = [
+					RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN
+				];
 				shortest_note = SIXTEENTH;
 				snpq = 4;
-				scroll_mul = 350;
+				scroll_mul = 500;
 				enchant_chance = 0.25;
 				ticks_len = 16;
 				bgm = FlxG.sound.load("assets/music/stg3.wav", 0.45);
@@ -262,7 +288,8 @@ class LevelStats extends BaseLevel
 					&& save_data.data != null
 					&& save_data.data.hidden_high_scores != null
 					&& save_data.data.hidden_high_scores[2] != -1
-					&& save_data.data.hidden_high_scores[2] < STAFF_BEST[2] * 0.5)
+					&& save_data.data.hidden_high_scores[2] < STAFF_BEST[2] * 0.5
+					&& !hard_mode)
 				{
 					adapted = true;
 					PERFECT_WINDOW = 2 / 60;
@@ -334,7 +361,8 @@ class LevelStats extends BaseLevel
 			// NOTE: all of these arrays are 1-indexed
 			save_data.data.high_scores = [-1, -1, -1, -1, -1, -1, -1];
 			save_data.data.hidden_high_scores = [-1, -1, -1, -1, -1, -1, -1];
-			save_data.data.levels_seen = [false, true, false, false, false, false, false];
+			save_data.data.levels_seen = [-1, 0, -1, -1, -1, -1, -1];
+			save_data.data.hard_high_scores = [-1, -1, -1, -1, -1, -1, -1];
 			save_data.data.ab_group = (Debug.AB_GROUP != 0 ? Debug.AB_GROUP : FlxG.random.int(1, 2));
 		}
 	}
@@ -348,7 +376,9 @@ class LevelStats extends BaseLevel
 			case 2:
 				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
 			case 3:
-				tick_format = [RED, PURPLE, RED, PURPLE, RED, PURPLE, RED, PURPLE];
+				tick_format = [
+					RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN, RED, GREEN, PURPLE, GREEN
+				];
 			default:
 		}
 	}
@@ -377,9 +407,11 @@ class LevelStats extends BaseLevel
 	{
 		var time_bonus = Std.int(Math.max(quickest_time_bonus_val - Std.int(Math.max(cumul_timer - quickest_time_bonus, 0)) * time_bonus_penalty,
 			0) * (LevelStats.adapted ? 0.8 : 1));
+		time_bonus = Std.int(time_bonus * (LevelStats.hard_mode ? LevelStats.HARD_MODE_BONUS : 1));
 		var acc = ex_score / 3 / shots_fired;
-		var acc_bonus = Std.int(score * acc * 0.5 * (LevelStats.adapted ? 0.8 : 1));
-		var combo_bonus = Std.int(Math.min(max_combo_bonus, max_combo) * (max_combo_bonus_value / max_combo_bonus) * (LevelStats.adapted ? 0.8 : 1));
+		var acc_bonus = Std.int(score * acc * 0.5 * (LevelStats.adapted ? 0.8 : 1) * (LevelStats.hard_mode ? LevelStats.HARD_MODE_BONUS : 1));
+		var combo_bonus = Std.int(Math.min(max_combo_bonus,
+			max_combo) * (max_combo_bonus_value / max_combo_bonus) * (LevelStats.adapted ? 0.8 : 1) * (LevelStats.hard_mode ? LevelStats.HARD_MODE_BONUS : 1));
 		return [score, time_bonus, acc_bonus, combo_bonus];
 	}
 

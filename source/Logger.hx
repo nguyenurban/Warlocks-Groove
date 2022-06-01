@@ -38,6 +38,8 @@ class Logger
 				levelEnd((LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 					+ ", "
 					+ LevelStats.adapted
+					+ ", "
+					+ LevelStats.hard_mode
 					+ ", timed out at least "
 					+ SESSION_TIMEOUT
 					+ " seconds ago");
@@ -96,6 +98,8 @@ class Logger
 					+ ", "
 					+ LevelStats.adapted
 					+ ", "
+					+ LevelStats.hard_mode
+					+ ", "
 					+ details);
 			}
 			else
@@ -114,6 +118,8 @@ class Logger
 				+ ", "
 				+ LevelStats.adapted
 				+ ", "
+				+ LevelStats.hard_mode
+				+ ", "
 				+ Std.string(n_room));
 		}
 	}
@@ -130,6 +136,8 @@ class Logger
 				+ ", "
 				+ LevelStats.adapted
 				+ ", "
+				+ LevelStats.hard_mode
+				+ ", "
 				+ Std.string(cause));
 		}
 	}
@@ -138,7 +146,13 @@ class Logger
 	{
 		if (_logger != null)
 		{
-			Logger._logger.logLevelEnd((LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0) + ", " + LevelStats.adapted + ", " + cause);
+			Logger._logger.logLevelEnd((LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
+				+ ", "
+				+ LevelStats.adapted
+				+ ", "
+				+ LevelStats.hard_mode
+				+ ", "
+				+ cause);
 		}
 	}
 
@@ -150,6 +164,8 @@ class Logger
 				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 				+ ", "
 				+ LevelStats.adapted
+				+ ", "
+				+ LevelStats.hard_mode
 				+ ", "
 				+ type
 				+ ", "
@@ -168,6 +184,8 @@ class Logger
 				+ ", "
 				+ LevelStats.adapted
 				+ ", "
+				+ LevelStats.hard_mode
+				+ ", "
 				+ cause
 				+ ", "
 				+ dmg);
@@ -182,6 +200,8 @@ class Logger
 				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 				+ ", "
 				+ LevelStats.adapted
+				+ ", "
+				+ LevelStats.hard_mode
 				+ ", "
 				+ score
 				+ ", "

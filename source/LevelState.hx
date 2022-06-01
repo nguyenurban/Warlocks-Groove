@@ -120,7 +120,7 @@ class LevelState extends FlxState
 	private var fire_e_sound:FlxSound;
 	private var pickup_sound:FlxSound;
 	private var pellet_sound:FlxSound;
-	private var DELAY = 0.066;
+	private var DELAY = -0.01;
 
 	// PURELY FOR TESTING
 	private var ENCHANT_CHANCE:Float = 0.25;
@@ -762,11 +762,11 @@ class LevelState extends FlxState
 			switch (src)
 			{
 				case "From WaterStrider":
-					for (angle in 0...20)
+					for (angle in 0...(LevelStats.hard_mode ? 30 : 20))
 					{
-						var dir = FlxVelocity.velocityFromAngle(angle * 18, 50);
+						var dir = FlxVelocity.velocityFromAngle(angle * (LevelStats.hard_mode ? 12 : 18), 50);
 						var tar = e.getMidpoint().add(dir.x, dir.y);
-						_projectiles.add(new StriderShockwave(e.getMidpoint().x, e.getMidpoint().y, null, tar, src, 85));
+						_projectiles.add(new StriderShockwave(e.getMidpoint().x, e.getMidpoint().y, null, tar, src, (LevelStats.hard_mode ? 95 : 85)));
 					}
 				case "From Alligator":
 					if (cast(e, Alligator).isRapidFiring())
@@ -885,7 +885,7 @@ class LevelState extends FlxState
 			LevelStats.chkpt_no = room_no;
 			LevelStats.chkpt_score = LevelStats.score;
 		}
-		LevelStats.save_data.data.levels_seen[Std.int(room_no / 100)] = true;
+		LevelStats.save_data.data.levels_seen[Std.int(room_no / 100)] = (LevelStats.hard_mode ? 1 : 0);
 		LevelStats.save_data.flush();
 	}
 
@@ -911,10 +911,10 @@ class LevelState extends FlxState
 			}
 			else
 			{
-				var diff = Math.abs(closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer) - DELAY;
-				// trace(diff);
+				var diff = closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer + DELAY;
+				trace(diff);
 				// trace(closest_tick.getTick());
-				var timing = getTiming(diff);
+				var timing = getTiming(Math.abs(diff));
 
 				var proj:Projectile;
 				if (closest_tick.getType() == LevelState.AttackType.RED)
@@ -937,7 +937,7 @@ class LevelState extends FlxState
 
 				var energy_used = proj.getEnergy();
 
-				if (!(closest_tick.getEnchanted() && diff <= LevelStats.PERFECT_WINDOW)
+				if (!(closest_tick.getEnchanted() && Math.abs(diff) <= LevelStats.PERFECT_WINDOW)
 					&& !_player.useEnergy(energy_used)) // TODO: cost is only for red attack; implement logic
 				{
 					// judge_text.text = "Out of energy!";
@@ -947,7 +947,7 @@ class LevelState extends FlxState
 				else
 				{
 					var judge:String;
-					if (diff <= LevelStats.PERFECT_WINDOW)
+					if (Math.abs(diff) <= LevelStats.PERFECT_WINDOW)
 					{
 						// judge_text.text = "Perfect!!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/perfect.png");
@@ -959,7 +959,7 @@ class LevelState extends FlxState
 							// judge_text.text += "#";
 						}
 					}
-					else if (diff <= LevelStats.GREAT_WINDOW)
+					else if (Math.abs(diff) <= LevelStats.GREAT_WINDOW)
 					{
 						// judge_text.text = "Great!";
 						judge_sprite.loadGraphic("assets/images/judge_sprites/great.png");
@@ -991,11 +991,11 @@ class LevelState extends FlxState
 
 	private function getTiming(diff:Float)
 	{
-		if (diff <= LevelStats.PERFECT_WINDOW)
+		if (Math.abs(diff) <= LevelStats.PERFECT_WINDOW)
 		{
 			return LevelState.JudgeType.PERFECT;
 		}
-		else if (diff <= LevelStats.GREAT_WINDOW)
+		else if (Math.abs(diff) <= LevelStats.GREAT_WINDOW)
 		{
 			return LevelState.JudgeType.GREAT;
 		}
@@ -1359,25 +1359,54 @@ class LvlCompletePopup extends FlxSubState
 		final_score.scrollFactor.set(0, 0);
 		add(final_score);
 
-		var score_value = res[0] + res[1] + res[2] + res[3];
+		var score_value = Std.int(res[0] + res[1] + res[2] + res[3]);
 		final final_score_val = new FlxText(boundingBox.x + 10, combo_bonus_val.y + 50, 580, Std.string(score_value), 35);
 		final_score_val.alignment = RIGHT;
 		final_score_val.scrollFactor.set(0, 0);
 		add(final_score_val);
 
-		LevelStats.save_data.data.high_scores[LevelStats.curr_level] = score_value;
-		LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = Std.int(score_value * Math.pow(0.9, LevelStats.num_deaths));
-		LevelStats.save_data.flush();
-		Logger.scoreGet(score_value, LevelStats.num_deaths);
+		var hid_score_value = Std.int(score_value * Math.pow(0.9, LevelStats.num_deaths));
+
 		var text = LevelStats.TIPS[LevelStats.curr_level];
-		if (text != "")
+		if (LevelStats.hard_mode)
+		{
+			LevelStats.save_data.data.hard_high_scores[LevelStats.curr_level] = score_value;
+		}
+		else
+		{
+			LevelStats.save_data.data.high_scores[LevelStats.curr_level] = score_value;
+		}
+		LevelStats.save_data.data.hidden_high_scores[LevelStats.curr_level] = hid_score_value;
+		LevelStats.save_data.flush();
+		if (hid_score_value >= LevelStats.STAFF_BEST[LevelStats.curr_level] * 0.9
+			&& (!LevelStats.hard_mode || (LevelStats.hard_mode && LevelStats.curr_level == 1)))
+		{
+			final tipText = new FlxText(0, final_score.y + 50, 0, "You're pretty good; try this next level on Hard Mode!", 14);
+			tipText.addFormat(new FlxTextFormat(FlxColor.YELLOW, true), 43, 52);
+			tipText.screenCenter(X);
+			tipText.scrollFactor.set(0, 0);
+			add(tipText);
+			final tipText2 = new FlxText(0, final_score.y + 70, 0, "(You can choose between Normal and Hard in the Level Select menu)", 8);
+			tipText2.screenCenter(X);
+			tipText2.scrollFactor.set(0, 0);
+			add(tipText2);
+			LevelStats.save_data.data.levels_seen[LevelStats.curr_level] = 1;
+			LevelStats.hard_mode = true;
+		}
+		else if (text != "")
 		{
 			final tipText = new FlxText(0, final_score.y + 50, 0, "TIP: " + LevelStats.TIPS[LevelStats.curr_level], 10);
 			tipText.screenCenter(X);
 			tipText.scrollFactor.set(0, 0);
 			add(tipText);
+			// if (LevelStats.curr_level == 1)
+			// {
+			// 	LevelStats.hard_mode = false;
+			// }
+			LevelStats.hard_mode = LevelStats.curr_level != 1;
 		}
-		final endText = new FlxText(0, final_score.y + 65, 0, "Press SPACE to continue.", 15);
+		Logger.scoreGet(score_value, LevelStats.num_deaths);
+		final endText = new FlxText(0, final_score.y + 100, 0, "Press SPACE to continue.", 15);
 		endText.screenCenter(X);
 		endText.scrollFactor.set(0, 0);
 		add(endText);

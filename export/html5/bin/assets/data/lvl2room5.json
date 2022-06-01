@@ -28,8 +28,6 @@
       "gridCellsX": 48,
       "gridCellsY": 44,
       "entities": [
-        {"name": "bat", "id": 0, "_eid": "70875051", "x": 480, "y": 400, "originX": 0, "originY": 0},
-        {"name": "bat", "id": 1, "_eid": "70875051", "x": 272, "y": 400, "originX": 0, "originY": 0},
         {"name": "goblin", "id": 2, "_eid": "71442107", "x": 608, "y": 352, "originX": 0, "originY": 0},
         {"name": "goblin", "id": 3, "_eid": "71442107", "x": 112, "y": 352, "originX": 0, "originY": 0},
         {"name": "not_octorok", "id": 4, "_eid": "72772920", "x": 368, "y": 144, "originX": 0, "originY": 0},
@@ -75,7 +73,8 @@
       "gridCellsX": 48,
       "gridCellsY": 44,
       "entities": [
-        {"name": "locked_door", "id": 0, "_eid": "16702615", "x": 352, "y": 16, "originX": 0, "originY": 0}
+        {"name": "locked_door", "id": 0, "_eid": "16702615", "x": 352, "y": 16, "originX": 0, "originY": 0},
+        {"name": "health_pickup", "id": 1, "_eid": "02005071", "x": 368, "y": 224, "originX": 0, "originY": 0}
       ]
     }
   ]

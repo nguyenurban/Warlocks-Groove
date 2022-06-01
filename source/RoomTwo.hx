@@ -1,4 +1,5 @@
 import flixel.FlxG;
+import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
@@ -13,6 +14,8 @@ class RoomTwo extends LevelState
 {
 	var metronome:Enemy;
 	var metro_health:FlxBar;
+	private var perfect_count = 0;
+	private var hit_count = 0;
 
 	override public function create()
 	{
@@ -93,6 +96,22 @@ class RoomTwo extends LevelState
 		}
 		FlxG.collide(_player, metronome);
 	}
+
+	override public function handleMonsterProjectileCollisions(monster:FlxObject, projectile:Projectile)
+	{
+		super.handleMonsterProjectileCollisions(monster, projectile);
+		if (projectile._timing == LevelState.JudgeType.PERFECT)
+		{
+			perfect_count++;
+		}
+		hit_count++;
+	}
+
+	override public function levelComplete(p:Player, d:Door)
+	{
+		LevelStats.hard_mode = LevelStats.force_hard == 1 || (perfect_count / hit_count >= 0.6 && LevelStats.force_hard == 0);
+		super.levelComplete(p, d);
+	}
 }
 
 // TODO: metronome needs opaque hitbox
@@ -102,6 +121,9 @@ class Metronome extends Enemy
 	private var beat:Int;
 	private var prev_beat:Int;
 	private var QTR_BEAT = 130 / 60;
+
+	public var perfect_count = 0;
+	public var hit_count = 0;
 
 	public function new(x:Float, y:Float, target:Player)
 	{
