@@ -39,12 +39,12 @@ class FireBlast extends Projectile
 			case GREAT:
 				_speed = MOVEMENT_SPEED;
 				_damage = 5;
-				player_knockback = 5;
+				player_knockback = 200;
 				enemy_knockback = 15;
 			case OK:
 				_speed = MOVEMENT_SPEED * 0.8;
 				_damage = 3;
-				player_knockback = 15;
+				player_knockback = 500;
 				enemy_knockback = 10;
 			default:
 		}
@@ -123,7 +123,7 @@ class FireBlast extends Projectile
 			// var y2:Float = target.y - player_knockback * Math.sin(this.angle * Math.PI / 180);
 			// FlxTween.linearMotion(target, target.x, target.y, x2, y2, 0.2, true, {ease: FlxEase.quadOut});
 
-			target.velocity.add(500, 0);
+			target.velocity.add(player_knockback, 0);
 			target.velocity.rotate(FlxPoint.weak(0, 0), this.angle - 180);
 		}
 		else
