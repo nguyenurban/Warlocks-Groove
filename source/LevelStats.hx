@@ -2,6 +2,7 @@ import flixel.FlxG;
 import flixel.system.FlxSound;
 import flixel.util.FlxSave;
 import flixel.util.FlxTimer;
+import haxe.Timer;
 
 class LevelStats extends BaseLevel
 {
@@ -123,6 +124,7 @@ class LevelStats extends BaseLevel
 	public static var looping_beats:Int;
 	public static var inIntro:Bool;
 	public static var loop_timer:Float;
+	public static var loop_no:Int;
 
 	/**
 	 * Data fields:
@@ -307,6 +309,7 @@ class LevelStats extends BaseLevel
 		}
 		inIntro = true;
 		loop_timer = 0;
+		loop_no = 0;
 		qtr_note = 60 / bpm;
 
 		switch (shortest_note)
@@ -443,6 +446,7 @@ class LevelStats extends BaseLevel
 			timer = 0;
 			started = false;
 			loop_timer = 0;
+			loop_no = 0;
 			inIntro = true;
 			// stoppedOnce = true;
 			for (tick in _ticks)
@@ -468,8 +472,22 @@ class LevelStats extends BaseLevel
 				loop_timer = 0;
 				inIntro = false;
 				bgm.play(true, intro_beats * qtr_note * 1000);
+				loop_no++;
 			}
 		}
+	}
+
+	public static function syncTimerToMusic()
+	{
+		// LevelStats.timer = realTime;
+		var intro_time = intro_beats * qtr_note;
+		var loop_time = looping_beats * qtr_note;
+		var realTime = (inIntro ? bgm.time / 1000 : loop_no * loop_time + bgm.time / 1000);
+		trace("timer: " + timer + ", song prog: " + realTime);
+		timer = realTime;
+		beat = timer / qtr_note;
+		shortest_notes_elpsd = Math.floor(timer / shortest_note_len);
+		updateTicks();
 	}
 
 	/**

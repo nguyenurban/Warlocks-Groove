@@ -24,6 +24,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxSignal.FlxTypedSignal;
 import flixel.util.FlxSignal;
 import flixel.util.FlxTimer;
+import haxe.Timer;
 
 using flixel.math.FlxPoint;
 using flixel.util.FlxSpriteUtil;
@@ -395,6 +396,10 @@ class LevelState extends FlxState
 			if (LevelStats.shortest_notes_elpsd % LevelStats.tick_format.length == 0)
 			{
 				_player.barRegen();
+			}
+			if (LevelStats.shortest_notes_elpsd % LevelStats.tick_format.length * 4 == 0)
+			{
+				LevelStats.syncTimerToMusic();
 			}
 		}
 
@@ -892,6 +897,7 @@ class LevelState extends FlxState
 	private function shoot()
 	{
 		Logger.checkTimeout();
+		LevelStats.syncTimerToMusic();
 		// TODO: change up accounting for energy
 		if (_player.alive && (FlxG.mouse.justPressed || FlxG.mouse.justPressedRight || FlxG.keys.justPressed.SPACE))
 		{

@@ -5,6 +5,7 @@ import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.util.FlxSignal;
+import haxe.Timer;
 
 class PauseMenu extends FlxSubState
 {
@@ -58,10 +59,7 @@ class PauseMenu extends FlxSubState
 
 		_backBtn = new FlxButton(0, 0, "Continue", () ->
 		{
-			if (LevelStats.curr_level != 1 || LevelStats.curr_room != 1)
-			{
-				LevelStats.bgm.play();
-			}
+			LevelStats.bgm.play();
 			close();
 		});
 		_backBtn.scale.set(3, 3);
