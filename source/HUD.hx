@@ -108,4 +108,26 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		add(_boss_hp);
 		_boss_hp.scrollFactor.set(0, 0);
 	}
+
+	public function flashTimelineArw(color:FlxColor)
+	{
+		_timeline_arw.fillColor = color;
+		var cd = (LevelStats.initialized ? 60 / LevelStats.bpm * 0.9 : 0.5);
+		FlxTween.color(_timeline_arw, cd, color, FlxColor.BLACK, {ease: FlxEase.quadIn, type: FlxTweenType.PERSIST});
+	}
+
+	public function flashTimelineEn()
+	{
+		_timeline_arw.fillColor = FlxColor.fromString("#78EB05");
+		var cd = (LevelStats.initialized ? 60 / LevelStats.bpm * 0.9 : 0.5);
+		FlxTween.color(_timeline_arw, cd / 4, FlxColor.fromString("#78EB05"), FlxColor.fromString("#FAEA5A"), {
+			ease: FlxEase.quadIn,
+			type: FlxTweenType.PERSIST,
+			onComplete: function(tween:FlxTween)
+			{
+				_timeline_arw.fillColor = FlxColor.fromString("#FAEA5A");
+				FlxTween.color(_timeline_arw, cd * 3 / 4, FlxColor.fromString("#FAEA5A"), FlxColor.BLACK, {ease: FlxEase.quadIn, type: FlxTweenType.PERSIST});
+			}
+		});
+	}
 }

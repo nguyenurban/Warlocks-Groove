@@ -279,7 +279,7 @@ class LevelStats extends BaseLevel
 				];
 				shortest_note = SIXTEENTH;
 				snpq = 4;
-				scroll_mul = 500;
+				scroll_mul = 350;
 				enchant_chance = 0.25;
 				ticks_len = 16;
 				bgm = FlxG.sound.load("assets/music/stg3.wav", 0.45);

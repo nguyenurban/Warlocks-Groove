@@ -127,7 +127,7 @@ class LevelSelect extends FlxState
 					FlxG.switchState(new LvlThreeRoomOne());
 				});
 			}, "Level 3", 100, 30);
-			level3.x = (FlxG.width / 2) - (level2.width / 2) - 150;
+			level3.x = (FlxG.width / 2) - (level3.width / 2) - 150;
 			level3.y = (FlxG.height / 2) - 10;
 			add(level3);
 

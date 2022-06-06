@@ -911,6 +911,7 @@ class LevelState extends FlxState
 				/*----------------------
 					MISFIRE LOGIC GOES HERE
 					---------------------- */
+				_hud.flashTimelineArw(FlxColor.fromString("#B30404"));
 				LevelStats.ex_score = Std.int(Math.max(0, LevelStats.ex_score - 1));
 				Logger.playerShot("Misfire", "Misfire", "x");
 				LevelStats.combo = 0;
@@ -962,7 +963,11 @@ class LevelState extends FlxState
 						closest_tick.setJudge(LevelState.JudgeType.PERFECT);
 						if (closest_tick.getEnchanted())
 						{
-							// judge_text.text += "#";
+							_hud.flashTimelineEn();
+						}
+						else
+						{
+							_hud.flashTimelineArw(FlxColor.fromString("#FAEA5A"));
 						}
 					}
 					else if (Math.abs(diff) <= LevelStats.GREAT_WINDOW)
@@ -972,6 +977,7 @@ class LevelState extends FlxState
 						judge = "Great";
 						// timing = LevelState.JudgeType.GREAT;
 						closest_tick.setJudge(LevelState.JudgeType.GREAT);
+						_hud.flashTimelineArw(FlxColor.fromString("#64BAD1"));
 					}
 					else
 					{ // diff <= LevelStats.OK_WINDOW
@@ -980,6 +986,7 @@ class LevelState extends FlxState
 						judge = "OK";
 						// timing = LevelState.JudgeType.OK;
 						closest_tick.setJudge(LevelState.JudgeType.OK);
+						_hud.flashTimelineArw(FlxColor.fromString("#8F6F4A"));
 					}
 
 					fire_sound.play();
