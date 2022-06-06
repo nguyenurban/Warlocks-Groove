@@ -411,14 +411,18 @@ class LevelState extends FlxState
 			if (LevelStats.shortest_notes_elpsd % LevelStats.tick_format.length == 0)
 			{
 				_player.barRegen();
+				trace("bup");
+				trace("shortest notes elpsd: " + LevelStats.shortest_notes_elpsd);
+				trace("prev sne: " + LevelStats.prev_sne);
 			}
+			LevelStats.prev_sne = LevelStats.shortest_notes_elpsd;
 			if (LevelStats.shortest_notes_elpsd % LevelStats.tick_format.length * 4 == 0)
 			{
 				LevelStats.syncTimerToMusic();
 			}
 		}
 
-		LevelStats.prev_sne = LevelStats.shortest_notes_elpsd; // this must always be last thing in update()
+		// LevelStats.prev_sne = LevelStats.shortest_notes_elpsd; // this must always be last thing in update()
 	}
 
 	private function handleKeyboard()
@@ -627,7 +631,7 @@ class LevelState extends FlxState
 			{
 				var m = cast(e, Enemy);
 				FlxSpriteUtil.flicker(m, m.DMG_FLICKER);
-				hit_sound.play();
+				hit_sound.play(true);
 			}
 			r.kill();
 		}
@@ -935,7 +939,7 @@ class LevelState extends FlxState
 			else
 			{
 				var diff = closest_tick.getTick() * LevelStats.shortest_note_len - LevelStats.timer + DELAY;
-				trace(diff);
+				// trace(diff);
 				// trace(closest_tick.getTick());
 				var timing = getTiming(Math.abs(diff));
 

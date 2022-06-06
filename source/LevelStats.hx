@@ -499,7 +499,7 @@ class LevelStats extends BaseLevel
 		var intro_time = intro_beats * qtr_note;
 		var loop_time = looping_beats * qtr_note;
 		var realTime = (inIntro ? bgm.time / 1000 : loop_no * loop_time + bgm.time / 1000);
-		trace("timer: " + timer + ", song prog: " + realTime);
+		// trace("timer: " + timer + ", song prog: " + realTime);
 		timer = realTime;
 		beat = timer / qtr_note;
 		shortest_notes_elpsd = Math.floor(timer / shortest_note_len);

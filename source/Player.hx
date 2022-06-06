@@ -109,7 +109,7 @@ class Player extends FlxSprite
 		else
 		{
 			_energy = Math.max(Math.min(_energy + BASE_ENERGY_REGEN + 10 * (Math.min(100, LevelStats.max_combo) / 100)
-				+ 15 * (Math.min(100, LevelStats.combo) / 100), MAX_ENERGY),
+				+ 10 * (Math.min(100, LevelStats.combo) / 100), MAX_ENERGY),
 				_energy); // TODO: regen can be multiplied by freshness and combo meter
 		}
 	}
