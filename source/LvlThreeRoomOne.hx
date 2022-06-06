@@ -106,11 +106,11 @@ class WindBlastObtained extends FlxSubState
 		midTextOne.screenCenter(X);
 		midTextOne.x -= 140;
 		add(midTextOne);
-		final midTextTwo = new FlxText(0, (boundingBox.y + 140), 0, "Enchanted ticks make the attack wider and more effective.", 10);
+		final midTextTwo = new FlxText(0, (boundingBox.y + 140), 0, "It also pushes enemies away; useful for spacing!", 10);
 		midTextTwo.screenCenter(X);
 		midTextTwo.x -= 140;
 		add(midTextTwo);
-		final midTextThree = new FlxText(0, (boundingBox.y + 175), 0, "TIP: This attack also knockbacks the player and enemies!", 10);
+		final midTextThree = new FlxText(0, (boundingBox.y + 175), 0, "NOTE: This attack will also knock you back if you mistime!", 10);
 		midTextThree.screenCenter(X);
 		midTextThree.x -= 140;
 		add(midTextThree);
