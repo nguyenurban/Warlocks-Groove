@@ -59,6 +59,7 @@ class LevelState extends FlxState
 	var map:FlxOgmo3Loader;
 	var walls:FlxTilemap;
 	var interactables:FlxTilemap;
+	var background:FlxSprite;
 
 	// BASIC MECHANICS
 	private var _player:Player;
@@ -186,6 +187,9 @@ class LevelState extends FlxState
 	{
 		super.create();
 		FlxG.worldBounds.set(-65536, -65536, 65536 * 2, 65536 * 2);
+		background = new FlxSprite(-1080, -720);
+		background.loadGraphic("assets/images/background.png", false, 4320, 2880);
+		add(background);
 		_player = new Player(50, 50);
 		add(_player);
 		FlxG.camera.follow(_player, 1);
