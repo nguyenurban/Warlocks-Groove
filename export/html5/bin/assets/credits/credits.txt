@@ -15,6 +15,7 @@ Slime/SmallSlime: https://opengameart.org/content/25x25-slime-animation
 Rock: https://opengameart.org/content/rock-0
 Alligator: https://opengameart.org/content/crocodile-1
 Health pellets (coins) by Kicked-in-Teeth (itch.io)
+Menu background by Pixfinity (itch.io)
 
 Stage 2 music: "Keep Dancing" by DavidKBD
 Stage 3 music: "Icecap Mountains" by DavidKBD

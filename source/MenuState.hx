@@ -2,7 +2,9 @@ package;
 
 import TestMenu.TestMenuRoom1;
 import flixel.FlxG;
+import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.addons.display.FlxBackdrop;
 import flixel.addons.ui.FlxButtonPlus;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
@@ -16,9 +18,15 @@ class MenuState extends FlxState
 	// private var exit:FlxButtonPlus;
 	private var level_select:FlxButtonPlus;
 	private var test:FlxButtonPlus;
+	private var background:FlxSprite;
 
 	override function create()
 	{
+		background = new FlxSprite();
+		background.loadGraphic("assets/images/menu_background.png");
+		background.scale.set(5, 5);
+		background.screenCenter(XY);
+		add(background);
 		LevelStats.hard_mode = false;
 		LevelStats.force_hard = 0;
 		FlxG.mouse.unload();
