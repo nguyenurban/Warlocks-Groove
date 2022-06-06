@@ -943,11 +943,6 @@ class LevelState extends FlxState
 				if (closest_tick.getType() == LevelState.AttackType.RED)
 				{
 					proj = new MagMissile(_player.x, _player.y, _monsters.getFirstAlive(), timing, closest_tick.getEnchanted() && timing == PERFECT);
-					proj.timer.start(2.0, function(Timer:FlxTimer)
-					{
-						proj.kill();
-					}, 1);
-					_projectiles.add(proj);
 				}
 				else if (closest_tick.getType() == LevelState.AttackType.PURPLE)
 				{
@@ -975,12 +970,36 @@ class LevelState extends FlxState
 						case LevelState.AttackType.RED:
 							fire_red_sound.pan = FlxG.random.float(-0.2, 0.2);
 							fire_red_sound.play(true);
+							proj.timer.start(2.0, function(Timer:FlxTimer)
+							{
+								proj.kill();
+							}, 1);
+							_projectiles.add(proj);
 						case LevelState.AttackType.PURPLE:
 							fire_purple_sound.pan = FlxG.random.float(-0.2, 0.2);
 							fire_purple_sound.play(true);
+							_projectiles.add(proj);
+							// var laserGraphic = new LaserBeam(_player.getMidpoint().x, _player.getMidpoint().y, length,
+							// 	_player.getMidpoint().angleBetween(FlxG.mouse.getPosition()) - 90);
+							// add(laserGraphic);
+							var laserTimer = new FlxTimer();
+							laserTimer.start(60 / (4 * LevelStats.bpm), function(Timer:FlxTimer)
+							{
+								// makeLaser(source, target, timing, enchanted, deg);
+								makeLaserCopy(_player.getMidpoint(), _monsters.getFirstAlive(), timing, closest_tick.getEnchanted(),
+									_player.getMidpoint().angleBetween(FlxG.mouse.getPosition()) - 90);
+							}, 2);
+
 						case LevelState.AttackType.GREEN:
 							fire_green_sound.pan = FlxG.random.float(-0.2, 0.2);
 							fire_green_sound.play(true);
+							cast(proj, FireBlast).timer.start(0.2, function(Timer:FlxTimer)
+							{
+								proj.kill();
+							}, 1);
+							_projectiles.add(proj);
+
+							cast(proj, FireBlast).knockback(_player);
 						default:
 					}
 					var judge:String;
@@ -1101,13 +1120,13 @@ class LevelState extends FlxState
 		var deg:Float = source.angleBetween(mouse) - 90;
 
 		var fire_blast:FireBlast = new FireBlast(_player.x, _player.y, target, timing, enchanted, deg);
-		fire_blast.timer.start(0.2, function(Timer:FlxTimer)
-		{
-			fire_blast.kill();
-		}, 1);
-		_projectiles.add(fire_blast);
+		// fire_blast.timer.start(0.2, function(Timer:FlxTimer)
+		// {
+		// 	fire_blast.kill();
+		// }, 1);
+		// _projectiles.add(fire_blast);
 
-		fire_blast.knockback(_player);
+		// fire_blast.knockback(_player);
 
 		return fire_blast;
 	}
@@ -1126,11 +1145,11 @@ class LevelState extends FlxState
 
 		var laser:IceLaser = makeLaser(source, target, timing, enchanted, deg);
 
-		laserTimer.start(eighthNote / 3, function(Timer:FlxTimer)
-		{
-			// makeLaser(source, target, timing, enchanted, deg);
-			makeLaser(_player.getMidpoint(), target, timing, enchanted, source.angleBetween(FlxG.mouse.getPosition()) - 90);
-		}, 2);
+		// laserTimer.start(eighthNote / 3, function(Timer:FlxTimer)
+		// {
+		// 	// makeLaser(source, target, timing, enchanted, deg);
+		// 	makeLaser(_player.getMidpoint(), target, timing, enchanted, source.angleBetween(FlxG.mouse.getPosition()) - 90);
+		// }, 2);
 
 		return laser;
 	}
@@ -1138,9 +1157,16 @@ class LevelState extends FlxState
 	private function makeLaser(source:FlxPoint, target:FlxObject, timing:JudgeType, enchanted:Bool, deg:Float)
 	{
 		var laser:IceLaser = new IceLaser(source.x, source.y, target, timing, enchanted, deg);
-		_projectiles.add(laser);
+		// _projectiles.add(laser);
 		// var laserGraphic:FlxSprite = new LaserBeam(source.x, source.y, length, deg);
 		// add(laserGraphic);
+		return laser;
+	}
+
+	private function makeLaserCopy(source:FlxPoint, target:FlxObject, timing:JudgeType, enchanted:Bool, deg:Float)
+	{
+		var laser:IceLaser = new IceLaser(source.x, source.y, target, timing, enchanted, deg);
+		_projectiles.add(laser);
 		return laser;
 	}
 
