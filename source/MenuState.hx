@@ -89,6 +89,14 @@ class MenuState extends FlxState
 		// exit.textHighlight.screenCenter(X);
 		// add(exit);
 
+		if (!LevelStats.loaded_menu_music)
+		{
+			LevelStats.loadMenuMusic();
+		}
+		if (!LevelStats.menu_music.playing)
+		{
+			LevelStats.startMenuMusic();
+		}
 		super.create();
 	}
 

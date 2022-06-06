@@ -17,5 +17,6 @@ Alligator: https://opengameart.org/content/crocodile-1
 Health pellets (coins) by Kicked-in-Teeth (itch.io)
 Menu background by Pixfinity (itch.io)
 
+Menu music: "Space Cowboys" by Jordan Ottesen (jottesen.itch.io)
 Stage 2 music: "Keep Dancing" by DavidKBD
 Stage 3 music: "Icecap Mountains" by DavidKBD

@@ -2,6 +2,7 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxGame;
+import flixel.system.FlxSound;
 import openfl.display.Sprite;
 
 class Main extends Sprite

@@ -203,6 +203,9 @@ class LevelStats extends BaseLevel
 	 */
 	public static var HARD_MODE_BONUS = 1.2;
 
+	public static var loaded_menu_music = false;
+	public static var menu_music = new FlxSound();
+
 	/**
 	 * Starts keeping track of stats for current level (but doesn't start music).
 	 * @param level_no Level number (not room number, or the numbers mentioned in `RoomNo.hx`).
@@ -210,6 +213,7 @@ class LevelStats extends BaseLevel
 	 */
 	public static function initialize(level_no:Int, retry:Bool)
 	{
+		menu_music.stop();
 		curr_level = level_no;
 		curr_room = 0;
 		timer = 0;
@@ -427,6 +431,18 @@ class LevelStats extends BaseLevel
 		started = true;
 		bgm.play();
 		// new FlxTimer().start((intro_beats + looping_beats) * qtr_note, loopMusic);
+	}
+
+	public static function loadMenuMusic()
+	{
+		menu_music = FlxG.sound.load("assets/music/menu.mp3", 0.5);
+		menu_music.persist = true;
+		loaded_menu_music = true;
+	}
+
+	public static function startMenuMusic()
+	{
+		menu_music.play();
 	}
 
 	// public static function loopMusic()
