@@ -115,6 +115,12 @@ class LevelState extends FlxState
 	private var timeline_arw:FlxShapeArrow;
 	// private var SCROLL_MUL = 350;
 	private var beat_sound:FlxSound;
+
+	private var fire_red_sound:FlxSound;
+	private var fire_purple_sound:FlxSound;
+	private var fire_green_sound:FlxSound;
+	private var ooe_sound:FlxSound;
+	private var misfire_sound:FlxSound;
 	private var fire_sound:FlxSound;
 	private var hit_sound:FlxSound;
 	private var kill_sound:FlxSound;
@@ -235,13 +241,22 @@ class LevelState extends FlxState
 		kill_sound.volume = 0.7;
 		fire_sound = FlxG.sound.load("assets/sounds/fire.mp3");
 		fire_sound.volume = 0.4;
+		fire_red_sound = FlxG.sound.load("assets/sounds/fire_red.wav");
+		fire_red_sound.volume = 0.4;
+		fire_purple_sound = FlxG.sound.load("assets/sounds/fire_purple.wav");
+		fire_purple_sound.volume = 0.5;
+		fire_green_sound = FlxG.sound.load("assets/sounds/fire_green.wav");
+		fire_green_sound.volume = 0.5;
+		ooe_sound = FlxG.sound.load("assets/sounds/ooe.wav");
+		ooe_sound.volume = 0.3;
+		misfire_sound = FlxG.sound.load("assets/sounds/misfire.wav");
+		misfire_sound.volume = 0.5;
 		fire_e_sound = FlxG.sound.load("assets/sounds/fire_e.mp3");
 		fire_e_sound.volume = 0.2;
 		pickup_sound = FlxG.sound.load("assets/sounds/HealthPickup.wav");
 		pickup_sound.volume = 0.5;
 		pellet_sound = FlxG.sound.load("assets/sounds/HealthPellet.wav");
 		pellet_sound.volume = 0.2;
-		pellet_sound.pan = FlxG.random.float(-0.2, 0.2);
 		lvlPopup = false;
 		startMusicSub();
 		if (LevelStats.reset_hp_to_full)
@@ -862,8 +877,8 @@ class LevelState extends FlxState
 		}
 		else if (Std.isOfType(obj, HealthPellet))
 		{
-			pellet_sound.play(true);
 			pellet_sound.pan = FlxG.random.float(-0.2, 0.2);
+			pellet_sound.play(true);
 			var pellet = cast(obj, HealthPellet);
 			var temp = p.MAX_HEALTH - p.health;
 			p.health += Math.min(pellet.RESTORE, temp);
@@ -915,6 +930,7 @@ class LevelState extends FlxState
 				LevelStats.ex_score = Std.int(Math.max(0, LevelStats.ex_score - 1));
 				Logger.playerShot("Misfire", "Misfire", "x");
 				LevelStats.combo = 0;
+				misfire_sound.play(true);
 			}
 			else
 			{
@@ -950,13 +966,28 @@ class LevelState extends FlxState
 					// judge_text.text = "Out of energy!";
 					judge_sprite.loadGraphic("assets/images/judge_sprites/ooe.png");
 					Logger.playerShot("OOE", "OOE", Std.string(diff));
+					ooe_sound.play(true);
 				}
 				else
 				{
+					switch (closest_tick.getType())
+					{
+						case LevelState.AttackType.RED:
+							fire_red_sound.pan = FlxG.random.float(-0.2, 0.2);
+							fire_red_sound.play(true);
+						case LevelState.AttackType.PURPLE:
+							fire_purple_sound.pan = FlxG.random.float(-0.2, 0.2);
+							fire_purple_sound.play(true);
+						case LevelState.AttackType.GREEN:
+							fire_green_sound.pan = FlxG.random.float(-0.2, 0.2);
+							fire_green_sound.play(true);
+						default:
+					}
 					var judge:String;
 					if (Math.abs(diff) <= LevelStats.PERFECT_WINDOW)
 					{
 						// judge_text.text = "Perfect!!";
+
 						judge_sprite.loadGraphic("assets/images/judge_sprites/perfect.png");
 						judge = "Perfect";
 						// timing = LevelState.JudgeType.PERFECT;
@@ -989,7 +1020,7 @@ class LevelState extends FlxState
 						_hud.flashTimelineArw(FlxColor.fromString("#8F6F4A"));
 					}
 
-					fire_sound.play();
+					// fire_sound.play();
 					if (closest_tick.getEnchanted() && judge == "Perfect")
 					{
 						fire_e_sound.play();
