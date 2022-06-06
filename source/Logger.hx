@@ -37,9 +37,9 @@ class Logger
 			{
 				levelEnd((LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 					+ ", "
-					+ LevelStats.adapted
+					+ (LevelStats.adapted ? "1" : "0")
 					+ ", "
-					+ LevelStats.hard_mode
+					+ (LevelStats.hard_mode ? "1" : "0")
 					+ ", timed out at least "
 					+ SESSION_TIMEOUT
 					+ " seconds ago");
@@ -96,15 +96,20 @@ class Logger
 				Logger._logger.logLevelStart(room,
 					(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 					+ ", "
-					+ LevelStats.adapted
+					+ (LevelStats.adapted ? "1" : "0")
 					+ ", "
-					+ LevelStats.hard_mode
+					+ (LevelStats.hard_mode ? "1" : "0")
 					+ ", "
 					+ details);
 			}
 			else
 			{
-				Logger._logger.logLevelStart(room, (LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0) + ", " + LevelStats.adapted);
+				Logger._logger.logLevelStart(room,
+					(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
+					+ ", "
+					+ (LevelStats.adapted ? "1" : "0")
+					+ ", "
+					+ (LevelStats.hard_mode ? "1" : "0"));
 			}
 		}
 	}
@@ -116,9 +121,9 @@ class Logger
 			Logger._logger.logLevelAction(LoggingActions.NEXT_ROOM,
 				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 				+ ", "
-				+ LevelStats.adapted
+				+ (LevelStats.adapted ? "1" : "0")
 				+ ", "
-				+ LevelStats.hard_mode
+				+ (LevelStats.hard_mode ? "1" : "0")
 				+ ", "
 				+ Std.string(n_room));
 		}
@@ -134,9 +139,9 @@ class Logger
 			Logger._logger.logLevelAction(LoggingActions.PLAYER_DEATH,
 				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 				+ ", "
-				+ LevelStats.adapted
+				+ (LevelStats.adapted ? "1" : "0")
 				+ ", "
-				+ LevelStats.hard_mode
+				+ (LevelStats.hard_mode ? "1" : "0")
 				+ ", "
 				+ Std.string(cause));
 		}
@@ -148,9 +153,9 @@ class Logger
 		{
 			Logger._logger.logLevelEnd((LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 				+ ", "
-				+ LevelStats.adapted
+				+ (LevelStats.adapted ? "1" : "0")
 				+ ", "
-				+ LevelStats.hard_mode
+				+ (LevelStats.hard_mode ? "1" : "0")
 				+ ", "
 				+ cause);
 		}
@@ -163,9 +168,9 @@ class Logger
 			Logger._logger.logLevelAction(LoggingActions.PLAYER_SHOOT,
 				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 				+ ", "
-				+ LevelStats.adapted
+				+ (LevelStats.adapted ? "1" : "0")
 				+ ", "
-				+ LevelStats.hard_mode
+				+ (LevelStats.hard_mode ? "1" : "0")
 				+ ", "
 				+ type
 				+ ", "
@@ -182,9 +187,9 @@ class Logger
 			Logger._logger.logLevelAction(LoggingActions.TOOK_DAMAGE,
 				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 				+ ", "
-				+ LevelStats.adapted
+				+ (LevelStats.adapted ? "1" : "0")
 				+ ", "
-				+ LevelStats.hard_mode
+				+ (LevelStats.hard_mode ? "1" : "0")
 				+ ", "
 				+ cause
 				+ ", "
@@ -199,9 +204,9 @@ class Logger
 			Logger._logger.logLevelAction(LoggingActions.SCORE_GET,
 				(LevelStats.save_data != null ? LevelStats.save_data.data.ab_group : 0)
 				+ ", "
-				+ LevelStats.adapted
+				+ (LevelStats.adapted ? "1" : "0")
 				+ ", "
-				+ LevelStats.hard_mode
+				+ (LevelStats.hard_mode ? "1" : "0")
 				+ ", "
 				+ score
 				+ ", "
